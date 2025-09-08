@@ -1,0 +1,66 @@
+export const addScoreOfAProgram = async (req, res, next) => {
+    try {
+        const { programId, codeLetter, score } = req.body;
+
+        // Validate inputs
+        if (!programId || !codeLetter || score === undefined) {
+            return next(new CustomError("All fields are required"));
+        }
+
+        if (score < 0 || score > 100) {
+            return next(new CustomError("Invalid score"));
+        }
+
+        // Fetch the program
+        const program = await getProgramById(programId);
+        if (!program) {
+            return next(new CustomError("Program not found"));
+        }
+
+        // Calculate hashed score
+        const hashedScore = calculateHashedScore(score, program.score);
+        if (!hashedScore) {
+            return next(new CustomError("Invalid score calculation"));
+        }
+
+        // Determine grade and grade score
+        const { grade, gradeScore } = determineGrade(score);
+
+        // Update student program with new score
+        const updatedMark = await updateStudentProgram(programId, codeLetter, hashedScore, grade, gradeScore);
+        if (!updatedMark) {
+            return next(new CustomError("User not found in this program"));
+        }
+
+        res.status(200).json(updatedMark);
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Helper function to fetch a program by ID
+const getProgramById = async (programId) => {
+    return await Program.findOne({ _id: programId });
+};
+
+// Helper function to calculate hashed score
+const calculateHashedScore = (score, maxScore) => {
+    return Math.round((score / 100) * maxScore);
+};
+
+// Helper function to determine grade
+const determineGrade = (score) => {
+    if (score <= 39) return { grade: "C", gradeScore: 1 };
+    if (score <= 60) return { grade: "B", gradeScore: 3 };
+    if (score <= 80) return { grade: "A", gradeScore: 4 };
+    return { grade: "A+", gradeScore: 5 };
+};
+
+// Helper function to update the StudentProgram
+const updateStudentProgram = async (programId, codeLetter, score, grade, gradeScore) => {
+    return await StudentProgram.findOneAndUpdate(
+        { program: programId, codeLetter },
+        { $set: { score, grade, gradeScore } },
+        { new: true }
+    );
+};
