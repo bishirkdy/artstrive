@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const profileModeSlice = createSlice({
     name: "profileMode",
-    initialState: { forceProfileMode : false },
+    initialState: { forceProfileMode : null },
     reducers : {
         setForceProfileMode: (state, action) => {
             state.forceProfileMode = action.payload;

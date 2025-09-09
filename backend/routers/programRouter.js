@@ -29,7 +29,7 @@ router.get('/viewdeclared', authenticateJWT  , showDeclaredresults)
 router.get('/alldeclared', authenticateJWT  , declaredPrograms)
 router.get('/view/:_id', authenticateJWT , viewOneResult)
 
-router.get('/teamscore', authenticateJWT , getTeamScore)
+router.get('/teamscore' , getTeamScore)
 router.get('/studentpoints', authenticateJWT , getStudentsPoint)
 router.post('/studentpointsbyzone', authenticateJWT , studentScoreByZone)
 

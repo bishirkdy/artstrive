@@ -3,13 +3,14 @@ import { useGetScannedStudentProgramsQuery } from "../../../redux/api/scannedApi
 import { useParams } from "react-router";
 import { toast } from "react-toastify";
 import { Loader } from "../../../components/Loader";
+import ErrorMessage from "../../../components/ErrorMessage";
 
 const ProgramScanned = () => {
   const { slug } = useParams();
   const parts = slug.split("-");
   const id = parts[parts.length - 1];
   
-  const { data, isLoading, isError } = useGetScannedStudentProgramsQuery(id);
+  const { data, isLoading, isError , error } = useGetScannedStudentProgramsQuery(id);
   if (isLoading)
     return (
       <div className="flex items-center justify-center h-screen w-screen">
@@ -17,8 +18,13 @@ const ProgramScanned = () => {
       </div>
     );
 
-  if (isError) return toast.error("Failed to fetch programs");
-  return (
+ if (isError) {
+      const code = error?.originalStatus || "Error";
+      const details = error?.error || error?.data || "Something went wrong";
+      const title = error?.status || "Error fetching zones";
+      return <ErrorMessage code={code} title={title} details={details} />;
+    }  
+    return (
     <div className="mt-20 mx-2 md:ml-4 lg:ml-[23vw] xl:ml-[22vw] w-[96vw] xl:max-w-5xl lg:max-w-3xl bg-[var(--color-primary)] rounded-2xl shadow-2xl p-4 md:p-8">
       <h1 className="text-center text-3xl text-white font-extrabold mb-12 tracking-wide">
         Program

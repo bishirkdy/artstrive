@@ -2,21 +2,28 @@ import React from "react";
 import { useGetScannedStudentQuery } from "../../../redux/api/scannedApi";
 import { useParams } from "react-router-dom";
 import { Loader } from "../../../components/Loader";
+import ErrorMessage from "../../../components/ErrorMessage";
 
 const claud_profile = import.meta.env.VITE_CLOUDINARY_PROFILE_URL;
 const ProfileScanned = () => {
   const { slug } = useParams();
   const parts = slug.split("-");
-  const id = parts[parts.length - 1]
-  const { data, isLoading, isError } = useGetScannedStudentQuery(id);
-  console.log(id);
-  
+  const id = parts[parts.length - 1];
+  const { data, isLoading, isError, error } = useGetScannedStudentQuery(id);
+  const SecondProfile =
+    "https://www.pngmart.com/files/23/Profile-PNG-Photo.png";
   if (isLoading)
     return (
       <div className="flex items-center justify-center h-screen w-screen">
         <Loader />
       </div>
     );
+  if (isError) {
+    const code = error?.originalStatus || "Error";
+    const details = error?.error || error?.data || "Something went wrong";
+    const title = error?.status || "Error fetching zones";
+    return <ErrorMessage code={code} title={title} details={details} />;
+  }
   return (
     <div className="flex flex-col mt-6 lg:mt-20 mx-2 md:ml-4 lg:ml-[23vw] xl:ml-[30vw] w-[96vw] max-w-3xl bg-[var(--color-primary)] rounded-2xl shadow-2xl p-10">
       <h1 className="text-center text-3xl text-white font-extrabold mb-12 tracking-wide">
@@ -26,7 +33,11 @@ const ProfileScanned = () => {
       <div className="flex flex-col lg:flex-row items-center mb-8 lg:items-start text-white space-y-8 lg:space-y-0 lg:space-x-12">
         <div className="flex-shrink-0 -mt-3 m-auto">
           <img
-            src={`${claud_profile}/${data.profile}`}
+           src={
+                data.profile
+                  ? `${claud_profile}/${data.profile}`
+                  : SecondProfile
+              }
             alt="Profile"
             className="w-52 h-52 object-cover rounded-full border-4 shadow-lg transform hover:scale-105 transition-transform duration-300"
           />

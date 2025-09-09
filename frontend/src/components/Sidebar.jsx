@@ -176,7 +176,6 @@ const Sidebar = ({ setIsActives }) => {
   const forceProfileMenu = useSelector(
     (state) => state.profileMode.forceProfileMode
   );
-
   let menus;
   if (forceProfileMenu) {
     menus = profileItems(() => setSideBarOpen(false));
