@@ -13,7 +13,7 @@ export const generateToken = (res, userId , isAdmin ) => {
     res.cookie("jwt", token, {
       httpOnly: true,
       expires: new Date(Date.now() + 3600000 * 24 * 30), 
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'development',
       sameSite: "none", 
     });
 

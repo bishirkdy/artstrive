@@ -9,8 +9,8 @@ import {
 import { Route } from "react-router-dom";
 import { Navigate, RouterProvider } from "react-router-dom";
 
-import { store, persistor } from "./redux/store.js";
-import { PersistGate } from "redux-persist/integration/react";
+import { store } from "./redux/store.js";
+// import { PersistGate } from "redux-persist/integration/react";
 import Home from "./pages/Home.jsx";
 import Login from "./components/Login.jsx";
 import Committee from "./pages/committee/Committee.jsx";
@@ -107,11 +107,11 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>
-    <PersistGate loading={null} persistor={persistor}>
+    {/* <PersistGate loading={null} persistor={persistor}> */}
       <ErrorBoundary>
         <ToastContainer />
         <RouterProvider router={router} />
       </ErrorBoundary>
-    </PersistGate>
+    {/* </PersistGate> */}
   </Provider>
 );
