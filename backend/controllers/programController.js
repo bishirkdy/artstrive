@@ -127,7 +127,7 @@ export const addStudentToProgram = async (req, res, next) => {
 
     const [program, student] = await Promise.all([
       Program.findById(programId).populate({ path: "zone", select: "zone" }),
-      Student.findById(studentId),
+      Student.findById(studentId).populate({path: "zone", select: "zone"})
     ]);
 
     if (!program) return next(new CustomError("Program not found"));
@@ -578,26 +578,15 @@ export const addScoreOfAProgram = async (req, res, next) => {
         const totalScore = Math.round(
           (Number(score) || 0) + (Number(gradeScore) || 0)
         );
-        const existingRecord = await StudentProgram.findOne({
-          student: studentId,
-          program: programId,
-        });
+          const finalTotalScore = totalScore > 0 ? totalScore : null;
 
-        if (existingRecord) {
-          await StudentProgram.findOneAndUpdate(
-            { student: studentId, program: programId },
-            { $set: { score: null, grade: "", totalScore: null } },
-            { new: true }
-          );
-        }
-        const finalTotalScore = totalScore > 0 ? totalScore : null;
-        return StudentProgram.findOneAndUpdate(
-          { student: studentId, program: programId },
-          { $set: { score, grade, totalScore: finalTotalScore } },
-          { new: true, upsert: false }
-        );
-      })
+    return StudentProgram.findOneAndUpdate(
+      { student: studentId, program: programId },
+      { $set: { score, grade, totalScore: finalTotalScore } }, 
+      { new: true, upsert: true }
     );
+  })
+);
     if (updatedMarks.length === 0) {
       throw new CustomError("No students found");
     }

@@ -17,6 +17,7 @@ import { useGetAllProgramQuery } from "../../../redux/api/programApi";
 import { useViewZoneQuery } from "../../../redux/api/zoneApi";
 import ErrorMessage from "../../../components/ErrorMessage";
 import EditCodeLetter from "./EditCodeLetter";
+import EditScore from "./EditScore";
 
 const SettingsPopUp = ({ setIsActive }) => {
   const [selectedComponent, setSelectedComponent] = useState(null);
@@ -102,6 +103,14 @@ const SettingsPopUp = ({ setIsActive }) => {
       icon: <TbClockStop className="text-2xl" />,
       component: (
         <EditCodeLetter settingsToggle={() => setSelectedComponent(null)}/>
+      ),
+    },
+     {
+      title: "Edit Score",
+      description: "Edit Marks",
+      icon: <TbClockStop className="text-2xl" />,
+      component: (
+        <EditScore settingsToggle={() => setSelectedComponent(null)}/>
       ),
     },
   ];

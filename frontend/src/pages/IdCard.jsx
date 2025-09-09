@@ -38,11 +38,17 @@ const CardText = ({ text, cfg }) => {
 };
 
 const IdCard = () => {
-  const { data, isLoading, error: studentError } = useAllStudentQuery();
+  const {
+    data,
+    isLoading,
+    isError,
+    error: studentError,
+  } = useAllStudentQuery();
   const {
     data: idCardUi,
     isLoading: idCardUiLoading,
     error: idCardUiError,
+    isError: idCardUiIsError,
   } = useGetIdCardUiQuery();
   const isAdmin = useSelector((s) => s.auth.user.user.isAdmin);
   const sameTeam = useSelector((s) => s.auth.user.user.teamName);
@@ -55,10 +61,10 @@ const IdCard = () => {
     );
 
   const error = studentError || idCardUiError;
-  if (error) {
-    const code = error.originalStatus || "Error";
-    const details = error.error || error.data || "Something went wrong";
-    const title = error.status || "Error fetching zones";
+  if (isError || idCardUiIsError) {
+    const code = error?.originalStatus || "Error";
+    const details = error?.error || error?.data || "Something went wrong";
+    const title = error?.status || "Error fetching zones";
     return <ErrorMessage code={code} title={title} details={details} />;
   }
   if (!data?.length) return <h1 className="p-4">No student data found</h1>;
@@ -69,7 +75,8 @@ const IdCard = () => {
     : data.filter((s) => s.team.teamName === sameTeam);
 
   const formatData = (name) => name.charAt(0).toUpperCase() + name.slice(1);
-
+  const SecondProfile =
+    "https://www.pngmart.com/files/23/Profile-PNG-Photo.png";
   return (
     <div className="mt-[6rem] lg:mt-2 flex flex-col mx-4 p-4 w-[90vw] lg:max-w-[75vw] lg:ml-[23vw] xl:ml-[20vw] bg-[var(--color-primary)] rounded-lg shadow-lg">
       <h2 className="text-white font-bold text-2xl text-center mb-4">
@@ -99,22 +106,26 @@ const IdCard = () => {
             />
             <CardText text={student.zone.zone} cfg={idCardUi.zone} />
 
-            {student.profile && (
-              <img
-                src={`${claud_profile}/${student.profile}`}
-                alt=""
-                className="absolute"
-                style={{
-                  top: `${idCardUi.profileImage?.positionY ?? 0}%`,
-                  left: `${idCardUi.profileImage?.positionX ?? 0}%`,
-                  width: `${idCardUi.profileImage?.size ?? 100}px`,
-                  height: `${idCardUi.profileImage?.size ?? 100}px`,
-                  borderRadius: `${idCardUi.profileImage?.borderRadius ?? 10}%`,
-                  objectFit: "cover",
-                  zIndex: idCardUi.profileImage?.zIndex ?? 10,
-                }}
-              />
-            )}
+            {/* {student.profile && ( */}
+            <img
+              src={
+                student.profile
+                  ? `${claud_profile}/${student.profile}`
+                  : SecondProfile
+              }
+              alt=""
+              className="absolute"
+              style={{
+                top: `${idCardUi.profileImage?.positionY ?? 0}%`,
+                left: `${idCardUi.profileImage?.positionX ?? 0}%`,
+                width: `${idCardUi.profileImage?.size ?? 100}px`,
+                height: `${idCardUi.profileImage?.size ?? 100}px`,
+                borderRadius: `${idCardUi.profileImage?.borderRadius ?? 10}%`,
+                objectFit: "cover",
+                zIndex: idCardUi.profileImage?.zIndex ?? 10,
+              }}
+            />
+            {/* )} */}
 
             {idCardUi.qrCode?.visible !== false && (
               <img

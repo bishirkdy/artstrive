@@ -1,26 +1,25 @@
 import React, { useEffect, useState } from "react";
+import { IoCaretBack } from "react-icons/io5";
+import { toast } from "react-toastify";
+import ErrorMessage from "../../../components/ErrorMessage";
+import { Loader } from "../../../components/Loader";
 import { useGetStudentByProgramQuery } from "../../../redux/api/programApi";
 import { useAddScoreOfProgramMutation } from "../../../redux/api/programApi";
-
-import { toast } from "react-toastify";
-import { Loader } from "../../../components/Loader";
-import ErrorMessage from "../../../components/ErrorMessage";
-
-const AddScore = () => {
+const EditScore = ({ settingsToggle }) => {
   const [pId, setPId] = useState("");
   const [pName, setPName] = useState("");
   const [pZone, setPZone] = useState("");
   const [mark, setMark] = useState({});
 
-  const [markEntry , { isLoading : markLoading}] = useAddScoreOfProgramMutation();
-  const { data, isLoading , refetch , error , isError } = useGetStudentByProgramQuery();
+  const [markEntry, { isLoading: markLoading }] =
+    useAddScoreOfProgramMutation();
+  const { data, isLoading, refetch, error, isError } =
+    useGetStudentByProgramQuery();
 
   const selectedProgram = data?.filter((p) => p.program.id === pId);
   const selectedProgramName = selectedProgram?.[0]?.program?.name || "";
   const selectedProgramZone = selectedProgram?.[0]?.program?.zone || "";
   const programId = selectedProgram?.[0]?.program._id || "";
-
-
 
   useEffect(() => {
     if (selectedProgram) {
@@ -55,28 +54,41 @@ const AddScore = () => {
     }
   };
   useEffect(() => {
-    toast.info("Enter program Id" , {
+    toast.info("Enter program Id", {
       position: "top-right",
       autoClose: 2000,
     });
   }, []);
-  if (isLoading) return (
-    <div className="flex justify-center items-center h-screen"><Loader/></div>
-  )
+  if (isLoading)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader />
+      </div>
+    );
   if (isError) {
     const code = error?.originalStatus || "Error";
     const details = error?.error || error?.data || "Something went wrong";
     const title = error?.status || "Error fetching programs";
     return <ErrorMessage code={code} title={title} details={details} />;
   }
-  return (
-    <div className="mx-auto  mt-[6rem] flex flex-col p-6 w-[90vw] lg:ml-[28vw] md:max-w-2xl bg-[var(--color-primary)] rounded-lg shadow-lg">
-      <h1 className="text-white text-2xl font-semibold text-center mb-4">
-        Add Score
-      </h1>
 
-      <form onSubmit={handleSubmit} className="flex  flex-col space-y-4 ">
-        <div className="flex flex-col md:flex-row gap-4">
+  return (
+    <div className="h-[100dvh] w-screen md:w-[50vw] lg:w-[40vw] xl:w-[30vw] flex flex-col items-center inset-0 lg:border-l-2 md:border-l-2 border-black bg-[var(--color-primary)]">
+      <div className="p-4 text-white  flex flex-col items-center">
+        <div className="flex w-full items-center md:justify-center pl-1 gap-1">
+          <IoCaretBack
+            onClick={settingsToggle}
+            className="text-2xl md:hidden"
+          />
+          <h1 className="text-white text-2xl font-bold mt-1">Score Settings</h1>
+        </div>
+        <p className="leading-5 pt-3 text-center animate-pulse">
+          Edit existing Score if necessary update required, Edit full Score of
+          program for safe and submit
+        </p>
+      </div>
+        <form onSubmit={handleSubmit} className="flex w-[90%] flex-col space-y-4 ">
+        <div className="flex flex-col gap-4">
           <div className="flex flex-col w-full">
             <label className="text-white font-medium mb-1">Program ID</label>
             <input
@@ -177,4 +189,4 @@ const AddScore = () => {
   );
 };
 
-export default AddScore;
+export default EditScore;
