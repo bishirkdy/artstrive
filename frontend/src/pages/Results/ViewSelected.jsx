@@ -6,10 +6,11 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { toast } from "react-toastify";
 import { Loader } from "../../components/Loader";
+import ErrorMessage from "../../components/ErrorMessage";
 
 const ViewSelected = () => {
   const { _id } = useParams();
-  const { data, isLoading } = useViewSelectedResultQuery(_id);
+  const { data, isLoading, error, isError } = useViewSelectedResultQuery(_id);
   const programHeader = data?.find((d) => d.program._id === _id);
   const resultNumber = programHeader?.program.declaredOrder;
 
@@ -128,6 +129,12 @@ const ViewSelected = () => {
         <Loader />
       </div>
     );
+  if (isError) {
+    const code = error?.originalStatus || "Error";
+    const details = error?.error || error?.data || "Something went wrong";
+    const title = error?.status || "Error fetching zones";
+    return <ErrorMessage code={code} title={title} details={details} />;
+  }
   return (
     <div className="mt-[6rem] flex flex-col mx-4 p-4 w-[90vw] lg:max-w-[75vw] lg:ml-[23vw] xl:ml-[20vw] bg-[var(--color-primary)] rounded-lg overflow-hidden shadow-lg">
       <div id="printable-area" className="print-container text-white">

@@ -66,10 +66,23 @@ const programApi = createApiSlice.injectEndpoints({
                 method : "GET"
             })
         }),
+         getProgramForCodeLetterForEdit : builder.query({
+            query : () => ({
+                url : `${PROGRAM_URL}/getprogramforcodeletteforedit`,
+                method : "GET"
+            })
+        }),
         addCodeLetter : builder.mutation({
             query : (body) => ({
                 url: `${PROGRAM_URL}/addcodeletter`,
                 method: "POST",
+                body: body,
+            })
+        }),
+         editCodeLetter : builder.mutation({
+            query : (body) => ({
+                url: `${PROGRAM_URL}/editcodeletter`,
+                method: "PATCH",
                 body: body,
             })
         }),
@@ -138,5 +151,5 @@ const programApi = createApiSlice.injectEndpoints({
     
 });
 
-export const { useGetProgramStudentWiseQuery,useStudentDetailByIdQuery , useGetProgramToDeclareQuery ,useGetProgramForCodeLetterQuery , useViewStudentPointsByZoneMutation , useViewStudentPointsQuery, useViewTeamScoreQuery,useViewSelectedResultQuery,useDeclaredProgramsQuery,useGetAllDeclaredResultsQuery, useResultUnDeclarationsMutation , useResultDeclarationsMutation,useViewMarksMutation, useViewCodeLetterMutation, useAddScoreOfProgramMutation ,useAddCodeLetterMutation,useGetStudentByProgramQuery,useAddStudentToProgramsMutation,useAddProgramMutation , useGetAllProgramQuery , useEditProgramsMutation , useDeleteProgramMutation , useAddMarkToProgramsMutation} = programApi
+export const { useGetProgramStudentWiseQuery,useStudentDetailByIdQuery , useGetProgramToDeclareQuery ,useGetProgramForCodeLetterQuery , useViewStudentPointsByZoneMutation , useViewStudentPointsQuery, useViewTeamScoreQuery,useViewSelectedResultQuery,useDeclaredProgramsQuery,useGetAllDeclaredResultsQuery, useResultUnDeclarationsMutation , useResultDeclarationsMutation,useViewMarksMutation, useViewCodeLetterMutation, useAddScoreOfProgramMutation ,useAddCodeLetterMutation,useGetStudentByProgramQuery,useAddStudentToProgramsMutation,useAddProgramMutation , useGetAllProgramQuery , useEditProgramsMutation , useDeleteProgramMutation , useAddMarkToProgramsMutation , useGetProgramForCodeLetterForEditQuery , useEditCodeLetterMutation } = programApi
 export default programApi;

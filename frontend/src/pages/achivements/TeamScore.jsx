@@ -1,14 +1,21 @@
 import React from "react";
 import { useViewTeamScoreQuery } from "../../redux/api/programApi";
 import { Loader } from "../../components/Loader";
+import ErrorMessage from "../../components/ErrorMessage";
 const TeamScore = () => {
-  const { data, isLoading } = useViewTeamScoreQuery();
+  const { data, isLoading  , error ,isError} = useViewTeamScoreQuery();
   if (isLoading)
     return (
       <div className="flex items-center justify-center h-screen w-screen">
         <Loader />
       </div>
     );
+      if (isError) {
+    const code = error?.originalStatus || "Error";
+    const details = error?.error || error?.data || "Something went wrong";
+    const title = error?.status || "Error fetching zones";
+    return <ErrorMessage code={code} title={title} details={details} />;
+  }
   return (
     <div className="flex flex-col lg:ml-[22vw] lg:w-[70vw] xl:ml-[20vw]  justify-center items-center h-[90vh] overflow-y-auto overflow-x-hidden scrollbar-hide px-4">
       <div className="flex items-center justify-between w-full max-w-screen-lg mx-auto">

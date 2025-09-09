@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { IoCloseSharp, IoSettingsOutline } from "react-icons/io5";
 import { FaPenToSquare } from "react-icons/fa6";
-// import { TbClockStop } from "react-icons/tb";
+import { TbClockStop } from "react-icons/tb";
 import { RiMessage3Line } from "react-icons/ri";
 import { BiSolidCreditCard } from "react-icons/bi";
 // import { MdConfirmationNumber } from "react-icons/md";
@@ -16,6 +16,7 @@ import { Loader } from "../../../components/Loader";
 import { useGetAllProgramQuery } from "../../../redux/api/programApi";
 import { useViewZoneQuery } from "../../../redux/api/zoneApi";
 import ErrorMessage from "../../../components/ErrorMessage";
+import EditCodeLetter from "./EditCodeLetter";
 
 const SettingsPopUp = ({ setIsActive }) => {
   const [selectedComponent, setSelectedComponent] = useState(null);
@@ -93,6 +94,14 @@ const SettingsPopUp = ({ setIsActive }) => {
       icon: <BiSolidCreditCard className="text-2xl" />,
       component: (
         <IdCardEdit settingsToggle={() => setSelectedComponent(null)} />
+      ),
+    },
+     {
+      title: "Edit Code Letter",
+      description: "Edit existing Code Letters",
+      icon: <TbClockStop className="text-2xl" />,
+      component: (
+        <EditCodeLetter settingsToggle={() => setSelectedComponent(null)}/>
       ),
     },
   ];

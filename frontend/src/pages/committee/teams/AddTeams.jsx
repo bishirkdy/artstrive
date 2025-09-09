@@ -16,6 +16,7 @@ const AddTeams = () => {
     data,
     isLoading: viewTeamLoading,
     error,
+    isError,
     refetch,
   } = useViewTeamsQuery();
   const [addTeam, { isLoading: addTeamLoading }] = useRegisterMutation();
@@ -29,10 +30,10 @@ const AddTeams = () => {
     );
   }
 
-   if (error) {
-       const code = error.originalStatus || "Error";
-       const details = error.error || error.data || "Something went wrong";
-       const title = error.status ||  "Error fetching teams";
+   if (isError) {
+       const code = error?.originalStatus || "Error";
+       const details = error?.error || error?.data || "Something went wrong";
+       const title = error?.status ||  "Error fetching teams";
        return (
          <ErrorMessage
            code={code}

@@ -6,12 +6,15 @@ import { useResultDeclarationsMutation } from "../../../redux/api/programApi";
 import { toast } from "react-toastify";
 import { MdVerified } from "react-icons/md";
 import { Loader } from "../../../components/Loader";
+import ErrorMessage from "../../../components/ErrorMessage";
+import UseIsMobile from "../../../components/UseIsMobile";
 
 const DeclareResult = () => {
   const [filterText, setFilterText] = useState("");
   const [newDeclared, { isLoading: declareLoading }] =
     useResultDeclarationsMutation();
-  const { data, isLoading, refetch } = useGetProgramToDeclareQuery();
+  const { data, isLoading, refetch , isError , error } = useGetProgramToDeclareQuery();
+  const isMobile = UseIsMobile();
 
   const handleClick = async (id) => {
     try {
@@ -38,31 +41,47 @@ const DeclareResult = () => {
       </div>
     );
   }
+  if (isError) {
+    const code = error?.originalStatus || "Error";
+    const details = error?.error || error?.data || "Something went wrong";
+    const title = error?.status || "Error fetching programs";
+    return (
+      <ErrorMessage code={code} title={title} details={details} />
+    );
+  }
 
   const columns = [
     {
-      name: "Program Id",
+      name: "Id",
       selector: (row) => row.programId,
       sortable: true,
-      width: "20%",
+      width: isMobile ? "80px" : "12%",
+
     },
     {
       name: "Program Name",
       selector: (row) => row.programName,
       sortable: true,
-      width: "25%",
+      width: isMobile ? "200px" : "25%",
+
     },
     {
       name: "Zone",
       selector: (row) => row.programZone,
       sortable: true,
-      width: "20%",
+      width: isMobile ? "120px" : "17%",
     },
     {
       name: "Type",
       selector: (row) => row.programType,
       sortable: true,
-      width: "20%",
+      width: isMobile ? "120px" : "17%",
+    },
+    {
+      name: "Stage",
+      selector: (row) => row.programStage,
+      sortable: true,
+      width: isMobile ? "120px" : "15%",
     },
     {
       name: "Declare",
@@ -70,7 +89,7 @@ const DeclareResult = () => {
         return (
           <button onClick={() => handleClick(row.program_Id)}>
             <MdVerified
-              className={` "text-blue-500" : "text-white" text-2xl absolute right-6 top-3`}
+              className={` "text-blue-500" : "text-white" text-2xl absolute"  ${isMobile ? "right-5 top-3" : "right-15 top-3"}`}
             />
           </button>
         );

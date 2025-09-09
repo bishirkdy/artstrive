@@ -16,14 +16,14 @@ const EditProgram = () => {
     const [stage , setStage] = useState("");
 
     const [editProgram , {isLoading : updateLoading}] = useEditProgramsMutation();
-    const {data : programs , isLoading , error : programError ,  refetch} = useGetAllProgramQuery();
+    const {data : programs , isLoading , error : programError , isError ,  refetch} = useGetAllProgramQuery();
     const navigate = useNavigate();
    
     const {_id} = useParams()
    
     
    
-    const { data , isLoading : zoneLoading , error : zoneError } = useViewZoneQuery();
+    const { data , isLoading : zoneLoading , error : zoneError , isError : zoneIsError } = useViewZoneQuery();
     const zoneFromDB = Array.isArray(data) ? data : []
     const specificProgram = Array.isArray(programs) ? programs.find(p => p._id === _id) : [];
     useEffect(() => {
@@ -52,7 +52,7 @@ const EditProgram = () => {
             navigate('/programlist')
             refetch();
         } catch (error) {
-            toast.error("An error occurred while updating the program , Please try again");
+            toast.error(`${error?.data?.message || error?.message || "An error occurred while updating the program , Please try again"}`);
         }
     };
     if(isLoading || zoneLoading) return (
@@ -61,10 +61,10 @@ const EditProgram = () => {
       </div>
     )
     const error = programError || zoneError;
-      if (error) {
-      const code = error.originalStatus || "Error";
-      const details = error.error || error.data || "Something went wrong";
-      const title = error.status ||  "Error fetching zones";
+      if (isError || zoneIsError) {
+      const code = error?.originalStatus || "Error";
+      const details = error?.error || error?.data || "Something went wrong";
+      const title = error?.status ||  "Error fetching zones";
       return (
         <ErrorMessage
           code={code}

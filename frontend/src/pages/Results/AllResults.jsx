@@ -4,41 +4,51 @@ import DataTable from "react-data-table-component";
 import { Link } from "react-router";
 import { FaChevronCircleRight } from "react-icons/fa";
 import { Loader } from "../../components/Loader";
-
+import ErrorMessage from "../../components/ErrorMessage";
+import UseIsMobile from "../../components/UseIsMobile";
 const AllResults = () => {
   const [filterText, setFilterText] = useState();
-  const { data, isLoading } = useDeclaredProgramsQuery();
+  const { data, isLoading , isError , error } = useDeclaredProgramsQuery();
+  const isMobile = UseIsMobile();
+
   const columns = [
     {
-      name: "Result No",
+      name: "No",
       selector: (row) => row.declaredOrder,
-      width: "13%",
+      width: isMobile ? "120px" : "13%",
       style: { whiteSpace: "nowrap" },
     },
     {
       name: "ID",
       selector: (row) => row.id,
-      width: "15%",
+      width: isMobile ? "120px" :  "13%",
       style: { whiteSpace: "nowrap" },
     },
     {
       name: "Name",
       selector: (row) => row.name,
-      width: "25%",
+      width: isMobile ? "240px" :  "24%",
       sortable: true,
       style: { whiteSpace: "nowrap" },
     },
     {
       name: "Type",
       cell: (row) => row.type,
-      width: "17%",
+      width:isMobile ? "120px" :  "13%",
       sortable: true,
       style: { whiteSpace: "nowrap" },
     },
     {
       name: "Zone",
       selector: (row) => row.zone.zone,
-      width: "17%",
+      width: isMobile ? "120px" : "13%",
+      sortable: true,
+      style: { whiteSpace: "nowrap" },
+    },
+    {
+      name: "Stage",
+      selector: (row) => row.stage,
+      width: isMobile ? "120px" : "13%",
       sortable: true,
       style: { whiteSpace: "nowrap" },
     },
@@ -101,6 +111,13 @@ const AllResults = () => {
       </div>
     );
   }
+
+    if (isError) {
+      const code = error?.originalStatus || "Error";
+      const details = error?.error || error?.data || "Something went wrong";
+      const title = error?.status || "Error fetching zones";
+      return <ErrorMessage code={code} title={title} details={details} />;
+    }
   const filteredData = data.filter((d) =>
     [
       d.declaredOrder || "",

@@ -91,7 +91,13 @@ export const editStudentById = async (req, res, next) => {
     const { team, zone, name, id } = req.body;
     let profileUrl = null;
     const student = await Student.findById(_id);
-
+    const studentInProgram = await StudentProgram.findOne({ student: _id });
+    if(studentInProgram) {
+      return next(new CustomError("Program was added to this student , you can't edit , first delete program of this student then edit", 400))
+    }
+    if (!student) {
+      return next(new CustomError("Student is not fount"));
+    }
     if (req.file) {
       const oldImgPublicId = student.profile;
       if (oldImgPublicId) {
@@ -137,11 +143,22 @@ export const deleteStudentById = async (req, res, next) => {
       return next(new CustomError("Student is not fount"));
     }
 
+    const declaredProgram = await StudentProgram.findOne({student : _id}).populate({
+      path : "program",
+      match : { declare : true}
+    });
+     if (declaredProgram && declaredProgram.program) {
+      return next(
+        new CustomError("Cannot delete student because program is declared")
+      );
+    }
+    
     if (student.profile) {
       await cloudinary.uploader.destroy(student.profile);
     }
 
     await StudentProgram.deleteMany({ student: _id });
+
     await Student.findByIdAndDelete(_id);
     res.status(200).json({ message: "Student deleted successfully" });
   } catch (error) {

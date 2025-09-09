@@ -13,7 +13,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Loader } from "../../components/Loader";
 import ErrorMessage from "../../components/ErrorMessage";
-
+import UseIsMobile from "../../components/UseIsMobile"
 const ProgramList = () => {
   const [filterText, setFilterText] = useState("");
   const {
@@ -40,18 +40,7 @@ const ProgramList = () => {
     if (zones) return zones.zone;
   };
 
-  function useIsMobile() {
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-    useEffect(() => {
-      const handleResize = () => setIsMobile(window.innerWidth < 768);
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    return isMobile;
-  }
-  const isMobile = useIsMobile();
+  const isMobile = UseIsMobile();
 
   const [deletePrograms] = useDeleteProgramMutation();
   const deleteProgram = async (deletableId) => {

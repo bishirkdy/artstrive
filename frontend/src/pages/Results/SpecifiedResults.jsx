@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { useGetAllDeclaredResultsQuery } from "../../redux/api/programApi";
 import { Loader } from "../../components/Loader";
+import ErrorMessage from "../../components/ErrorMessage";
 
 const SpecifiedResults = () => {
   const [id, setId] = useState("");
-  const { data, isLoading } = useGetAllDeclaredResultsQuery();
+  const { data, isLoading , error , isError} = useGetAllDeclaredResultsQuery();
 
   if (isLoading)
     return (
@@ -13,7 +14,12 @@ const SpecifiedResults = () => {
       </div>
     );
   if (!data || !Array.isArray(data)) return <h5>No data available</h5>;
-
+      if (isError) {
+    const code = error?.originalStatus || "Error";
+    const details = error?.error || error?.data || "Something went wrong";
+    const title = error?.status || "Error fetching zones";
+    return <ErrorMessage code={code} title={title} details={details} />;
+  }
   const filteredProgram = data.filter((fd) => fd.program?.id === id);
   const programHeader = filteredProgram.length > 0 ? filteredProgram[0] : null;
 

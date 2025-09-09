@@ -2,9 +2,8 @@ import Program from "../models/programModel.js";
 import { CustomError } from "../utils/errorUtils.js";
 import StudentProgram from "../models/studentProgramModel.js";
 import Student from "../models/studentModel.js";
-import Zone from "../models/zoneModel.js";
 import mongoose from "mongoose";
-import Custom from "../models/customModel.js";
+// import Custom from "../models/customModel.js";
 import Graph from "../models/graphModel.js";
 import Message from "../models/MessageModel.js";
 import filterProgramsRank from "../utils/resultFunction.js";
@@ -44,6 +43,16 @@ export const editPrograms = async (req, res, next) => {
     const existingProgram = await Program.findById(_id);
     if (!existingProgram) {
       return res.status(404).json({ message: "Program not found" });
+    }
+
+    const StudentInProgram = await StudentProgram.findOne({ program: _id });
+    if (StudentInProgram) {
+      return next(
+        new CustomError(
+          "Cannot edit program because students are enrolled in it",
+          400
+        )
+      );
     }
 
     const program = await Program.findByIdAndUpdate(
@@ -134,15 +143,15 @@ export const addStudentToProgram = async (req, res, next) => {
       );
     }
     const individualLimits = {
-      Stage: { "HIGH ZONE": 2, "MID ZONE": 2, "LOW ZONE": 2 },
-      "Non-stage": { "HIGH ZONE": 2, "MID ZONE": 2, "LOW ZONE": 2 },
-      Sports: { "HIGH ZONE": 2, "MID ZONE": 2, "LOW ZONE": 2 },
+      Stage: { "HIGH ZONE": 3, "MID ZONE": 4, "LOW ZONE": 4 },
+      "Non-stage": { "HIGH ZONE": 6, "MID ZONE": 6, "LOW ZONE": 5 },
+      Sports: { "HIGH ZONE": 3, "MID ZONE": 3, "LOW ZONE": 3 },
     };
 
     if (program.type === "Individual") {
       const stage = program.stage;
       const zoneName = program.zone?.zone;
-      
+
       if (!zoneName || !individualLimits[stage]?.[zoneName]) {
         return next(
           new CustomError("Zone not found or invalid for this stage")
@@ -286,9 +295,53 @@ export const getProgramsStudentWise = async (req, res, next) => {
 
 export const getProgramForCodeLetter = async (req, res, next) => {
   try {
-    const programs = await StudentProgram.find({
-      $or: [{ codeLetter: "" }, { codeLetter: null }],
-    })
+    const programs = await StudentProgram.aggregate([
+      {
+        $group: {
+          _id: "$program",
+          hasCodeLetter: {
+            $sum: { $cond: [{ $ifNull: ["$codeLetter", false] }, 1, 0] },
+          },
+          docs: { $push: "$$ROOT" },
+        },
+      },
+      {
+        $match: { hasCodeLetter: 0 },
+      },
+      {
+        $unwind: "$docs",
+      },
+      {
+        $replaceRoot: { newRoot: "$docs" },
+      },
+      {
+        $lookup: {
+          from: "programs",
+          localField: "program",
+          foreignField: "_id",
+          as: "program",
+        },
+      },
+      { $unwind: "$program" },
+      {
+        $lookup: {
+          from: "students",
+          localField: "student",
+          foreignField: "_id",
+          as: "student",
+        },
+      },
+      { $unwind: "$student" },
+    ]);
+    res.json(programs);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getProgramForCodeLetterForEdit = async (req, res, next) => {
+  try {
+    const programs = await StudentProgram.find({})
       .populate("program", "name zone id declare type declaredOrder")
       .populate("student", "name zone team id");
     res.json(programs);
@@ -366,6 +419,76 @@ export const addCodeLetter = async (req, res, next) => {
     next(error);
   }
 };
+
+export const editCodeLetter = async (req, res, next) => {
+  try {
+    const { programId, codeLetters } = req.body;
+    if (!programId || !codeLetters) {
+      return next(new CustomError("All fields are required"));
+    }
+
+    const program = await Program.findOne({ id: programId });
+    if (!program) {
+      return next(new CustomError("Program not found"));
+    }
+
+    const existingCodeLetters = await StudentProgram.find({
+      program: program._id,
+    })
+      .select("student codeLetter")
+      .lean();
+
+    const globalLetters = new Set(
+      existingCodeLetters
+        .filter((p) => !Object.keys(codeLetters).includes(String(p.student)))
+        .map((p) => p.codeLetter)
+        .filter((letter) => letter)
+    );
+
+    const newLettersSet = new Set();
+
+    for (const [studentId, letter] of Object.entries(codeLetters)) {
+      if (letter) {
+        if (globalLetters.has(letter)) {
+          return next(
+            new CustomError(
+              `Code Letter "${letter}" is already assigned in this program`
+            )
+          );
+        }
+        if (newLettersSet.has(letter)) {
+          return next(
+            new CustomError(`Duplicate Code Letter "${letter}" in request`)
+          );
+        }
+        newLettersSet.add(letter);
+      }
+    }
+
+    const updatePromises = Object.entries(codeLetters).map(
+      async ([studentId, letter]) => {
+        return StudentProgram.findOneAndUpdate(
+          { student: studentId, program: program._id },
+          { codeLetter: letter || null },
+          { new: true }
+        );
+      }
+    );
+
+    const updatedRecords = await Promise.all(updatePromises);
+
+    res.status(200).json({
+      message: "Code letters updated successfully",
+      updatedRecords,
+    });
+  } catch (error) {
+    if (error instanceof CustomError) {
+      return next(error);
+    }
+    next(error);
+  }
+};
+
 
 export const addScoreOfAProgram = async (req, res, next) => {
   try {
@@ -539,6 +662,7 @@ export const getProgramToDeclare = async (req, res, next) => {
           programName: "$_id.name",
           programZone: "$zone",
           programType: "$_id.type",
+          programStage: "$_id.stage",
           programId: "$_id.id",
         },
       },
@@ -767,7 +891,7 @@ export const showDeclaredresults = async (req, res, next) => {
       .populate({
         path: "program",
         match: { declare: true },
-        select: "name zone type id declaredOrder score",
+        select: "name zone type id declaredOrder stage score",
         populate: {
           path: "zone",
           select: "zone",
@@ -796,7 +920,10 @@ export const showDeclaredresults = async (req, res, next) => {
 };
 export const declaredPrograms = async (req, res, next) => {
   try {
-    const program = await Program.find({ declare: true }).populate("zone");
+    const program = await Program.find({ declare: true }).populate({
+      path: "zone",
+      select: "zone",
+    });
     if (!program)
       return next(new CustomError("Program not found or not declared"));
     res.status(200).json(program);
@@ -811,7 +938,7 @@ export const viewOneResult = async (req, res, next) => {
       .populate({
         path: "program",
         match: { declare: true },
-        select: "name zone type id declaredOrder score",
+        select: "name zone type id declaredOrder stage score",
         populate: {
           path: "zone",
           select: "zone",
@@ -923,7 +1050,8 @@ export const getStudentsPoint = async (req, res, next) => {
       { $unwind: "$programData" },
       {
         $match: {
-          "programData.type": { $ne: "Group" },
+          "programData.type": { $exists: true, $ne: "Group" },
+          "programData.stage": { $exists: true, $ne: "Sports" },
           "programData.declare": true,
         },
       },
@@ -1026,7 +1154,8 @@ export const studentScoreByZone = async (req, res, next) => {
         $match: {
           "zoneData._id": new mongoose.Types.ObjectId(zoneId),
           "programData.declare": true,
-          "programData.type": { $ne: "Group" },
+          "programData.type": { $exists: true, $ne: "Group" },
+          "programData.stage": { $exists: true, $ne: "Sports" },
         },
       },
       {

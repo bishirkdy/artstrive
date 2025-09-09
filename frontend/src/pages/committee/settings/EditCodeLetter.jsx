@@ -1,26 +1,25 @@
-import React, { useState, useEffect } from "react";
-import { useGetProgramForCodeLetterQuery } from "../../../redux/api/programApi";
-import { useAddCodeLetterMutation } from "../../../redux/api/programApi";
+import React, { useEffect, useState } from "react";
+import { IoCaretBack } from "react-icons/io5";
 import { toast } from "react-toastify";
-import { Loader } from "../../../components/Loader";
+import { useGetProgramForCodeLetterForEditQuery } from "../../../redux/api/programApi";
+import { useEditCodeLetterMutation } from "../../../redux/api/programApi";
 import ErrorMessage from "../../../components/ErrorMessage";
+import { Loader } from "../../../components/Loader";
 
-const AddCodeLetter = () => {
+const EditCodeLetter = ({ settingsToggle }) => {
   const [pId, setPId] = useState("");
   const [program, setProgram] = useState("");
-  const { data, isLoading, refetch, error, isError } =
-    useGetProgramForCodeLetterQuery();
-  const [codeLetters, setCodeLetters] = useState({});
 
-  const [addCodeLetter, { isLoading: addLoading }] = useAddCodeLetterMutation();
+  const { data, isLoading, refetch, error, isError } =
+    useGetProgramForCodeLetterForEditQuery();
+  const [codeLetters, setCodeLetters] = useState({});
+    const [editCodeLetter, { isLoading: editLoading }] = useEditCodeLetterMutation();
+
   const selectedProgram = data
     ? data.filter((p) => p?.program?.id === pId)
     : [];
   const selectedProgramName = selectedProgram[0]?.program?.name || "";
   const selectedStudent = selectedProgram.filter((s) => s.student);
-  // console.log("data",data);
-  // console.log("selected" , selectedProgram);
-
   useEffect(() => {
     if (selectedProgramName) {
       setProgram(selectedProgramName);
@@ -28,36 +27,22 @@ const AddCodeLetter = () => {
       setProgram("");
     }
   }, [selectedProgramName]);
-
   if (isLoading)
     return (
       <div className="flex items-center justify-center h-screen w-screen">
         <Loader />
       </div>
     );
-  if (isError) {
-    const code = error?.originalStatus || "Error";
-    const details =
-      error?.data?.message ||
-      error?.error ||
-      (typeof error?.data === "string"
-        ? error.data
-        : JSON.stringify(error?.data)) ||
-      "Something went wrong";
-    const title = error?.status || "Error fetching programs";
-    return <ErrorMessage code={code} title={title} details={details} />;
-  }
   const handleCodeLetterChange = (id, value) => {
     setCodeLetters((prev) => ({
       ...prev,
       [id]: value,
     }));
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await addCodeLetter({
+      await editCodeLetter({
         programId: pId,
         codeLetters: codeLetters,
       }).unwrap();
@@ -71,7 +56,7 @@ const AddCodeLetter = () => {
       refetch();
     } catch (error) {
       toast.error(
-        `Error adding code letter: ${error.data?.message || error.message}`,
+        `Error adding code letter: ${error?.data?.message || error?.message}`,
         {
           position: "top-right",
           autoClose: 2000,
@@ -79,23 +64,41 @@ const AddCodeLetter = () => {
       );
     }
   };
+  if (isError) {
+    const code = error?.originalStatus || "Error";
+    const details = error?.error || error?.data || "Something went wrong";
+    const title = error?.status || "Error fetching programs";
+    return <ErrorMessage code={code} title={title} details={details} />;
+  }
 
   return (
-    <div className="mx-auto mt-[6rem] flex flex-col p-6 w-[90vw] overflow-auto md:max-w-2xl lg:ml-[28vw] bg-[var(--color-primary)] rounded-lg shadow-lg">
-      <h1 className="text-white text-2xl font-semibold text-center mb-4">
-        Add Code Letter
-      </h1>
+    <div className="h-[100dvh] w-screen md:w-[50vw] lg:w-[40vw] xl:w-[30vw] flex flex-col items-center inset-0 lg:border-l-2 md:border-l-2 border-black bg-[var(--color-primary)]">
+      <div className="p-4 text-white  flex flex-col items-center">
+        <div className="flex w-full items-center md:justify-center pl-1 gap-1">
+          <IoCaretBack
+            onClick={settingsToggle}
+            className="text-2xl md:hidden"
+          />
+          <h1 className="text-white text-2xl font-bold mt-1">
+            Code letter Settings
+          </h1>
+        </div>
+        <p className="leading-5 pt-3 text-center animate-pulse">
+          Edit existing Code Letters if necessary update required, Edit full
+          code letter of program and submit
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="flex  flex-col space-y-4 ">
+      <form onSubmit={handleSubmit} className="flex  flex-col space-y-4 w-[90%] ">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex flex-col w-full">
             <label className="text-white font-medium mb-1">Program ID</label>
             <input
               pattern="\d*"
               type="text"
-              value={pId}
-              maxLength={4}
-              onChange={(e) => setPId(e.target.value)}
+                value={pId}
+                maxLength={4}
+                onChange={(e) => setPId(e.target.value)}
               placeholder="Enter program id"
               className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
             />
@@ -105,7 +108,7 @@ const AddCodeLetter = () => {
             <input
               readOnly
               type="text"
-              value={program}
+                value={program}
               placeholder=""
               className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
             />
@@ -113,7 +116,7 @@ const AddCodeLetter = () => {
         </div>
         {!selectedProgramName && pId && pId.length >= 4 ? (
           <div className="flex items-center w-full justify-center text-white animate-pulse">
-            <p>There is no program with the given id or Code letter is added</p>
+            <p>There is no program with the given id</p>
           </div>
         ) : (
           <div className="flex items-center">
@@ -135,7 +138,7 @@ const AddCodeLetter = () => {
                     <input
                       type="text"
                       value={codeLetter}
-                      placeholder="---"
+                      placeholder={s.codeLetter || "_"}
                       onChange={(e) =>
                         handleCodeLetterChange(
                           studentId,
@@ -158,7 +161,7 @@ const AddCodeLetter = () => {
             className="w-full mt-2 py-2 bg-[var(--color-secondary)] hover:bg-[var(--color-tertiary)] text-black font-bold rounded-lg transition duration-300"
             type="submit"
           >
-            {addLoading ? " Updating ..." : "Update"}
+            {editLoading ? " Updating ..." : "Update"}
           </button>
         )}
       </form>
@@ -166,4 +169,4 @@ const AddCodeLetter = () => {
   );
 };
 
-export default AddCodeLetter;
+export default EditCodeLetter;

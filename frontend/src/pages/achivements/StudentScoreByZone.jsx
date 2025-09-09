@@ -3,13 +3,27 @@ import DataTable from "react-data-table-component";
 import { useViewStudentPointsByZoneMutation } from "../../redux/api/programApi";
 import { useViewZoneQuery } from "../../redux/api/zoneApi";
 import { Loader } from "../../components/Loader";
+import ErrorMessage from "../../components/ErrorMessage";
+import UseIsMobile from "../../components/UseIsMobile";
 
 const StudentScoreByZone = () => {
   const [zoneId, setZoneId] = useState("");
   const [fetchScores, { data, isLoading }] =
     useViewStudentPointsByZoneMutation();
-  const { data: zoneData, isLoading: zoneIsLoading } = useViewZoneQuery();
-  const filterZone = zoneData?.filter((z) => z.zone !== "GENERAL");
+  const {
+    data: zoneData,
+    isLoading: zoneIsLoading,
+    isError,
+    error,
+  } = useViewZoneQuery();
+  const isMobile = UseIsMobile();
+  const filterZone = zoneData?.filter(
+    (z) =>
+      z.zone !== "GENERAL" &&
+      z.zone !== "MIX ZONE" &&
+      z.zone !== "CAT-A" &&
+      z.zone !== "CAT-B"
+  );
 
   const handleZoneChange = async (e) => {
     const selectedZone = e.target.value;
@@ -22,16 +36,16 @@ const StudentScoreByZone = () => {
   const columns = [
     {
       name: "Student Id",
-      selector: (row) => row.name,
-      width: "25%",
+      selector: (row) => row.id,
+      width:  isMobile ? "80px" : "25%",
       wrap: true,
     },
-    { name: "Name", selector: (row) => row.name, width: "25%", wrap: true },
-    { name: "Team", selector: (row) => row.team, width: "25%", wrap: "true" },
+    { name: "Name", selector: (row) => row.name, width:  isMobile ? "260px" : "25%", wrap: true },
+    { name: "Team", selector: (row) => row.team, width:  isMobile ? "120px" : "25%", wrap: "true" },
     {
       name: "Total Score",
       selector: (row) => row.totalScore || 0,
-      width: "25%",
+      width: isMobile ? "120px" : "25%",
       wrap: "true",
     },
   ];
@@ -72,6 +86,13 @@ const StudentScoreByZone = () => {
         <Loader />
       </div>
     );
+  }
+
+  if (isError) {
+    const code = errorData?.originalStatus || "Error";
+    const details = error?.error || error?.data || "Something went wrong";
+    const title = error?.status || "Error fetching zones";
+    return <ErrorMessage code={code} title={title} details={details} />;
   }
   return (
     <div className="flex flex-col items-center mt-[16vh] h-[90vh] overflow-y-auto lg:ml-[20vw] overflow-x-hidden scrollbar-hide">
