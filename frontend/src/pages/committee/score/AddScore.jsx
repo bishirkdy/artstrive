@@ -166,6 +166,7 @@ const AddScore = () => {
         </div>
         {pName && selectedProgram.length > 0 && !selectedProgram.some(sp => sp.score) && selectedProgram.every(sp => sp.codeLetter) && (
           <button
+            disabled={markLoading}
             className="w-full mt-2 py-2 bg-[var(--color-secondary)] hover:bg-[var(--color-tertiary)] text-black font-bold rounded-lg transition duration-300"
             type="submit"
           >

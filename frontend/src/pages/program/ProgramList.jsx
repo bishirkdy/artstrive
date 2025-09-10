@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useGetAllProgramQuery } from "../../redux/api/programApi";
-import { useViewZoneQuery } from "../../redux/api/zoneApi";
 import DataTable from "react-data-table-component";
 import { MdOutlineDeleteForever } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
@@ -19,26 +18,17 @@ const ProgramList = () => {
   const {
     data: programData,
     isLoading: programIsLoading,
-    error: programError,
+    error,
     isError : programIsError,
     refetch,
   } = useGetAllProgramQuery();
-  const {
-    data: zoneData,
-    isLoading: zoneIsLoading,
-    error: zoneError,
-    isError : zoneIsError
-  } = useViewZoneQuery();
   const user = useSelector((state) => state.auth.user);
   const isAdmin = user.user.isAdmin;
 
   useEffect(() => {
     refetch();
   }, [refetch]);
-  const findZone = (_id) => {
-    const zones = zoneData.find((z) => z._id === _id);
-    if (zones) return zones.zone;
-  };
+
 
   const isMobile = UseIsMobile();
 
@@ -74,7 +64,7 @@ const ProgramList = () => {
     },
     {
       name: "Zone",
-      selector: (row) => findZone(row.zone),
+      selector: (row) => row.zone.zone,
       width: isMobile ? (isAdmin ? "120px" : "140px") : isAdmin ? "15%" : "18%",
       sortable: true,
     },
@@ -158,15 +148,14 @@ const ProgramList = () => {
       },
     },
   };
-  if (programIsLoading || zoneIsLoading)
+  if (programIsLoading )
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader />
       </div>
     );
 
-  const error = programError || zoneError;
-  if (programIsError || zoneIsError) {
+  if (programIsError) {
     const code = error?.originalStatus || "Error";
     const details = error?.error || error?.data || "Something went wrong";
     const title = error?.status || "Error fetching zones";
@@ -175,7 +164,7 @@ const ProgramList = () => {
   const filterProgram =
     programData && Array.isArray(programData)
       ? programData.filter((p) =>
-          [p.name || "", p.id || "", p.type || "", findZone(p.zone) || ""].some(
+          [p.name || "", p.id || "", p.type || "", p.zone.zone || "" ,  p.stage || ""].some(
             (v) => v.toLowerCase().includes(filterText.toLowerCase())
           )
         )
@@ -189,7 +178,7 @@ const ProgramList = () => {
             <td>${i + 1}</td>
             <td>${program.id}</td>
             <td>${program.name}</td>
-            <td>${findZone(program.zone)}</td>
+            <td>${program.zone.zone}</td>
             <td>${program.type}</td>
             <td>${program.stage}</td>
           </tr>
@@ -345,7 +334,7 @@ const ProgramList = () => {
             indexNo,
             program.id,
             program.name,
-            findZone(program.zone),
+            program.zone.zone,
             program.type,
             program.stage,
           ].forEach((text) => {

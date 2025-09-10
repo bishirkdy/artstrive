@@ -29,7 +29,7 @@ export const addProgramsName = async (req, res, next) => {
 };
 export const getAllPrograms = async (req, res, next) => {
   try {
-    const programs = await Program.find();
+    const programs = await Program.find().populate("zone")
     res.json(programs);
   } catch (error) {
     next(error);
@@ -129,14 +129,15 @@ export const addStudentToProgram = async (req, res, next) => {
       Program.findById(programId).populate({ path: "zone", select: "zone" }),
       Student.findById(studentId).populate({path: "zone", select: "zone"})
     ]);
-
+    console.log(program.zone, student.zone);
+    
     if (!program) return next(new CustomError("Program not found"));
     if (!student) return next(new CustomError("Student not found"));
 
     if (
       program.zone &&
       !["MIX ZONE", "CAT-A", "CAT-B"].includes(program.zone.zone) &&
-      program.zone._id.toString() !== student.zone.toString()
+      program.zone._id.toString() !== student.zone._id.toString()
     ) {
       return next(
         new CustomError("Program zone and student Zone do not match")

@@ -13,12 +13,14 @@ const EditCodeLetter = ({ settingsToggle }) => {
   const { data, isLoading, refetch, error, isError } =
     useGetProgramForCodeLetterForEditQuery();
   const [codeLetters, setCodeLetters] = useState({});
-    const [editCodeLetter, { isLoading: editLoading }] = useEditCodeLetterMutation();
+  const [editCodeLetter, { isLoading: editLoading }] =
+    useEditCodeLetterMutation();
 
   const selectedProgram = data
     ? data.filter((p) => p?.program?.id === pId)
     : [];
   const selectedProgramName = selectedProgram[0]?.program?.name || "";
+  const selectedProgramDeclared = selectedProgram[0]?.program?.declare === true;
   const selectedStudent = selectedProgram.filter((s) => s.student);
   useEffect(() => {
     if (selectedProgramName) {
@@ -27,6 +29,7 @@ const EditCodeLetter = ({ settingsToggle }) => {
       setProgram("");
     }
   }, [selectedProgramName]);
+
   if (isLoading)
     return (
       <div className="flex items-center justify-center h-screen w-screen">
@@ -72,7 +75,7 @@ const EditCodeLetter = ({ settingsToggle }) => {
   }
 
   return (
-    <div className="h-[100dvh] w-screen md:w-[50vw] lg:w-[40vw] xl:w-[30vw] flex flex-col items-center inset-0 lg:border-l-2 md:border-l-2 border-black bg-[var(--color-primary)]">
+    <div className="h-[100dvh] w-screen md:w-[50vw] lg:w-[40vw] xl:w-[30vw] flex flex-col items-center inset-0 lg:border-l-2 md:border-l-2 overflow-y-auto pb-8 scrollbar-hide border-black bg-[var(--color-primary)]">
       <div className="p-4 text-white  flex flex-col items-center">
         <div className="flex w-full items-center md:justify-center pl-1 gap-1">
           <IoCaretBack
@@ -89,16 +92,19 @@ const EditCodeLetter = ({ settingsToggle }) => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex  flex-col space-y-4 w-[90%] ">
+      <form
+        onSubmit={handleSubmit}
+        className="flex  flex-col space-y-4 w-[90%] "
+      >
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex flex-col w-full">
             <label className="text-white font-medium mb-1">Program ID</label>
             <input
               pattern="\d*"
               type="text"
-                value={pId}
-                maxLength={4}
-                onChange={(e) => setPId(e.target.value)}
+              value={pId}
+              maxLength={4}
+              onChange={(e) => setPId(e.target.value)}
               placeholder="Enter program id"
               className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
             />
@@ -108,7 +114,7 @@ const EditCodeLetter = ({ settingsToggle }) => {
             <input
               readOnly
               type="text"
-                value={program}
+              value={program}
               placeholder=""
               className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
             />
@@ -136,6 +142,7 @@ const EditCodeLetter = ({ settingsToggle }) => {
                       ID: {studentCode} - {studentName}
                     </span>
                     <input
+                      disabled={selectedProgramDeclared}
                       type="text"
                       value={codeLetter}
                       placeholder={s.codeLetter || "_"}
@@ -156,13 +163,18 @@ const EditCodeLetter = ({ settingsToggle }) => {
           </div>
         )}
 
-        {program && (
+        {program && !selectedProgramDeclared && (
           <button
             className="w-full mt-2 py-2 bg-[var(--color-secondary)] hover:bg-[var(--color-tertiary)] text-black font-bold rounded-lg transition duration-300"
             type="submit"
           >
             {editLoading ? " Updating ..." : "Update"}
           </button>
+        )}
+        {program && selectedProgramDeclared && (
+          <div className="flex items-center w-full justify-center text-white animate-pulse">
+            <p>Program already declared, cannot edit code letters</p>
+          </div>
         )}
       </form>
     </div>

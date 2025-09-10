@@ -67,7 +67,7 @@ const AddProgram = () => {
       setPId(program.id);
       setPName(program.name);
       setPType(program.type);
-      setPZone(program.zone);
+      setPZone(program.zone._id);
     }else{
       setPName("");
       setPType("");

@@ -73,7 +73,7 @@ const EditScore = ({ settingsToggle }) => {
   }
 
   return (
-    <div className="h-[100dvh] w-screen md:w-[50vw] lg:w-[40vw] xl:w-[30vw] flex flex-col items-center inset-0 lg:border-l-2 md:border-l-2 border-black bg-[var(--color-primary)]">
+    <div className="h-[100dvh] w-screen md:w-[50vw] lg:w-[40vw] xl:w-[30vw] pb-10 overflow-y-auto scrollbar-hide flex flex-col items-center inset-0 lg:border-l-2 md:border-l-2 border-black bg-[var(--color-primary)]">
       <div className="p-4 text-white  flex flex-col items-center">
         <div className="flex w-full items-center md:justify-center pl-1 gap-1">
           <IoCaretBack
@@ -135,29 +135,20 @@ const EditScore = ({ settingsToggle }) => {
                 Program already declared
               </h1>
             ) :
-             selectedProgram.some(
-                (sp) => sp.score
-              ) ? (
-              <div className="text-center py-6 text-white/70">
-                Score Assigned
-              </div>
-            ) : selectedProgram.some((sp) => !sp.codeLetter) ? (
+             selectedProgram.some((sp) => !sp.codeLetter) ? (
               <div className="text-center py-6 text-white/70">
                 Please assign code letter
               </div>
             ) :
             (
               selectedProgram.map((sp, i) => {
-                const studentId = sp.student?._id || i;
-                console.log(selectedProgram);
-                
+                const studentId = sp.student?._id || i;                
                 return (
                   <li
                     key={studentId}
                     className="border-2 rounded-lg border-gray-700 px-4 py-2 text-white flex justify-between items-center transition-all duration-200"
                   >
                     <span className="flex-1 truncate">{sp.codeLetter}</span>
-                    {!sp.score && (
                       <input
                         type="text"
                         pattern="\d*"
@@ -169,14 +160,13 @@ const EditScore = ({ settingsToggle }) => {
                         className="border border-gray-600 p-2 w-36 text-center text-lg bg-black text-white 
                   focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] rounded-md transition-all duration-300"
                       />
-                    )}
                   </li>
                 );
               })
             )}
           </ul>
         </div>
-        {pName && selectedProgram.length > 0 && !selectedProgram.some(sp => sp.score) && selectedProgram.every(sp => sp.codeLetter) && (
+        {pName && selectedProgram.length > 0 &&  !selectedProgram[0].program.declare === true  && selectedProgram.every(sp => sp.codeLetter) && (
           <button
             className="w-full mt-2 py-2 bg-[var(--color-secondary)] hover:bg-[var(--color-tertiary)] text-black font-bold rounded-lg transition duration-300"
             type="submit"
