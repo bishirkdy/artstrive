@@ -5,12 +5,12 @@ import { Provider } from "react-redux";
 import {
   createBrowserRouter,
   createRoutesFromElements,
+  Route,
+  Navigate,
+  RouterProvider,
 } from "react-router-dom";
-import { Route } from "react-router-dom";
-import { Navigate, RouterProvider } from "react-router-dom";
 
 import { store } from "./redux/store.js";
-// import { PersistGate } from "redux-persist/integration/react";
 import Home from "./pages/Home.jsx";
 import Login from "./components/Login.jsx";
 import Committee from "./pages/committee/Committee.jsx";
@@ -50,14 +50,17 @@ import ResultScanned from "./pages/scannedStudent/pages/ResultScanned.jsx";
 import DashBoard from "./pages/DashBoard.jsx";
 import ScannedHome from "./pages/scannedStudent/pages/ScannedHome.jsx";
 import { ToastContainer } from "react-toastify";
+
 import ErrorBoundary from "./components/Error.jsx";
+import RouteErrorBoundary from "./components/RouteErrorBoundary.jsx"; 
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route path="/login" element={<Login />} />
-      <Route path="/" element={<App />}>
-        <Route index={true} element={<Navigate to="dashboard" />} />
+      <Route path="/login" element={<Login />} errorElement={<RouteErrorBoundary />} />
+
+      <Route path="/" element={<App />} errorElement={<RouteErrorBoundary />}>
+        <Route index element={<Navigate to="dashboard" />} />
         <Route path="dashboard" element={<Home />} />
         <Route path="addstudent" element={<AddStudent />} />
         <Route path="viewstudent" element={<ViewStudent />} />
@@ -75,7 +78,7 @@ const router = createBrowserRouter(
         <Route path="studentscore" element={<StudentScore />} />
         <Route path="student/:_id" element={<OneStudent />} />
 
-        <Route path="committee" element={<Committee />}>
+        <Route path="committee" element={<Committee />} errorElement={<RouteErrorBoundary />}>
           <Route path="addteams" element={<AddTeams />} />
           <Route path="editteams/:id" element={<EditTeams />} />
           <Route path="profile/:id" element={<EditProfile />} />
@@ -93,13 +96,14 @@ const router = createBrowserRouter(
         </Route>
       </Route>
 
-      <Route path="s/:slug" element={<ScannedStudentHome />}>
+      <Route path="s/:slug" element={<ScannedStudentHome />} errorElement={<RouteErrorBoundary />}>
         <Route index element={<ScannedHome />} />
         <Route path="dashboard" element={<DashBoard />} />
         <Route path="profile" element={<ProfileScanned />} />
         <Route path="program" element={<ProgramScanned />} />
         <Route path="result" element={<ResultScanned />} />
       </Route>
+
       <Route path="*" element={<h1>Page not found</h1>} />
     </>
   )
@@ -107,11 +111,9 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>
-    {/* <PersistGate loading={null} persistor={persistor}> */}
-      <ErrorBoundary>
-        <ToastContainer />
-        <RouterProvider router={router} />
-      </ErrorBoundary>
-    {/* </PersistGate> */}
+    <ErrorBoundary> 
+      <ToastContainer />
+      <RouterProvider router={router} />
+    </ErrorBoundary>
   </Provider>
 );
