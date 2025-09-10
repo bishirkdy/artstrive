@@ -13,6 +13,7 @@ import html2canvas from "html2canvas";
 import { Loader } from "../../components/Loader";
 import ErrorMessage from "../../components/ErrorMessage";
 import UseIsMobile from "../../components/UseIsMobile"
+import { printHeader } from "../../components/PrintHeader";
 const ProgramList = () => {
   const [filterText, setFilterText] = useState("");
   const {
@@ -58,7 +59,7 @@ const ProgramList = () => {
     },
     {
       name: "Program",
-      selector: (row) => row.name,
+      selector: (row) => row.name.charAt(0).toUpperCase() + row.name.slice(1),
       width: isMobile ? (isAdmin ? "160px" : "160px") : isAdmin ? "22%" : "30%",
       sortable: true,
     },
@@ -177,7 +178,7 @@ const ProgramList = () => {
           <tr>
             <td>${i + 1}</td>
             <td>${program.id}</td>
-            <td>${program.name}</td>
+            <td>${program.name.charAt(0).toUpperCase()+ program.name.slice(1)}</td>
             <td>${program.zone.zone}</td>
             <td>${program.type}</td>
             <td>${program.stage}</td>
@@ -188,8 +189,9 @@ const ProgramList = () => {
 
     const html = `
           <div class="print-header">
-            <h1>Program List</h1>
-            <p>Generated on ${new Date().toLocaleDateString()}</p>
+             ${printHeader}
+            <h2>Program List</h2>
+            <p class="date">Generated on ${new Date().toLocaleDateString()}</p>
           </div>
           <table>
             <thead>
@@ -217,13 +219,36 @@ const ProgramList = () => {
               background-color: #fff;
             }
             .print-header {
-              text-align: center;
-              margin-bottom: 15px;
-            }
-            .print-header h1 {
-              font-size: 20px;
-              margin-bottom: 5px;
-            }
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.print-header p,
+.print-header h1,
+.print-header h2 {
+  margin: 2px 0;
+  line-height: 1.2;
+}
+
+.print-header h1 {
+  font-size: 36px;
+  font-weight: bold;
+  text-transform: uppercase;
+                                                
+}
+
+.print-header p {
+  font-size: 14px;
+  color: #444;
+}
+.italic {
+  font-style: italic;
+}
+.print-header h2 {
+  font-size: 16px;
+  margin-top: 12px;
+  font-weight: semi-bold;
+}
             table {
               width: 100%;
               border-collapse: collapse;
@@ -238,6 +263,11 @@ const ProgramList = () => {
             th {
               background-color: #f0f0f0;
             }
+            .date {
+              font-size: 12px;
+              text-align: right;
+              margin-top: 10px;
+      }
           </style>
         `;
 

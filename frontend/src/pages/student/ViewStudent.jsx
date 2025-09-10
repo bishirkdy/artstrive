@@ -16,7 +16,7 @@ import html2canvas from "html2canvas";
 import { Loader } from "../../components/Loader";
 import ErrorMessage from "../../components/ErrorMessage";
 import UseIsMobile from "../../components/UseIsMobile";
-
+import { printHeader } from "../../components/PrintHeader";
 const ViewStudent = () => {
   const [filterText, setFilterText] = useState("");
   const [deleteId] = useDeleteStudentMutation();
@@ -25,7 +25,7 @@ const ViewStudent = () => {
     data: studentsData,
     isLoading: studentIsLoading,
     isError: studentIsError,
-    error : studentError,
+    error: studentError,
     refetch,
   } = useAllStudentQuery();
 
@@ -69,7 +69,12 @@ const ViewStudent = () => {
       });
       refetch();
     } catch (error) {
-      toast.error(error?.error?.message || error?.data?.message || error?.message || "Something went wrong");
+      toast.error(
+        error?.error?.message ||
+          error?.data?.message ||
+          error?.message ||
+          "Something went wrong"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -85,8 +90,8 @@ const ViewStudent = () => {
       <tr>
         <td>${index + 1}</td>
         <td>${student.id}</td>
-        <td>${student.name}</td>
-        <td>${student.team?.teamName}</td>
+        <td>${student.name.charAt(0).toUpperCase() + student.name.slice(1)}</td>
+        <td>${student.team?.teamName.charAt(0).toUpperCase() + student.team?.teamName.slice(1)}</td>
         <td>${student.zone?.zone}</td>
       </tr>
     `
@@ -95,8 +100,8 @@ const ViewStudent = () => {
 
     const html = `
       <div class="print-header">
-        <h1>Student List</h1>
-        <p>Generated on ${new Date().toLocaleDateString()}</p>
+        ${printHeader}
+        <h2>Student List</h2>
       </div>
       <table>
         <thead>
@@ -110,6 +115,8 @@ const ViewStudent = () => {
         </thead>
         <tbody>
           ${tableRows}
+          <p class="date">Generated on ${new Date().toLocaleDateString()}</p>
+
         </tbody>
       </table>
     `;
@@ -119,52 +126,82 @@ const ViewStudent = () => {
       type: "raw-html",
       scanStyles: false,
       style: `
-        @page {
-          size: A4;
-          margin: 10mm;
-        }
+      @page {
+        size: A4;
+        margin: 10mm;
+      }
 
-        body {
-          font-family: 'Arial', sans-serif;
-          color: #000;
-          background-color: #fff;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        color: #000;
+        background-color: #fff;
+      }
 
-        .print-header {
-          text-align: center;
-          margin-bottom: 15px;
-        }
+      
+.print-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
 
-        .print-header h1 {
-          font-size: 20px;
-          margin-bottom: 5px;
-        }
+.print-header p,
+.print-header h1,
+.print-header h2 {
+  margin: 2px 0;
+  line-height: 1.2;
+}
 
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          font-size: 12px;
-          margin-top: 10px;
-        }
+.print-header h1 {
+  font-size: 36px;
+  font-weight: bold;
+  text-transform: uppercase;
+                                                
+}
 
-        th, td {
-          border: 1px solid #000;
-          padding: 6px;
-          text-align: center;
-        }
+.print-header p {
+  font-size: 14px;
+  color: #444;
+}
+.italic {
+  font-style: italic;
+}
+.print-header h2 {
+  font-size: 16px;
+  margin-top: 12px;
+  font-weight: semi-bold;
+}
 
-        th {
-          background-color: #f0f0f0;
-        }
 
-        tr:nth-child(even) {
-          background-color: #f9f9f9;
-        }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        margin-top: 10px;
+      }
 
-        tr:nth-child(odd) {
-          background-color: #fff;
-        }
-      `,
+      th, td {
+        border: 1px solid #000;
+        padding: 6px;
+        text-align: center;
+      }
+
+      th {
+        background-color: #f0f0f0;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+
+      tr:nth-child(odd) {
+        background-color: #fff;
+      }
+
+      .date {
+        font-size: 12px;
+        text-align: right;
+        margin-top: 10px;
+      }
+    `,
     });
   };
 
@@ -311,13 +348,13 @@ const ViewStudent = () => {
     },
     {
       name: "Name",
-      selector: (row) => row.name,
+      selector: (row) => row.name.charAt(0).toUpperCase() + row.name.slice(1),
       width: isMobile ? "160px" : "20%",
       wrap: true,
     },
     {
       name: "Team",
-      cell: (row) => row.team.teamName,
+      cell: (row) => row.team.teamName.charAt(0).toUpperCase() + row.team?.teamName.slice(1),
       width: isMobile ? "120px" : "20%",
       sortable: true,
       wrap: true,
@@ -333,7 +370,7 @@ const ViewStudent = () => {
       width: isMobile ? "30px" : "5%",
       cell: (row) => (
         <Link to={`/editStudent/${row._id}`}>
-          <button className="no-print px-2 lg:px-3 py-1 text-black font-bold rounded-s-lg lg:rounded-md bg-[#13F287] hover:bg-[#7dcca6] transition duration-300">
+          <button className="no-print px-2 lg:px-3 py-1 text-black font-bold rounded-s-lg lg:rounded-md bg-[var(--color-secondary)] hover:bg-[var(--color-tertiary)] transition duration-300">
             <FaRegEdit />
           </button>
         </Link>

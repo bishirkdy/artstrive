@@ -5,7 +5,7 @@ const ProgressResult = ({data}) => {
       <h1 className="text-white font-semibold text-2xl">Progress Result</h1>
       <div className="bg-gray-500 h-4 w-full rounded-full mt-4 overflow-hidden">
         <div
-          className={`bg-[#13F287] h-full rounded-full transition-all duration-300`}
+          className={`bg-[var(--color-secondary)] h-full rounded-full transition-all duration-300`}
           style={{ width: `${data ? data.declaredPercentage : "0"}%` }}
         ></div>{" "}
       </div>

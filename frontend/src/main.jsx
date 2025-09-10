@@ -53,12 +53,13 @@ import { ToastContainer } from "react-toastify";
 
 import ErrorBoundary from "./components/Error.jsx";
 import RouteErrorBoundary from "./components/RouteErrorBoundary.jsx"; 
+import Test from "./components/Test.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route path="/login" element={<Login />} errorElement={<RouteErrorBoundary />} />
-
+      <Route path="/test" element={<Test/>} />
       <Route path="/" element={<App />} errorElement={<RouteErrorBoundary />}>
         <Route index element={<Navigate to="dashboard" />} />
         <Route path="dashboard" element={<Home />} />

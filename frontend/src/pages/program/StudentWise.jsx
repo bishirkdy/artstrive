@@ -6,6 +6,7 @@ import printJS from "print-js";
 import { Loader } from "../../components/Loader";
 import ErrorMessage from "../../components/ErrorMessage";
 import UseIsMobile from "../../components/UseIsMobile";
+import { printHeader } from "../../components/PrintHeader";
 const StudentWise = () => {
   const [filteredData, setFilteredData] = useState("");
   const { data, isLoading, isError ,  error } = useGetProgramStudentWiseQuery();
@@ -57,14 +58,14 @@ const columns = [
     },
     {
       name: "Name",
-      selector: (row) => row.student.name,
+      selector: (row) => row.student.name.charAt(0).toUpperCase() + row.student.name.slice(1),
       width: isMobile ? "150px" : "13%",
       sortable: true,
       wrap: true,
     },
     {
       name: "Team",
-      selector: (row) => row.student.team.teamName,
+      selector: (row) => row.student.team.teamName.charAt(0).toUpperCase() + row.student.team.teamName.slice(1),
       width: isMobile ? "120px" : "13%",
       sortable: true,
       wrap: true,
@@ -85,7 +86,7 @@ const columns = [
     },
     {
       name: "Program",
-      selector: (row) => row.program.name,
+      selector: (row) => row.program.name.charAt(0).toUpperCase() + row.program.name.slice(1),
       width: isMobile ? "200px" : "13%",
       sortable: true,
       wrap: true,
@@ -150,11 +151,11 @@ const columns = [
               <tr>
                 <td>${i + 1}</td>
                 <td>${program.student.id}</td>
-                <td>${program.student.name}</td>
-                <td>${program.student.team.teamName}</td>
+                <td>${program.student.name.charAt(0).toUpperCase() + program.student.name.slice(1)}</td>
+                <td>${program.student.team.teamName.charAt(0).toUpperCase() + program.student.team.teamName.slice(1)}</td>
                 <td>${program.student.zone.zone}</td>
                 <td>${program.program.id}</td>
-                <td>${program.program.name}</td>
+                <td>${program.program.name.charAt(0).toUpperCase() + program.program.name.slice(1)}</td>
                 <td>${program.program.zone.zone}</td>
                 <td>${program.program.type}</td>
               </tr>
@@ -164,8 +165,9 @@ const columns = [
 
     const html = `
               <div class="print-header">
-                <h1>Program List By Student</h1>
-                <p>Generated on ${new Date().toLocaleDateString()}</p>
+                ${printHeader}
+                <h2>Program List By Student</h2>
+                <p class="date">Generated on ${new Date().toLocaleDateString()}</p>
               </div>
               <table>
                 <thead>
@@ -195,14 +197,37 @@ const columns = [
                   color: #000;
                   background-color: #fff;
                 }
-                .print-header {
-                  text-align: center;
-                  margin-bottom: 15px;
-                }
-                .print-header h1 {
-                  font-size: 20px;
-                  margin-bottom: 5px;
-                }
+               .print-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.print-header p,
+.print-header h1,
+.print-header h2 {
+  margin: 2px 0;
+  line-height: 1.2;
+}
+
+.print-header h1 {
+  font-size: 36px;
+  font-weight: bold;
+  text-transform: uppercase;
+                                                
+}
+
+.print-header p {
+  font-size: 14px;
+  color: #444;
+}
+.italic {
+  font-style: italic;
+}
+.print-header h2 {
+  font-size: 16px;
+  margin-top: 12px;
+  font-weight: semi-bold;
+}
                 table {
                   width: 100%;
                   border-collapse: collapse;
@@ -217,6 +242,11 @@ const columns = [
                 th {
                   background-color: #f0f0f0;
                 }
+                   .date {
+        font-size: 12px;
+        text-align: right;
+        margin-top: 10px;
+      }
               </style>
             `;
 

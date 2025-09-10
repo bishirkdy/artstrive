@@ -122,7 +122,7 @@ const EditStudent = () => {
               type="file"
               onChange={(e) => setProfile(e.target.files[0])}
               placeholder="Enter student id"
-              className="w-full text-white bg-black  border border-gray-600 rounded-lg file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-[#13F287] file:text-black hover:file:bg-[#7dcca6]"
+              className="w-full text-white bg-black  border border-gray-600 rounded-lg file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-[var(--color-secondary)] file:text-black hover:file:bg-[var(--color-tertiary)]"
             />
           </div>
           <div className="flex flex-col w-full">
@@ -133,7 +133,7 @@ const EditStudent = () => {
               onChange={(e) => setTeam(e.target.value)}
               defaultValue=""
               required
-              className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[#13F287] focus:outline-none"
+              className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
             >
               <option value="" hidden disabled>
                 Select a team
@@ -152,7 +152,7 @@ const EditStudent = () => {
               onChange={(e) => setZone(e.target.value)}
               defaultValue=""
               required
-              className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[#13F287] focus:outline-none"
+              className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
             >
               <option value="" hidden disabled>
                 Select a team
@@ -175,7 +175,7 @@ const EditStudent = () => {
               value={studentId}
               onChange={(e) => setId(e.target.value)}
               placeholder="Enter student id"
-              className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[#13F287] focus:outline-none"
+              className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
             />
           </div>
           <div className="flex flex-col w-full">
@@ -185,13 +185,13 @@ const EditStudent = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter student name"
-              className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[#13F287] focus:outline-none"
+              className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
             />
           </div>
         </div>
 
         <button
-          className="w-full mt-2 py-2 bg-[#13F287] hover:bg-[#7dcca6] text-black font-bold rounded-lg transition duration-300"
+          className="w-full mt-2 py-2 bg-[var(--color-secondary)] hover:bg-[var(--color-tertiary)] text-black font-bold rounded-lg transition duration-300"
           type="submit"
         >
           Edit

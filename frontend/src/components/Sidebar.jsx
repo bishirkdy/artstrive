@@ -16,6 +16,7 @@ import { FaSignOutAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useLogoutMutation } from "../redux/api/authApi";
 import { BeatLoader } from "react-spinners";
+import logo from '../assets/logo.png';
 
 const adminItems = (toggleSidebar) => [
   {
@@ -235,13 +236,13 @@ const Sidebar = ({ setIsActives }) => {
         onClick={() => setSideBarOpen((prev) => !prev)}
       >
         {!sideBarOpen ? (
-          <div className="space-y-1.5 bg-[#13F287] p-2 rounded-e-2xl pr-4">
+          <div className="space-y-1.5 bg-[var(--color-secondary)] p-2 rounded-e-2xl pr-4">
             <div className="w-7 h-0.5 bg-black"></div>
             <div className="w-5 h-0.5 bg-black"></div>
             <div className="w-7 h-0.5 bg-black"></div>
           </div>
         ) : (
-          <div className="flex items-center justify-center bg-[#13F287] p-4 rounded-e-2xl pr-8">
+          <div className="flex items-center justify-center bg-[var(--color-secondary)] p-4 rounded-e-2xl pr-8">
             <div className="w-7 h-1 rounded-lg bg-black rotate-45 absolute"></div>
             <div className="w-7 h-1 bg-black rounded-lg -rotate-45 absolute"></div>
           </div>
@@ -263,13 +264,13 @@ const Sidebar = ({ setIsActives }) => {
             onClick={() => setIsActive((prev) => !prev)}
             className="h-14 w-14 flex items-center justify-center"
           >
-            <h1 className="text-3xl font-bold ml-3 text-[#13F287]">R</h1>
+            <img src={logo} alt="" className="h-[2rem]" />
           </button>
           <button
             onClick={() => setIsActive((prev) => !prev)}
             className={`${
               isActive
-                ? "text-[#13F287] text-2xl mr-4 hidden lg:block"
+                ? "text-[var(--color-secondary)] text-2xl mr-4 hidden lg:block"
                 : "hidden"
             }`}
           >
@@ -330,7 +331,7 @@ const Sidebar = ({ setIsActives }) => {
               onClick={() => setProfilePopupVisible((prev) => !prev)}
               className={`${
                 forceProfileMenu ? "hidden" : ""
-              } bg-[#13F287] p-2 h-12 w-[80%] mx-auto mb-4 rounded-lg text-[#121212] hover:bg-[#29b870] truncate`}
+              } bg-[var(--color-secondary)] p-2 h-12 w-[80%] mx-auto mb-4 rounded-lg text-[#121212] hover:bg-[var(--color-tertiary)] truncate`}
             >
               <div className="flex gap-4 justify-between p-1 items-center">
                 <div className="flex gap-2 items-center">
@@ -358,18 +359,18 @@ const Sidebar = ({ setIsActives }) => {
           >
             {user && isAdmin ? (
               <ul>
-                <li className="p-2 rounded-lg hover:bg-[#13F287] hover:text-black transition-colors duration-200">
+                <li className="p-2 rounded-lg hover:bg-[var(--color-secondary)] hover:text-black transition-colors duration-200">
                   <Link to={`/committee/profile/${id}`}>Profile</Link>
                 </li>
                 <li
                   onClick={() => setIsActives(true)}
-                  className="p-2 rounded-lg hover:bg-[#13F287] hover:text-black transition-colors duration-200"
+                  className="p-2 rounded-lg hover:bg-[var(--color-secondary)] hover:text-black transition-colors duration-200"
                 >
                   Settings
                 </li>
                 <li
                   onClick={logOutHandler}
-                  className="p-2 rounded-lg hover:bg-[#13F287] hover:text-black transition-colors duration-200"
+                  className="p-2 rounded-lg hover:bg-[var(--color-secondary)] hover:text-black transition-colors duration-200"
                 >
                   {logoutLoading ? (
                     <span className="animate-pulse">

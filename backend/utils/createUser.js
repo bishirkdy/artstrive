@@ -8,7 +8,6 @@ export const generateToken = (res, userId , isAdmin ) => {
       process.env.SECRET_KEY,
       { expiresIn: "30d" }
     );
-    console.log("token", token);
     
     res.cookie("jwt", token, {
       httpOnly: true,
@@ -17,7 +16,6 @@ export const generateToken = (res, userId , isAdmin ) => {
       sameSite: "none", 
     });
 
-    
 
     return token; 
   } catch (error) {

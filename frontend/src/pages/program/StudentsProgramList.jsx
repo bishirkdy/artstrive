@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import printJS from "print-js";
 import { Loader } from "../../components/Loader";
 import ErrorMessage from "../../components/ErrorMessage";
+import { printHeader } from "../../components/PrintHeader";
 const StudentsProgramList = () => {
   const { data, isLoading, isError, error } = useGetStudentByProgramQuery();
   const [filteredData, setFilteredData] = useState("");
@@ -21,7 +22,7 @@ const StudentsProgramList = () => {
 
     return isMobile;
   }
-    const isMobile = useIsMobile();
+  const isMobile = useIsMobile();
 
   if (isLoading)
     return (
@@ -29,8 +30,6 @@ const StudentsProgramList = () => {
         <Loader />
       </div>
     );
-
-
 
   if (isError) {
     const code = error?.originalStatus || "Error";
@@ -56,12 +55,11 @@ const StudentsProgramList = () => {
     ].some((value) => value.toLowerCase().includes(filteredData.toLowerCase()))
   );
 
-
   const columns = [
     {
       name: "",
       selector: (row, i) => i + 1,
-      width: isMobile ? "50px" : "7%", 
+      width: isMobile ? "50px" : "7%",
     },
     {
       name: "Id",
@@ -71,7 +69,8 @@ const StudentsProgramList = () => {
     },
     {
       name: "Program",
-      selector: (row) => row.program.name,
+      selector: (row) =>
+        row.program.name.charAt(0).toUpperCase() + row.program.name.slice(1),
       width: isMobile ? "150px" : "20%",
       sortable: true,
     },
@@ -101,7 +100,8 @@ const StudentsProgramList = () => {
     },
     {
       name: "Name",
-      selector: (row) => row.student.name,
+      selector: (row) =>
+        row.student.name.charAt(0).toUpperCase() + row.student.name.slice(1),
       width: isMobile ? "100px" : "15%",
       sortable: true,
     },
@@ -149,13 +149,13 @@ const StudentsProgramList = () => {
             <tr>
               <td>${i + 1}</td>
               <td>${program.program.id}</td>
-              <td>${program.program.name}</td>
+              <td>${program.program.name.charAt(0).toUpperCase() + program.program.name.slice(1)}</td>
               <td>${program.program.zone.zone}</td>
               <td>${program.program.type}</td>
               <td>${program.program.stage}</td>
               <td>${program.student.id}</td>
-              <td>${program.student.name}</td>
-              <td>${program.student.team.teamName}</td>
+              <td>${program.student.name.charAt(0).toUpperCase() + program.student.name.slice(1)}</td>
+              <td>${program.student.team.teamName.charAt(0).toUpperCase() + program.student.team.teamName.slice(1)}</td>
             </tr>
           `
       )
@@ -163,8 +163,9 @@ const StudentsProgramList = () => {
 
     const html = `
             <div class="print-header">
-              <h1>Program List</h1>
-              <p>Generated on ${new Date().toLocaleDateString()}</p>
+            ${printHeader}
+              <h2>Programs of students</h2>
+              <p class="date">Generated on ${new Date().toLocaleDateString()}</p>
             </div>
             <table>
               <thead>
@@ -195,13 +196,36 @@ const StudentsProgramList = () => {
                 background-color: #fff;
               }
               .print-header {
-                text-align: center;
-                margin-bottom: 15px;
-              }
-              .print-header h1 {
-                font-size: 20px;
-                margin-bottom: 5px;
-              }
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.print-header p,
+.print-header h1,
+.print-header h2 {
+  margin: 2px 0;
+  line-height: 1.2;
+}
+
+.print-header h1 {
+  font-size: 36px;
+  font-weight: bold;
+  text-transform: uppercase;
+                                                
+}
+
+.print-header p {
+  font-size: 14px;
+  color: #444;
+}
+.italic {
+  font-style: italic;
+}
+.print-header h2 {
+  font-size: 16px;
+  margin-top: 12px;
+  font-weight: semi-bold;
+}
               table {
                 width: 100%;
                 border-collapse: collapse;
@@ -216,6 +240,11 @@ const StudentsProgramList = () => {
               th {
                 background-color: #f0f0f0;
               }
+                 .date {
+        font-size: 12px;
+        text-align: right;
+        margin-top: 10px;
+      }
             </style>
           `;
 

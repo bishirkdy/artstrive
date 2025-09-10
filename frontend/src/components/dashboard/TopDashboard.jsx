@@ -4,12 +4,11 @@ import { RiPlayList2Fill } from "react-icons/ri";
 import { RiTeamLine } from "react-icons/ri";
 import { MdOutlineEventSeat } from "react-icons/md";
 
-const TopDashboard = ({data }) => {
-  
+const TopDashboard = ({ data }) => {
   return (
     <div className="flex flex-col flex-nowrap items-center justify-center md:ml-1 lg:flex-row gap-4 md:gap-6">
       <div className="flex flex-row flex-nowrap gap-2 md:gap-6">
-        <div className="w-[43vw] lg:w-[12vw] h-[25vh] md:min-w-[140px] min-h-[110px] rounded-xl [background:radial-gradient(at_right_bottom,_rgba(19,242,135,0.3)_0%,_#121212_70%)]  flex items-center justify-center transition-transform duration-300 hover:scale-105 ">
+        <div className="w-[43vw] lg:w-[12vw] h-[25vh] md:min-w-[140px] min-h-[110px] rounded-xl [background:radial-gradient(at_right_bottom,_rgba(205,157,47,0.3)_0%,_#121212_70%)] flex items-center justify-center transition-transform duration-300 hover:scale-105 ">
           <div className="flex flex-col items-center text-white font-semibold ">
             <SlPeople
               className="text-2xl md:text-4xl drop-shadow-md"
@@ -24,7 +23,7 @@ const TopDashboard = ({data }) => {
           </div>
         </div>
 
-        <div className="w-[43vw] lg:w-[12vw] h-[25vh] md:min-w-[140px] min-h-[110px] rounded-xl [background:radial-gradient(at_right_bottom,_rgba(19,242,135,0.3)_0%,_#121212_70%)]  flex items-center justify-center transition-transform duration-300 hover:scale-105 ">
+        <div className="w-[43vw] lg:w-[12vw] h-[25vh] md:min-w-[140px] min-h-[110px] rounded-xl [background:radial-gradient(at_right_bottom,_rgba(205,157,47,0.3)_0%,_#121212_70%)] flex items-center justify-center transition-transform duration-300 hover:scale-105 ">
           <div className="flex flex-col items-center text-white font-semibold">
             <RiPlayList2Fill
               className="text-4xl drop-shadow-md"
@@ -41,8 +40,8 @@ const TopDashboard = ({data }) => {
       </div>
 
       <div className="flex flex-row flex-nowrap gap-2 md:gap-6">
-      <div className="w-[43vw] lg:w-[12vw] h-[25vh] md:min-w-[140px] min-h-[110px] rounded-xl [background:radial-gradient(at_right_bottom,_rgba(19,242,135,0.3)_0%,_#121212_70%)]  flex items-center justify-center transition-transform duration-300 hover:scale-105 ">
-      <div className="flex flex-col items-center text-white font-semibold">
+        <div className="w-[43vw] lg:w-[12vw] h-[25vh] md:min-w-[140px] min-h-[110px] rounded-xl [background:radial-gradient(at_right_bottom,_rgba(205,157,47,0.3)_0%,_#121212_70%)] flex items-center justify-center transition-transform duration-300 hover:scale-105 ">
+          <div className="flex flex-col items-center text-white font-semibold">
             <RiTeamLine
               className="text-4xl drop-shadow-md"
               aria-hidden="true"
@@ -56,7 +55,7 @@ const TopDashboard = ({data }) => {
           </div>
         </div>
 
-        <div className="w-[43vw] lg:w-[12vw] h-[25vh] md:min-w-[140px] min-h-[110px] rounded-xl [background:radial-gradient(at_right_bottom,_rgba(19,242,135,0.3)_0%,_#121212_70%)]  flex items-center justify-center transition-transform duration-300 hover:scale-105 ">
+        <div className="w-[43vw] lg:w-[12vw] h-[25vh] md:min-w-[140px] min-h-[110px] rounded-xl [background:radial-gradient(at_right_bottom,_rgba(205,157,47,0.3)_0%,_#121212_70%)] flex items-center justify-center transition-transform duration-300 hover:scale-105 ">
           <div className="flex flex-col items-center text-white font-semibold">
             <MdOutlineEventSeat
               className="text-4xl drop-shadow-md"

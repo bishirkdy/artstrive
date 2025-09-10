@@ -50,7 +50,7 @@ const EditTeams = () => {
             value={updateName}
             onChange={(e) => setUpdateTeamName(e.target.value)}
             placeholder="Enter new name"
-            className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[#13F287] focus:outline-none"
+            className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
           />
         </div>
         <div className="flex flex-col">
@@ -60,11 +60,11 @@ const EditTeams = () => {
             value={updatePassword}
             onChange={(e) => setUpdateTeamPassword(e.target.value)}
             placeholder="Enter new password"
-            className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[#13F287] focus:outline-none"
+            className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
           />
         </div>
         <button
-          className="w-full mt-2 py-2 bg-[#13F287] hover:bg-[#7dcca6] text-white font-bold rounded-lg transition duration-300"
+          className="w-full mt-2 py-2 bg-[var(--color-secondary)] hover:bg-[var(--color-tertiary)] text-white font-bold rounded-lg transition duration-300"
           type="submit"
           disabled={isLoading} 
         >

@@ -110,7 +110,7 @@ const AddTeams = () => {
           />
         </div>
         <button
-          className="w-full mt-2 py-2 bg-[#13F287] hover:bg-[#7dcca6] text-black font-bold rounded-lg transition duration-300"
+          className="w-full mt-2 py-2 bg-[var(--color-secondary)] hover:bg-[var(--color-tertiary)] text-black font-bold rounded-lg transition duration-300"
           type="submit"
         >
           {addTeamLoading ? `Adding ${newTeam}` : "Add Team"}

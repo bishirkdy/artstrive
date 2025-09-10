@@ -7,6 +7,7 @@ import html2canvas from "html2canvas";
 import { toast } from "react-toastify";
 import { Loader } from "../../components/Loader";
 import ErrorMessage from "../../components/ErrorMessage";
+import { printHeader } from "../../components/PrintHeader";
 
 const ViewSelected = () => {
   const { _id } = useParams();
@@ -21,42 +22,80 @@ const ViewSelected = () => {
       documentTitle: `Result ${resultNumber}`,
       honorMarginPadding: true,
       scanStyles: false,
-      //  header: `bishir`,
-      //  headerStyle : ` `,
-      style: `
-        @page { size: auto; margin: 5mm; }
-        body { font-family: Arial, sans-serif; }
-        #printable-area { color: black; }
 
-        h1 {
-          text-align: center;
-          font-size: 20px;
-          margin-bottom: 1rem;
-          color: black;
-        }
+      header: `${printHeader}`,
+
+      style: `
+      @page { size: auto; margin: 5mm; }
+      body { font-family: Arial, sans-serif; }
+      #printable-area { color: black; }
+
+      /* Header styling */
+      .print-header {
+        display: block;
+        width: 100%;
+        text-align: center;
+        margin: 0 auto 20px auto;
+      }
+
+      .print-header p,
+      .print-header h1,
+      .print-header h2 {
+        margin: 2px 0;
+        line-height: 1.2;
+      }
+
+      .print-header h1 {
+        font-size: 36px;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+
+      .print-header p {
+        font-size: 14px;
+        color: #444;
+      }
+
+      .italic {
+        font-style: italic;
+      }
+
+      .print-header h2 {
+        font-size: 16px;
+        margin-top: 12px;
+        font-weight: 600;
+      }
+
+      /* Table styling */
+      h1 {
+        text-align: center;
+        font-size: 20px;
+        margin-bottom: 1rem;
+        color: black;
+      }
   
-        .header-row {
-          display: flex;
-          justify-content: space-between;
-          flex-wrap: wrap;
-          gap: 10px;
-          margin: 10px 0;
-          padding: 0 10px;
-        }
+      .header-row {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 10px 0;
+        padding: 0 10px;
+      }
   
-        .header-row h5 {
-          margin: 0;
-          font-size: 14px;
-          font-weight: 500;
-          color: black;
-        }
+      .header-row h5 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 500;
+        color: black;
+      }
   
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { border: 1px solid #000; padding: 5px; text-align: center; font-size: 13px; }
-        thead { background-color: #f0f0f0; }
-        .even { background-color: #f9f9f9; }
-        .odd { background-color: white; }
-      `,
+      table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+      th, td { border: 1px solid #000; padding: 5px; text-align: center; font-size: 13px; }
+      thead { background-color: #f0f0f0; }
+      .even { background-color: #f9f9f9; }
+      .odd { background-color: white; }
+    `,
     });
   };
 
@@ -147,7 +186,7 @@ const ViewSelected = () => {
             </div>
             <div>
               <div className="header-row flex flex-wrap justify-center md:justify-between w-full text-sm md:text-base mt-4 gap-2 px-4">
-                {["id", "name", "type"].map((key) => (
+                {["id", "name", "type" , "stage"].map((key) => (
                   <h5 key={key}>
                     {`${key.charAt(0).toUpperCase() + key.slice(1)}: ${
                       programHeader.program?.[key] || ""

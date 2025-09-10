@@ -1,16 +1,36 @@
-// import { OrbitLoader } from 'react-loaderkit';
-import { HashLoader } from "react-spinners";
+import React from 'react';
+import logo from '../assets/logo.png';
 
-// export default function MyComponent() {
-//   return (
-//     <OrbitLoader 
-//       size={47} 
-//       color="#13F287"
-//       speed={0.5} 
-//     />
-//   );
-// }
+const rockingAnimation = `
+@keyframes rocking {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(5deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  75% {
+    transform: rotate(-5deg);
+  }
+}
+`;
 
 export function Loader() {
-  return <HashLoader color="#13F287" size={100} />;
+  return (
+    <>
+      <style>{rockingAnimation}</style>
+      <img
+        src={logo}
+        alt="Loading..."
+        style={{
+          width: '100px',
+          animation: 'rocking 3s ease-in-out infinite',
+          transformOrigin: 'center bottom'
+        }}
+      />
+    </>
+  );
 }

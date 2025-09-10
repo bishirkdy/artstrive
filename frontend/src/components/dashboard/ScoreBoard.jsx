@@ -11,13 +11,13 @@ const ScoreBoard = ({data}) => {
               className="flex items-center justify-between bg-white/10 backdrop-blur-sm border border-white/20 p-4 rounded-xl shadow-lg transition-all duration-300 hover:scale-[1.02] hover:bg-white/20"
             >
               <div className="flex items-center">
-                <span className="text-xl font-bold text-[#13F287] mr-4 w-8 text-center">
+                <span className="text-xl font-bold text-[var(--color-secondary)] mr-4 w-8 text-center">
                   {i + 1}
                 </span>
                 <h3 className="text-lg text-white font-medium">{d.teamName}</h3>
               </div>
               <div className="flex items-center">
-                <span className="text-xl font-bold text-[#13F287] bg-white/10 px-3 py-1 rounded-lg">
+                <span className="text-xl font-bold text-[var(--color-secondary)] bg-white/10 px-3 py-1 rounded-lg">
                   {d.totalScore}
                 </span>
               </div>
