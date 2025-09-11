@@ -17,6 +17,7 @@ import { Loader } from "../../components/Loader";
 import ErrorMessage from "../../components/ErrorMessage";
 import UseIsMobile from "../../components/UseIsMobile";
 import { printHeader } from "../../components/PrintHeader";
+import { useStudentAddingDeadlineQuery } from "../../redux/api/customApi";
 const ViewStudent = () => {
   const [filterText, setFilterText] = useState("");
   const [deleteId] = useDeleteStudentMutation();
@@ -28,10 +29,17 @@ const ViewStudent = () => {
     error: studentError,
     refetch,
   } = useAllStudentQuery();
+  const { data, isLoading, isError, error } = useStudentAddingDeadlineQuery();
 
   const user = useSelector((state) => state.auth.user);
   const isAdmin = user.user.isAdmin;
   const teamFromStore = user.user.teamName;
+  const teams = user.user.isAdmin === false;
+
+  const currentDate = new Date();
+  const deadlineDate = new Date(data?.data?.deadline);
+
+  const finaldeadline = teams && deadlineDate < currentDate;
 
   const navigate = useNavigate();
   const isMobile = UseIsMobile();
@@ -39,18 +47,24 @@ const ViewStudent = () => {
     refetch();
   }, [refetch]);
 
-  if (studentIsLoading) {
+  if (studentIsLoading || isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader />
       </div>
     );
   }
-  if (studentIsError) {
-    const code = studentError?.originalStatus || "Error";
+  if (studentIsError || isError) {
+    const code =
+      studentError?.originalStatus || error?.originalStatus || "Error";
     const details =
-      studentError?.error || studentError?.data || "Something went wrong";
-    const title = studentError?.status || "Error fetching student";
+      studentError?.error ||
+      studentError?.data ||
+      error?.error ||
+      error?.data ||
+      "Something went wrong";
+    const title =
+      studentError?.status || error?.status || "Error fetching student";
     return <ErrorMessage code={code} title={title} details={details} />;
   }
   const students = isAdmin
@@ -91,7 +105,10 @@ const ViewStudent = () => {
         <td>${index + 1}</td>
         <td>${student.id}</td>
         <td>${student.name.charAt(0).toUpperCase() + student.name.slice(1)}</td>
-        <td>${student.team?.teamName.charAt(0).toUpperCase() + student.team?.teamName.slice(1)}</td>
+        <td>${
+          student.team?.teamName.charAt(0).toUpperCase() +
+          student.team?.teamName.slice(1)
+        }</td>
         <td>${student.zone?.zone}</td>
       </tr>
     `
@@ -354,7 +371,8 @@ const ViewStudent = () => {
     },
     {
       name: "Team",
-      cell: (row) => row.team.teamName.charAt(0).toUpperCase() + row.team?.teamName.slice(1),
+      cell: (row) =>
+        row.team.teamName.charAt(0).toUpperCase() + row.team?.teamName.slice(1),
       width: isMobile ? "120px" : "20%",
       sortable: true,
       wrap: true,
@@ -369,8 +387,18 @@ const ViewStudent = () => {
     {
       width: isMobile ? "30px" : "5%",
       cell: (row) => (
-        <Link to={`/editStudent/${row._id}`}>
-          <button className="no-print px-2 lg:px-3 py-1 text-black font-bold rounded-s-lg lg:rounded-md bg-[var(--color-secondary)] hover:bg-[var(--color-tertiary)] transition duration-300">
+        <Link to={finaldeadline ? "#" : `/editStudent/${row._id}`}>
+          <button
+            disabled={finaldeadline}
+            onClick={() => {
+              if (finaldeadline) toast.warn("Deadline passed to edit student");
+            }}
+            className={`no-print px-2 lg:px-3 py-1 text-black font-bold rounded-s-lg lg:rounded-md ${
+              finaldeadline
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-[var(--color-secondary)] hover:bg-[var(--color-tertiary)]"
+            } transition duration-300`}
+          >
             <FaRegEdit />
           </button>
         </Link>
@@ -380,8 +408,19 @@ const ViewStudent = () => {
       width: isMobile ? "30px" : "5%",
       cell: (row) => (
         <button
-          className="no-print px-2 lg:px-3 py-1 text-white font-bold lg:rounded-md bg-red-600 hover:bg-red-700 transition duration-300"
-          onClick={() => handleDeleteStudent(row._id)}
+          className={`no-print px-2 lg:px-3 py-1 text-white font-bold lg:rounded-md transition duration-300 ${
+            finaldeadline
+              ? "bg-gray-500 cursor-not-allowed"
+              : "bg-red-600 hover:bg-red-700"
+          }`}
+          onClick={() => {
+            if (finaldeadline) {
+              toast.warn("Deadline passed, cannot delete student");
+            } else {
+              handleDeleteStudent(row._id);
+            }
+          }}
+          disabled={finaldeadline}
         >
           <MdOutlineDeleteForever />
         </button>

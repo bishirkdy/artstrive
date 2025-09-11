@@ -1,6 +1,6 @@
 import cloudinary from "../db/cloudinary.js";
 import Auth from "../models/authModel.js";
-// import Custom from "../models/customModel.js";
+import Custom from "../models/customModel.js";
 import Graph from "../models/graphModel.js";
 import IdCardUi from "../models/IdCardUiModel.js";
 import Message from "../models/MessageModel.js";
@@ -207,10 +207,19 @@ export const recentMessage = async (req, res, next) => {
     const messages = await Message.find()
       .sort({ notificationDate: -1 })
       .limit(4);
-    if (!messages) return next(new CustomError("No messages found", 404));
+    const deadline = await Custom.find()
+      .sort({ notificationDate: -1 })
+      .limit(4);
+
+    let combined = [...messages, ...deadline];
+    combined = combined.sort((a, b) => {
+      return new Date(b.notificationDate) - new Date(a.notificationDate);
+    });
+    combined = combined.slice(0, 4);
+
     res.status(200).json({
       success: true,
-      data: messages,
+      data: combined,
     });
   } catch (error) {
     next(error);
@@ -219,11 +228,47 @@ export const recentMessage = async (req, res, next) => {
 
 export const getMessages = async (req, res, next) => {
   try {
-    const messages = await Message.find().sort({ notificationDate: -1 });
-    if (!messages) return next(new CustomError("No messages found", 404));
+    const message = await Message.find().lean();
+    const deadlines = await Custom.find().lean();
+
+    const combined = [...message, ...deadlines];
+    combined.sort((a, b) => {
+      const dateA = new Date(a.notificationDate);
+      const dateB = new Date(b.notificationDate);
+      return dateB - dateA;
+    });
+
     res.status(200).json({
       success: true,
-      data: messages,
+      data: combined,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteMessages = async (req, res, next) => {
+  try {
+    const { _id } = req.body;
+
+    if (!_id) {
+      return next(new CustomError("ID is required", 400));
+    }
+
+    let deleted = await Message.findByIdAndDelete(_id);
+
+    if (!deleted) {
+      deleted = await Custom.findByIdAndDelete(_id);
+    }
+
+    if (!deleted) {
+      return next(new CustomError("Message not found", 404));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Deleted successfully",
+      data: deleted,
     });
   } catch (error) {
     next(error);
@@ -268,6 +313,64 @@ export const getIdCardUi = async (req, res, next) => {
   try {
     const idUi = await IdCardUi.findOne();
     res.status(200).json(idUi);
+  } catch (error) {
+    next(error);
+  }
+};
+
+//....................................................
+
+export const addDeadline = async (req, res, next) => {
+  try {
+    const { messageSubject, message, deadline, deadlineOf } = req.body;
+    if (!messageSubject || !message || !deadline || !deadlineOf)
+      return next(new CustomError("Please provide all the fields", 400));
+
+    const newDeadline = new Custom({
+      notificationTitle: messageSubject,
+      notification: message,
+      deadline: new Date(deadline),
+      deadlineOf,
+    });
+    if (!newDeadline) {
+      return next(new CustomError("Failed to set deadline", 500));
+    }
+    await newDeadline.save();
+    res.status(200).json({
+      success: true,
+      message: "Deadline set successfully",
+      data: newDeadline,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const studentAddingDeadline = async (req, res, next) => {
+  try {
+    const deadline = await Custom.findOne({
+      deadlineOf: "student-deadline",
+    }).sort({ notificationDate: -1 });
+
+    if (!deadline) {
+      return res.status(200).json({ data: null });
+    }
+
+    res.status(200).json({ data: deadline });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const programAddingDeadline = async (req, res, next) => {
+  try {
+    const deadline = await Custom.findOne({
+      deadlineOf: "program-deadline",
+    }).sort({ notificationDate: -1 });
+    if (!deadline) {
+      return res.status(200).json({ data: null });
+    }
+    res.status(200).json({ data: deadline });
   } catch (error) {
     next(error);
   }

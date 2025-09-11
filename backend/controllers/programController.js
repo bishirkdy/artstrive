@@ -3,7 +3,6 @@ import { CustomError } from "../utils/errorUtils.js";
 import StudentProgram from "../models/studentProgramModel.js";
 import Student from "../models/studentModel.js";
 import mongoose from "mongoose";
-// import Custom from "../models/customModel.js";
 import Graph from "../models/graphModel.js";
 import Message from "../models/MessageModel.js";
 import filterProgramsRank from "../utils/resultFunction.js";

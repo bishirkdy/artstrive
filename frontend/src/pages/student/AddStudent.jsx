@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { Loader } from "../../components/Loader";
 import ErrorMessage from "../../components/ErrorMessage";
+import { useStudentAddingDeadlineQuery } from "../../redux/api/customApi";
 
 const AddStudent = () => {
   const [name, setName] = useState("");
@@ -16,24 +17,29 @@ const AddStudent = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fileInputRef = useRef(null);
-
+  const {
+    data: studentDeadlineData,
+    isLoading,
+    error,
+    isError,
+  } = useStudentAddingDeadlineQuery();
   const [student, { isLoading: isStudentLoading }] = useAddStudentMutation();
   const {
     data: teamFormDB,
     isLoading: teamIsLoading,
     error: teamError,
-    isError : teamIsError,
+    isError: teamIsError,
   } = useViewTeamsQuery();
   const {
     data: zoneFromDB,
     isLoading: zoneIsLoading,
     error: zoneError,
-    isError : zoneIsError,
+    isError: zoneIsError,
   } = useViewZoneQuery();
   const { user } = useSelector((state) => state.auth);
 
   const teamFromStore = user.user.teamName;
-
+  const teams = user.user.isAdmin === false
   const sameTeam =
     teamFormDB?.teamName && teamFromStore
       ? teamFormDB.teamName.find((team) => team.teamName === teamFromStore)
@@ -44,26 +50,55 @@ const AddStudent = () => {
       setTeam(sameTeam._id);
     }
   }, [sameTeam, team]);
-  if (teamIsLoading || zoneIsLoading) {
+  if (teamIsLoading || zoneIsLoading || isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#121212]">
         <Loader />
       </div>
     );
   }
-
-  if (teamIsError || zoneIsError) {
+  
+  const currentDate = new Date();
+  const deadlineDate = new Date(studentDeadlineData?.data?.deadline);
+  
+  if (teams && deadlineDate < currentDate) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-[#121212]">
+        <div className="text-center"> 
+          <h1 className="text-3xl font-bold text-white mb-4">
+            Student Adding Deadline closed
+          </h1>
+          <p className="text-white">
+            The deadline for adding students has passed. You can no longer add
+            new students.
+          </p>
+        </div>
+      </div>
+    );
+  }
+  if (teamIsError || zoneIsError || isError) {
     const code =
-      teamError?.originalStatus || zoneError?.originalStatus || "Error";
+      teamError?.originalStatus ||
+      zoneError?.originalStatus ||
+      error?.originalStatus ||
+      "Error";
     const details =
       teamError?.error ||
       teamError?.data ||
+      error?.error ||
+      error?.data ||
       zoneError?.error ||
-      zoneError?.data ||
-      "Something went wrong";
+      zoneError?.data;
+
+    const detailsString =
+      typeof details === "object" ? JSON.stringify(details) : details;
+
     const title =
-      teamError?.status || zoneError?.status || "Error fetching zones";
-    return <ErrorMessage code={code} title={title} details={details} />;
+      teamError?.status ||
+      zoneError?.status ||
+      error?.status ||
+      "Error fetching zones";
+    return <ErrorMessage code={code} title={title} details={detailsString} />;
   }
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -107,7 +142,13 @@ const AddStudent = () => {
     }
   };
 
-  const selectedZone = zoneFromDB.filter((z) => z.zone !== "GENERAL" && z.zone !== "MIX ZONE" && z.zone !== "CAT-A" && z.zone !== "CAT-B");
+  const selectedZone = zoneFromDB.filter(
+    (z) =>
+      z.zone !== "GENERAL" &&
+      z.zone !== "MIX ZONE" &&
+      z.zone !== "CAT-A" &&
+      z.zone !== "CAT-B"
+  );
 
   return (
     <div className="mx-auto lg:ml-[28vw] mt-[6rem] flex flex-col p-6 w-[90vw] md:max-w-2xl bg-[#121212] rounded-lg shadow-lg">

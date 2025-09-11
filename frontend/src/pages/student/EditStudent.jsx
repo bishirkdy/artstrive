@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { Loader } from "../../components/Loader";
 import ErrorMessage from "../../components/ErrorMessage";
+import { useStudentAddingDeadlineQuery } from "../../redux/api/customApi";
 
 const EditStudent = () => {
   const [profile, setProfile] = useState(null);
@@ -18,23 +19,29 @@ const EditStudent = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useSelector((state) => state.auth);
   const admin = user.user.isAdmin === true;
-
+  const teamsCheck = user.user.isAdmin === false;
   const { _id } = useParams();
 
   const {
     data: teamsData,
     isLoading: teamIsLoading,
     isError: teamIsError,
-    error : errorDataOfTeam
+    error: errorDataOfTeam,
   } = useViewTeamsQuery();
   const {
     data: studentsData,
     isLoading: studentIsLoading,
     isError: studentError,
-    error : errorDataOfStudent,
-    
+    error: errorDataOfStudent,
+
     refetch,
   } = useAllStudentQuery();
+  const {
+    data,
+    isLoading,
+    isError,
+    error: deadError,
+  } = useStudentAddingDeadlineQuery();
   const { data: zonesData, isLoading: zoneIsLoading } = useViewZoneQuery();
   const [editedStudent] = useEditStudentMutation();
   const navigate = useNavigate();
@@ -52,25 +59,41 @@ const EditStudent = () => {
     }
   }, [studentName]);
 
-  if (teamIsLoading || zoneIsLoading || studentIsLoading) {
+  if (teamIsLoading || zoneIsLoading || studentIsLoading || isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader />
       </div>
     );
   }
-  const error = teamIsError || studentError;
-  const errorData = errorDataOfStudent || errorDataOfTeam
+  const error = teamIsError || studentError || isError;
+  const errorData = errorDataOfStudent || errorDataOfTeam || deadError;
   if (error) {
     const code = errorData?.originalStatus || "Error";
-    const details = errorData?.error || errorData?.data || "Something went wrong";
+    const details =
+      errorData?.error || errorData?.data || "Something went wrong";
     const title = errorData?.status || "Error fetching zones";
     return <ErrorMessage code={code} title={title} details={details} />;
   }
   const teams = Array.isArray(teamsData.teamName) ? teamsData.teamName : [];
   const zones = Array.isArray(zonesData) ? zonesData : [];
   const selectedZone = zones.filter((z) => z.zone !== "GENERAL");
-
+  const currentDate = new Date();
+  const deadlineDate = new Date(data?.data?.deadline);
+  if (teamsCheck && deadlineDate < currentDate) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-[#121212]">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-white mb-4">
+            Student Editing Deadline closed
+          </h1>
+          <p className="text-white">
+            The deadline for editing students has passed. You can no longer add or edit students.
+          </p>
+        </div>
+      </div>
+    );
+  }
   const submitHandler = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);

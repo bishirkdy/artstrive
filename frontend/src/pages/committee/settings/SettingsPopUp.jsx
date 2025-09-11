@@ -18,6 +18,7 @@ import { useViewZoneQuery } from "../../../redux/api/zoneApi";
 import ErrorMessage from "../../../components/ErrorMessage";
 import EditCodeLetter from "./EditCodeLetter";
 import EditScore from "./EditScore";
+import Deadline from "./Deadline";
 
 const SettingsPopUp = ({ setIsActive }) => {
   const [selectedComponent, setSelectedComponent] = useState(null);
@@ -111,6 +112,14 @@ const SettingsPopUp = ({ setIsActive }) => {
       icon: <TbClockStop className="text-2xl" />,
       component: (
         <EditScore settingsToggle={() => setSelectedComponent(null)}/>
+      ),
+    },
+    {
+      title: "DeadLine",
+      description: "Set deadline",
+      icon: <TbClockStop className="text-2xl" />,
+      component: (
+        <Deadline settingsToggle={() => setSelectedComponent(null)}/>
       ),
     },
   ];

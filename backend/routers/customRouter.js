@@ -1,6 +1,6 @@
 import express from "express";
-// import { authenticateJWT } from '../middlewares/authentication.js';
-import { addIdCardUi, getIdCardUi, getMessages, performanceGraph, progressResult, recentMessage, resendResult, sendMessages,  topDashboard } from "../controllers/customController.js";
+import { authenticatedAdmin, authenticateJWT } from '../middlewares/authentication.js';
+import { addDeadline, addIdCardUi, deleteMessages, getIdCardUi, getMessages, performanceGraph, programAddingDeadline, progressResult, recentMessage, resendResult, sendMessages,  studentAddingDeadline,  topDashboard } from "../controllers/customController.js";
 import upload from "../middlewares/imageUpload.js";
 
 const router = express.Router();
@@ -17,8 +17,14 @@ router.get('/progressresult', progressResult);
 router.post('/sendmessage', sendMessages);
 router.get('/recentmessage', recentMessage);
 router.get('/getmessage', getMessages);
+router.delete('/deletemessage' , authenticateJWT , authenticatedAdmin , deleteMessages)
 //.................................................................
 router.put('/idcardui'  ,upload.single("cardBg"), addIdCardUi);
 router.get('/getidcard'  , getIdCardUi);
+
+// ................................................................
+router.post('/adddeadline' , authenticateJWT ,authenticatedAdmin , addDeadline)
+router.get('/studentaddingdeadline' , authenticateJWT  , studentAddingDeadline)
+router.get('/programaddingdeadline' , authenticateJWT  , programAddingDeadline)
 
 export default router;

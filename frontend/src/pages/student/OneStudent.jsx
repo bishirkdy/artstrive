@@ -6,55 +6,63 @@ import { MdDeleteForever } from "react-icons/md";
 import { useParams } from "react-router";
 import { toast } from "react-toastify";
 import { Loader } from "../../components/Loader";
+import { useProgramAddingDeadlineQuery } from "../../redux/api/customApi";
+import { useSelector } from "react-redux";
 
 const OneStudent = () => {
   const { _id } = useParams();
 
-  const { 
-    data: studentData, 
-    isLoading: studentIsLoading, 
-    error: studentError 
+  const {
+    data: studentData,
+    isLoading: studentIsLoading,
+    error: studentError,
+    isError: studentIsError,
   } = useAllStudentQuery();
-  
+
   const {
     data: studentProgramData,
     isLoading: studentProgramIsLoading,
     error: studentProgramError,
+    isError: detailIsError,
     refetch,
   } = useStudentDetailByIdQuery(_id);
-  
-  const [deleteStudentOneProgram, { isLoading: isDeleting }] = 
+  const {
+    data,
+    isLoading,
+    isError,
+    error: dlError,
+  } = useProgramAddingDeadlineQuery();
+  const { user } = useSelector((state) => state.auth);
+  const teams = user.user.isAdmin === false;
+
+  const [deleteStudentOneProgram, { isLoading: isDeleting }] =
     useDeleteStudentOneProgramMutation();
 
-  if (studentIsLoading || studentProgramIsLoading) {
+  if (studentIsLoading || studentProgramIsLoading || isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader />
       </div>
-    )
+    );
   }
-   const error = studentError || studentProgramError;
-    if (error) {
-      const code = error.originalStatus || "Error";
-      const details = error.error || error.data || "Something went wrong";
-      const title = error.status ||  "Error fetching zones";
-      return (
-        <ErrorMessage
-          code={code}
-          title={title}
-          details={details}
-        />
-      );
-    }
+  const error = studentError || studentProgramError || dlError;
+  if (studentIsError || isError || detailIsError) {
+    const code = error.originalStatus || "Error";
+    const details = error.error || error.data || "Something went wrong";
+    const title = error.status || "Error fetching zones";
+    return <ErrorMessage code={code} title={title} details={details} />;
+  }
   const selectedStudent = studentData?.find((sd) => sd._id === _id);
-
+  const currentDate = new Date();
+  const deadlineDate = new Date(data?.data?.deadline);
+  const finaldeadline = teams && deadlineDate < currentDate;
   const handleDelete = async (program) => {
     const id = program?._id || program;
     if (!id) {
       toast.error("Invalid program ID");
       return;
     }
-    
+
     try {
       await deleteStudentOneProgram({ _id: id }).unwrap();
       toast.success("Program deleted successfully", {
@@ -64,7 +72,9 @@ const OneStudent = () => {
       refetch();
     } catch (error) {
       toast.error(
-        `Error: ${error.message || error.data?.message || "Something went wrong"}`,
+        `Error: ${
+          error.message || error.data?.message || "Something went wrong"
+        }`,
         {
           position: "top-right",
           autoClose: 5000,
@@ -106,7 +116,9 @@ const OneStudent = () => {
                       <th className="border-2 px-4 py-2">Program Id</th>
                       <th className="border-2 px-4 py-2">Program Name</th>
                       <th className="border-2 px-4 py-2">Program Zone</th>
-                      <th className="border-2 px-4 py-2">Action</th>
+                      {!finaldeadline && (
+                        <th className="border-2 px-4 py-2">Action</th>
+                      )}
                     </tr>
                   </thead>
                   <tbody>
@@ -123,15 +135,17 @@ const OneStudent = () => {
                         <td className="border px-4 py-2">
                           {d.program.zone.zone}
                         </td>
-                        <td className="border px-4 py-2 text-center">
-                          <button
-                            onClick={() => handleDelete(d.program)}
-                            className="text-red-500 hover:text-red-700 transition-colors duration-200"
-                            disabled={isDeleting}
-                          >
-                            <MdDeleteForever className="text-2xl inline-block" />
-                          </button>
-                        </td>
+                        {!finaldeadline && (
+                          <td className="border px-4 py-2 text-center">
+                            <button
+                              onClick={() => handleDelete(d.program)}
+                              className="text-red-500 hover:text-red-700 transition-colors duration-200"
+                              disabled={isDeleting}
+                            >
+                              <MdDeleteForever className="text-2xl inline-block" />
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>

@@ -1,14 +1,15 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useAllStudentQuery } from "../redux/api/studentApi";
 import { useGetIdCardUiQuery } from "../redux/api/customApi";
 import { useSelector } from "react-redux";
 import { Loader } from "../components/Loader";
 import ErrorMessage from "../components/ErrorMessage";
+import printJS from "print-js";
 
 const portrait = "w-[53.98mm] h-[85.6mm]";
 const landscape = "w-[85.6mm] h-[53.98mm]";
 const claud_profile = import.meta.env.VITE_CLOUDINARY_PROFILE_URL;
-
+const printWidth = window.innerWidth > 769;
 const xShiftForAlign = (align) =>
   align === "center"
     ? "translateX(-50%)"
@@ -53,47 +54,105 @@ const IdCard = () => {
   const isAdmin = useSelector((s) => s.auth.user.user.isAdmin);
   const sameTeam = useSelector((s) => s.auth.user.user.teamName);
 
+  const printRef = useRef(null);
+
   if (isLoading || idCardUiLoading)
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader />
       </div>
     );
-
+  const wOfIdCard = idCardUi?.orientation === "landscape";
+  console.log(wOfIdCard);
+  
   const error = studentError || idCardUiError;
   if (isError || idCardUiIsError) {
     const code = error?.originalStatus || "Error";
     const details = error?.error || error?.data || "Something went wrong";
-    const title = error?.status || "Error fetching zones";
+    const title = error?.status || "Error fetching data";
     return <ErrorMessage code={code} title={title} details={details} />;
   }
+
   if (!data?.length) return <h1 className="p-4">No student data found</h1>;
   if (!idCardUi) return <h1 className="p-4">No ID card UI settings</h1>;
 
   const filteredData = isAdmin
     ? data
     : data.filter((s) => s.team.teamName === sameTeam);
-
   const formatData = (name) => name.charAt(0).toUpperCase() + name.slice(1);
   const SecondProfile =
     "https://www.pngmart.com/files/23/Profile-PNG-Photo.png";
+
+  const handlePrint = () => {
+    if (!printRef.current) return;
+    printJS({
+      printable: printRef.current,
+      type: "html",
+      targetStyles: ["*"],
+      style: `
+       @media print {
+  #print-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(85.6mm , 1fr));
+    gap: 1rem;
+  }
+
+  #print-cards > div {
+    break-inside: avoid !important;       /* Avoid breaking inside card */
+    page-break-inside: avoid !important;  /* Avoid breaking inside card */
+    margin: 0.5rem;
+    box-shadow: none;                     /* Remove shadow for print */
+    border: 1px solid #ccc;               /* Optional: border */
+    width: 53.98mm;                        /* Portrait default */
+    height: 85.6mm;                        /* Portrait default */
+  }
+
+  /* Landscape card override */
+  #print-cards > div.landscape {
+    width: 85.6mm;
+    height: 53.98mm;
+  }
+}
+      `,
+    });
+  };
+
   return (
     <div className="mt-[6rem] lg:mt-2 flex flex-col mx-4 p-4 w-[90vw] lg:max-w-[75vw] lg:ml-[23vw] xl:ml-[20vw] bg-[var(--color-primary)] rounded-lg shadow-lg">
-      <h2 className="text-white font-bold text-2xl text-center mb-4">
-        ID Cards
-      </h2>
-      <div className="flex flex-wrap mx-auto items-center gap-4 justify-center overflow-auto">
+      <div className="flex justify-between items-center px-4 mb-6">
+        <h2 className="text-white font-bold text-2xl">ID Cards</h2>
+        <button
+          onClick={handlePrint}
+          className={`${!printWidth ? "hidden" : ""} px-4 py-2 bg-yellow-600 text-white rounded shadow hover:bg-yellow-700 transition`}
+        >
+          Print A3
+        </button>
+      </div>
+
+      <div
+        ref={printRef}
+        id="print-cards"
+        className={`${
+          wOfIdCard 
+            ? "grid gap-6 print:gap-0 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 lg:grid-cols-2"
+            : "grid gap-6 print:gap-0 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 lg:grid-cols-3"
+        }`}
+        style={{ justifyItems: "center" }}
+      >
         {filteredData.map((student) => (
           <div
             key={student._id}
-            className={`relative bg-current shadow rounded-xl hover:shadow-md transition-shadow ${
-              idCardUi.orientation === "landscape" ? landscape : portrait
-            }`}
+            className={`relative bg-current rounded-xl shadow-lg hover:shadow-2xl transition-shadow overflow-hidden
+              ${
+                idCardUi.orientation === "landscape"
+                  ? `landscape ${landscape}`
+                  : `portrait ${portrait}`
+              }`}
           >
             {idCardUi.cardImg && (
               <img
                 src={idCardUi.cardImg}
-                alt=""
+                alt="card background"
                 className="object-cover w-full h-full"
               />
             )}
@@ -106,14 +165,13 @@ const IdCard = () => {
             />
             <CardText text={student.zone.zone} cfg={idCardUi.zone} />
 
-            {/* {student.profile && ( */}
             <img
               src={
                 student.profile
                   ? `${claud_profile}/${student.profile}`
                   : SecondProfile
               }
-              alt=""
+              alt="profile"
               className="absolute"
               style={{
                 top: `${idCardUi.profileImage?.positionY ?? 0}%`,
@@ -125,12 +183,11 @@ const IdCard = () => {
                 zIndex: idCardUi.profileImage?.zIndex ?? 10,
               }}
             />
-            {/* )} */}
 
             {idCardUi.qrCode?.visible !== false && (
               <img
                 src={student.qrCode}
-                alt=""
+                alt="qr code"
                 className="absolute z-10"
                 style={{
                   top: `${idCardUi.qrCode?.positionY ?? 0}%`,

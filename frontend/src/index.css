@@ -67,3 +67,10 @@ body {
   0% {  transform: rotate(0)}
   100% { transform: rotate(360deg)}
 }
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  background-color: #ffcc00;
+  color: black;
+  border-radius: 6px;
+  padding: 4px;
+  cursor: pointer;
+}

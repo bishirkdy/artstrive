@@ -81,6 +81,13 @@ const customApi = createApiSlice.injectEndpoints({
             }),
             keepUnusedDataFor : 30,
         }),
+        deleteMessage : builder.mutation({
+            query : (_id) => ({
+                url : `${CUSTOM_URL}/deletemessage`,
+                method : "DELETE",
+                body : _id  
+            })
+        }),
         addIdCardUi : builder.mutation({
             query : (FormData) => ({
                 url : `${CUSTOM_URL}/idcardui`,
@@ -94,9 +101,31 @@ const customApi = createApiSlice.injectEndpoints({
                 method : "GET"
             }),
             keepUnusedDataFor : 30,
+        }),
+        //.............................................
+        addDeadLine : builder.mutation({
+            query : (data) => ({
+                url : `${CUSTOM_URL}/adddeadline`,
+                method : "POST",
+                body : data
+            })
+        })
+        ,studentAddingDeadline : builder.query({
+            query : () => ({
+                url : `${CUSTOM_URL}/studentaddingdeadline`,
+                method : "GET"
+            }),
+            keepUnusedDataFor : 30,
+        }),
+        programAddingDeadline : builder.query({
+            query : () => ({
+                url : `${CUSTOM_URL}/programaddingdeadline`,
+                method : "GET"
+            }),
+            keepUnusedDataFor : 30,
         })
     }),
 });
 
-export const {useShowStageCountQuery ,useShowLimitsQuery,useStageCountMutation,useGetIdCardUiQuery , useAddIdCardUiMutation , useRecentMessageQuery , useGetMessageQuery ,  useSendMessagesMutation,useAddLimitsMutation ,useTopDashBoardQuery , usePerformanceGraphQuery , useResendResultsQuery , useProgressResultsQuery} = customApi;
+export const {useShowStageCountQuery ,useShowLimitsQuery,useStageCountMutation,useGetIdCardUiQuery , useAddIdCardUiMutation , useRecentMessageQuery , useGetMessageQuery ,  useSendMessagesMutation,useAddLimitsMutation ,useTopDashBoardQuery , usePerformanceGraphQuery , useResendResultsQuery , useProgressResultsQuery , useAddDeadLineMutation , useProgramAddingDeadlineQuery , useStudentAddingDeadlineQuery , useDeleteMessageMutation} = customApi;
 export default customApi;

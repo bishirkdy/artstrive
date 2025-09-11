@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { Loader } from "../../components/Loader";
 import ErrorMessage from "../../components/ErrorMessage";
+import { useProgramAddingDeadlineQuery } from "../../redux/api/customApi";
 
 const AddProgram = () => {
   const [zone, setZone] = useState("");
@@ -21,13 +22,16 @@ const AddProgram = () => {
 
   const { user } = useSelector((state) => state.auth);
   const admin = user.user.isAdmin === true;
+  const teams = user.user.isAdmin === false;
 
+  const {data , isLoading , isError , error : dlError } = useProgramAddingDeadlineQuery();
   const [addStudentToProgram, { isLoading: addStudentIsLoading }] =
     useAddStudentToProgramsMutation();
   const {
     data: studentFromDB,
     isLoading: studentIsLoading,
     error: studentError,
+    isError : studentIsError,
     refetch: studentRefetch,
   } = useAllStudentQuery();
 
@@ -35,12 +39,14 @@ const AddProgram = () => {
     data: zoneFromDB,
     isLoading: zoneIsLoading,
     error: zoneError,
+    isError : zoneIsError,
     refetch: zoneRefetch,
   } = useViewZoneQuery();
   const {
     data: programFromDB,
     isLoading: programIsLoading,
     error: programError,
+    isError : programIsError,
     refetch: programRefetch,
   } = useGetAllProgramQuery();
 
@@ -53,11 +59,11 @@ const AddProgram = () => {
       setSId(student.id);
       setSName(student.name);
       setZone(student.zone._id);
-    }else{
+    } else {
       setSName("");
       setZone("");
     }
-  },[student , setSId , setSName , setZone]);
+  }, [student, setSId, setSName, setZone]);
   const studentTeam = student?.team.teamName;
   const sameTeam = user.user.teamName === studentTeam;
 
@@ -68,32 +74,26 @@ const AddProgram = () => {
       setPName(program.name);
       setPType(program.type);
       setPZone(program.zone._id);
-    }else{
+    } else {
       setPName("");
       setPType("");
       setPZone("");
     }
-  },[program , setPId , setPName , setPType , setPZone]);
-  if (studentIsLoading  || zoneIsLoading || zoneIsLoading || programIsLoading){
+  }, [program, setPId, setPName, setPType, setPZone]);
+  if (studentIsLoading || zoneIsLoading || zoneIsLoading || programIsLoading || isLoading) {
     return (
       <div className="flex items-center justify-center h-screen w-screen">
-        <Loader/>
+        <Loader />
       </div>
-    )
+    );
   }
-  const error = studentError || zoneError || programError;
-    if (error) {
-      const code = error.originalStatus || "Error";
-      const details = error.error || error.data || "Something went wrong";
-      const title = error.status ||  "Error fetching zones";
-      return (
-        <ErrorMessage
-          code={code}
-          title={title}
-          details={details}
-        />
-      );
-    }
+  const error = studentError || zoneError || programError || dlError;
+  if (isError || zoneIsError || studentIsError || programIsError) {
+    const code = error.originalStatus || "Error";
+    const details = error.error || error.data || "Something went wrong";
+    const title = error.status || "Error fetching zones";
+    return <ErrorMessage code={code} title={title} details={details} />;
+  }
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (admin || sameTeam) {
@@ -116,12 +116,34 @@ const AddProgram = () => {
           }`
         );
       }
-    }else{
+    } else {
       toast.error("Student is not in your team 😂");
     }
   };
-  const selectedZone = zoneFromDB.filter((z) => z.zone !== "GENERAL" && z.zone !== "MIX ZONE" && z.zone !== "CAT-A" && z.zone !== "CAT-B");
-
+  const selectedZone = zoneFromDB.filter(
+    (z) =>
+      z.zone !== "GENERAL" &&
+      z.zone !== "MIX ZONE" &&
+      z.zone !== "CAT-A" &&
+      z.zone !== "CAT-B"
+  );
+  const currentDate = new Date();
+  const deadlineDate = new Date(data?.data?.deadline);
+  if (teams && deadlineDate < currentDate) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-[#121212]">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-white mb-4">
+            Program Adding Deadline closed
+          </h1>
+          <p className="text-white">
+            The deadline for adding programs has passed. You can no longer add
+            or edit programs.
+          </p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="mx-auto mt-[4rem] mb-[2rem] flex flex-col p-6 overflow-y-auto scrollbar-hide md:max-w-2xl lg:ml-[28vw] bg-[var(--color-primary)] rounded-lg shadow-lg">
       <h1 className="text-white text-2xl font-semibold text-center mb-4">

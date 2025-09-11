@@ -16,6 +16,7 @@ export const addStudent = async (req, res, next) => {
       return next(new CustomError("All fields are required"));
     }
 
+    
     const existingStudent = await Student.findOne({ id });
     if (existingStudent) {
       return next(new CustomError("Id already exists"));
