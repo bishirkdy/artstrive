@@ -74,3 +74,58 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   padding: 4px;
   cursor: pointer;
 }
+
+//.........................bot loading
+/* global.css */
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+.animate-bounce {
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+.delay-150 {
+  animation-delay: 0.2s;
+}
+.delay-300 {
+  animation-delay: 0.4s;
+}
+//.......................
+.result-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #232733;
+  border-radius: 12px;
+  margin-bottom: 18px;
+  box-shadow: 0 0 0 1px #fff2;
+  padding: 10px 18px;
+}
+
+.result-label {
+  color: #e2ad58;
+  font-weight: bold;
+  margin-right: 8px;
+  font-size: 1.05rem;
+}
+
+.result-name {
+  color: #fff;
+  flex: 1; /* ensures name takes available space */
+  margin-right: 12px;
+  font-size: 1.07rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.result-badge {
+  background: #464c56;
+  color: #e2ad58;
+  font-weight: bold;
+  border-radius: 8px;
+  padding: 2px 12px;
+  min-width: 28px;
+  text-align: center;
+  font-size: 1.1rem;
+}

@@ -375,3 +375,15 @@ export const programAddingDeadline = async (req, res, next) => {
     next(error);
   }
 };
+
+export const stoppedDeadline = async (req, res, next) => {
+  try {
+    const stopper = await Custom.find({ deadlineOf: "score-deadline" });
+    if (!stopper || stopper.length === 0) {
+      return res.status(200).json({ message: "No score-deadline found" });
+    }
+    res.status(200).json({ data: stopper });
+  } catch (error) {
+    next(error);
+  }
+};

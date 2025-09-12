@@ -53,13 +53,13 @@ import { ToastContainer } from "react-toastify";
 
 import ErrorBoundary from "./components/Error.jsx";
 import RouteErrorBoundary from "./components/RouteErrorBoundary.jsx"; 
-import Test from "./components/Test.jsx";
+import Bot from "./pages/bot/Bot.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route path="/login" element={<Login />} errorElement={<RouteErrorBoundary />} />
-      <Route path="/test" element={<Test/>} />
+      <Route path="/bot" element={<Bot/>}/>
       <Route path="/" element={<App />} errorElement={<RouteErrorBoundary />}>
         <Route index element={<Navigate to="dashboard" />} />
         <Route path="dashboard" element={<Home />} />
@@ -98,8 +98,8 @@ const router = createBrowserRouter(
       </Route>
 
       <Route path="s/:slug" element={<ScannedStudentHome />} errorElement={<RouteErrorBoundary />}>
-        <Route index element={<ScannedHome />} />
-        <Route path="dashboard" element={<DashBoard />} />
+        <Route  element={<ScannedHome />} />
+        <Route index path="dashboard" element={<DashBoard />} />
         <Route path="profile" element={<ProfileScanned />} />
         <Route path="program" element={<ProgramScanned />} />
         <Route path="result" element={<ResultScanned />} />

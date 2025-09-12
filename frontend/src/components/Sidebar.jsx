@@ -17,8 +17,15 @@ import { toast } from "react-toastify";
 import { useLogoutMutation } from "../redux/api/authApi";
 import { BeatLoader } from "react-spinners";
 import logo from '../assets/logo.png';
+import { IoIosChatbubbles } from "react-icons/io";
 
 const adminItems = (toggleSidebar) => [
+   {
+    icon: <IoIosChatbubbles className="text-[#DAD6D1] text-2xl" />,
+    text: "Strive bot",
+    path: "/bot",
+    onClick: toggleSidebar,
+  },
   {
     icon: <LuLayoutDashboard className="text-[#DAD6D1] text-2xl" />,
     text: "Dashboard",
@@ -66,6 +73,12 @@ const adminItems = (toggleSidebar) => [
 
 const menuItems = (toggleSidebar) => [
   {
+    icon: <IoIosChatbubbles className="text-[#DAD6D1] text-2xl" />,
+    text: "Strive bot",
+    path: "/bot",
+    onClick: toggleSidebar,
+  },
+  {
     icon: <LuLayoutDashboard className="text-[#DAD6D1] text-2xl" />,
     text: "Dashboard",
     path: "/dashboard",
@@ -87,6 +100,12 @@ const menuItems = (toggleSidebar) => [
 ];
 
 const profileItems = (toggleSidebar) => [
+  {
+    icon: <IoIosChatbubbles className="text-[#DAD6D1] text-2xl" />,
+    text: "Strive bot",
+    path: "bot",
+    onClick: toggleSidebar,
+  },
   {
     icon: <LuLayoutDashboard className="text-[#DAD6D1] text-2xl" />,
     text: "Dashboard",

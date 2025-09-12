@@ -1,4 +1,14 @@
+import {useStopDeadlineQuery } from '../../redux/api/customApi'
 const ScoreBoard = ({data}) => {
+  const {data : stopdata , isLoading , isError ,error} = useStopDeadlineQuery()
+  if (isLoading) {
+    return <h1>Loading</h1>
+  }
+  if(isError){
+    return <h1>error</h1>
+  }
+  console.log(stopdata);
+  
   return (
     <div className="flex flex-col bg-[#111111] w-full rounded-2xl p-5 shadow-lg transition-transform duration-300">
       <h1 className="text-white font-semibold text-2xl mb-4">Score Board</h1>

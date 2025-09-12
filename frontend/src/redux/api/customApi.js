@@ -123,9 +123,17 @@ const customApi = createApiSlice.injectEndpoints({
                 method : "GET"
             }),
             keepUnusedDataFor : 30,
-        })
+        }),
+         stopDeadline : builder.query({
+            query : () => ({
+                url : `${CUSTOM_URL}/stopdeadline`,
+                method : "GET"
+            }),
+            keepUnusedDataFor : 30,
+        }),
+
     }),
 });
 
-export const {useShowStageCountQuery ,useShowLimitsQuery,useStageCountMutation,useGetIdCardUiQuery , useAddIdCardUiMutation , useRecentMessageQuery , useGetMessageQuery ,  useSendMessagesMutation,useAddLimitsMutation ,useTopDashBoardQuery , usePerformanceGraphQuery , useResendResultsQuery , useProgressResultsQuery , useAddDeadLineMutation , useProgramAddingDeadlineQuery , useStudentAddingDeadlineQuery , useDeleteMessageMutation} = customApi;
+export const {useShowStageCountQuery ,useShowLimitsQuery,useStageCountMutation,useGetIdCardUiQuery , useAddIdCardUiMutation , useRecentMessageQuery , useGetMessageQuery ,  useSendMessagesMutation,useAddLimitsMutation ,useTopDashBoardQuery , usePerformanceGraphQuery , useResendResultsQuery , useProgressResultsQuery , useAddDeadLineMutation , useProgramAddingDeadlineQuery , useStudentAddingDeadlineQuery , useDeleteMessageMutation , useStopDeadlineQuery} = customApi;
 export default customApi;

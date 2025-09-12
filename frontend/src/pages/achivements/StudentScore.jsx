@@ -7,6 +7,7 @@ import UseIsMobile from "../../components/UseIsMobile";
 const StudentScore = () => {
   const { data, isLoading , isError , error} = useViewStudentPointsQuery();
   const isMobile = UseIsMobile();
+  
   const columns = [
     {
       name: "Id",

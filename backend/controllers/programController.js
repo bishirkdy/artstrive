@@ -1001,7 +1001,7 @@ export const getTeamScore = async (req, res, next) => {
       },
       {
         $project: {
-          _id: 0,
+          _id: 1,
           teamName: "$_id",
           totalScore: 1,
         },
@@ -1039,8 +1039,8 @@ export const getStudentsPoint = async (req, res, next) => {
       { $unwind: "$programData" },
       {
         $match: {
-          "programData.type": { $exists: true, $ne: "Group" },
-          "programData.stage": { $exists: true, $ne: "Sports" },
+          "programData.type": { $ne: "Group" },
+          "programData.stage": { $ne: "Sports" },
           "programData.declare": true,
         },
       },
@@ -1064,38 +1064,39 @@ export const getStudentsPoint = async (req, res, next) => {
       { $unwind: "$teamData" },
       {
         $group: {
-          _id: "$studentData.id",
+          _id: "$studentData._id",
           totalScore: { $sum: { $ifNull: ["$totalScore", 0] } },
           name: { $first: "$studentData.name" },
           zone: { $first: "$zoneData.zone" },
           team: { $first: "$teamData.teamName" },
+          id: { $first: "$studentData.id" },
         },
       },
       {
         $project: {
-          _id: 0,
-          id: "$_id",
+          _id: 1,
+          id: 1,
           name: 1,
           totalScore: 1,
           zone: 1,
           team: 1,
         },
       },
-      {
-        $sort: { totalScore: -1 },
-      },
+      { $sort: { totalScore: -1 } },
     ]);
 
-    res.status(201).json(studentPoints);
+    res.status(200).json(studentPoints);
   } catch (error) {
     next(error);
   }
 };
 
+
 export const studentScoreByZone = async (req, res, next) => {
   try {
     const { zoneId } = req.body;
     if (!zoneId) return next(new CustomError("Zone ID is required"));
+
     const studentScoreByZone = await StudentProgram.aggregate([
       {
         $lookup: {
@@ -1105,9 +1106,7 @@ export const studentScoreByZone = async (req, res, next) => {
           as: "studentData",
         },
       },
-      {
-        $unwind: "$studentData",
-      },
+      { $unwind: "$studentData" },
       {
         $lookup: {
           from: "zones",
@@ -1116,9 +1115,7 @@ export const studentScoreByZone = async (req, res, next) => {
           as: "zoneData",
         },
       },
-      {
-        $unwind: "$zoneData",
-      },
+      { $unwind: "$zoneData" },
       {
         $lookup: {
           from: "programs",
@@ -1127,9 +1124,7 @@ export const studentScoreByZone = async (req, res, next) => {
           as: "programData",
         },
       },
-      {
-        $unwind: "$programData",
-      },
+      { $unwind: "$programData" },
       {
         $lookup: {
           from: "auths",
@@ -1143,33 +1138,34 @@ export const studentScoreByZone = async (req, res, next) => {
         $match: {
           "zoneData._id": new mongoose.Types.ObjectId(zoneId),
           "programData.declare": true,
-          "programData.type": { $exists: true, $ne: "Group" },
-          "programData.stage": { $exists: true, $ne: "Sports" },
+          "programData.type": { $ne: "Group" },
+          "programData.stage": { $ne: "Sports" },
         },
       },
       {
         $group: {
-          _id: "$studentData.id",
+          _id: "$studentData._id",
           totalScore: { $sum: { $ifNull: ["$totalScore", 0] } },
           name: { $first: "$studentData.name" },
           team: { $first: "$teamData.teamName" },
+          id: { $first: "$studentData.id" },
         },
       },
       {
         $project: {
           _id: 0,
-          id: "$_id",
+          id: 1,
           name: 1,
           totalScore: 1,
           team: 1,
         },
       },
-      {
-        $sort: { totalScore: -1 },
-      },
+      { $sort: { totalScore: -1 } },
     ]);
+
     res.status(200).json(studentScoreByZone);
   } catch (error) {
     next(error);
   }
 };
+

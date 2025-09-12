@@ -56,6 +56,7 @@ const Deadline = ({ settingsToggle }) => {
             </option>
             <option value="student-deadline">Student adding deadline</option>
             <option value="program-deadline">Program adding deadline</option>
+            <option value="score-deadline">deadline for showing scores</option>
           </select>
           <input
             value={messageSubject}
