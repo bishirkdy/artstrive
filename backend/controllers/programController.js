@@ -145,7 +145,7 @@ export const addStudentToProgram = async (req, res, next) => {
     const individualLimits = {
       Stage: { "HIGH ZONE": 3, "MID ZONE": 4, "LOW ZONE": 4 },
       "Non-stage": { "HIGH ZONE": 6, "MID ZONE": 6, "LOW ZONE": 5 },
-      Sports: { "HIGH ZONE": 3, "MID ZONE": 3, "LOW ZONE": 3 },
+      Sports: { "HIGH ZONE": 5, "MID ZONE": 5, "LOW ZONE": 5 },
     };
 
     if (program.type === "Individual") {
