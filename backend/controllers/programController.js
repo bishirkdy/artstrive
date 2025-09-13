@@ -146,7 +146,10 @@ export const addStudentToProgram = async (req, res, next) => {
       Sports: { "HIGH ZONE": 5, "MID ZONE": 5, "LOW ZONE": 5 },
     };
 
-    if (program.type === "Individual" && program.zone.zone !== "CAT-A " ||program.zone.zone !== "CAT-B " ||program.zone.zone !== " MIX ZONE " ) {
+    if (
+  program.type === "Individual" &&
+  !["CAT-A", "CAT-B", "MIX ZONE"].includes(program.zone.zone)
+) {
       const stage = program.stage
       const zoneName = program.zone?.zone;
 
