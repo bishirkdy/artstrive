@@ -1,4 +1,4 @@
-⁹import Program from "../models/programModel.js";
+import Program from "../models/programModel.js";
 import { CustomError } from "../utils/errorUtils.js";
 import StudentProgram from "../models/studentProgramModel.js";
 import Student from "../models/studentModel.js";
