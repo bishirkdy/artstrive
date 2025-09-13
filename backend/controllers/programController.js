@@ -1,4 +1,4 @@
-import Program from "../models/programModel.js";
+⁹import Program from "../models/programModel.js";
 import { CustomError } from "../utils/errorUtils.js";
 import StudentProgram from "../models/studentProgramModel.js";
 import Student from "../models/studentModel.js";
@@ -127,9 +127,7 @@ export const addStudentToProgram = async (req, res, next) => {
     const [program, student] = await Promise.all([
       Program.findById(programId).populate({ path: "zone", select: "zone" }),
       Student.findById(studentId).populate({path: "zone", select: "zone"})
-    ]);
-    console.log(program.zone, student.zone);
-    
+    ]); 
     if (!program) return next(new CustomError("Program not found"));
     if (!student) return next(new CustomError("Student not found"));
 
@@ -148,8 +146,8 @@ export const addStudentToProgram = async (req, res, next) => {
       Sports: { "HIGH ZONE": 5, "MID ZONE": 5, "LOW ZONE": 5 },
     };
 
-    if (program.type === "Individual") {
-      const stage = program.stage;
+    if (program.type === "Individual && program.zone.zone !== "CAT-A " ||program.zone.zone !== "CAT-B " ||program.zone.zone !== " MIX ZONE " ) {
+      const stage = program.stage
       const zoneName = program.zone?.zone;
 
       if (!zoneName || !individualLimits[stage]?.[zoneName]) {
