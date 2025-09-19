@@ -3,9 +3,11 @@ import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocale from "dayjs/plugin/updateLocale";
+import utc from "dayjs/plugin/utc";
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocale);
+dayjs.extend(utc);
 
 dayjs.updateLocale("en", {
   relativeTime: {
@@ -43,8 +45,9 @@ const ResendNotification = ({ toggleNotification, data }) => {
       finalNotification.forEach((d) => {
         if (!d.deadline) return;
 
-        const now = dayjs();
-        const end = dayjs(d.deadline);
+        // Use UTC to avoid timezone issues
+        const now = dayjs.utc();
+        const end = dayjs.utc(d.deadline);
         const diff = end.diff(now);
 
         if (diff <= 0) {
@@ -66,61 +69,60 @@ const ResendNotification = ({ toggleNotification, data }) => {
   }, [finalNotification]);
 
   return (
-   <div className="flex flex-col bg-[#111111] w-full rounded-2xl space-y-2 p-4 pb-6 shadow-lg transition-transform duration-300">
-  <h1 className="text-white font-semibold text-lg">Resend Notifications</h1>
+    <div className="flex flex-col bg-[#111111] w-full rounded-2xl space-y-2 p-4 pb-6 shadow-lg transition-transform duration-300">
+      <h1 className="text-white font-semibold text-lg">Resend Notifications</h1>
 
-  {finalNotification?.length > 0 ? (
-    <>
-      {finalNotification.map((d, idx) => (
-        <div key={d._id}>
-          <div className="flex flex-row text-white items-center justify-between w-full px-2 py-1">
-            <p className="truncate max-w-[70%]">
-              {d.notificationTitle.length > 20
-                ? `${d.notificationTitle.slice(0, 20)}...`
-                : d.notificationTitle}
-            </p>
+      {finalNotification?.length > 0 ? (
+        <>
+          {finalNotification.map((d, idx) => (
+            <div key={d._id}>
+              <div className="flex flex-row text-white items-center justify-between w-full px-2 py-1">
+                <p className="truncate max-w-[70%]">
+                  {d.notificationTitle.length > 20
+                    ? `${d.notificationTitle.slice(0, 20)}...`
+                    : d.notificationTitle}
+                </p>
 
-            <div className="flex flex-col items-end">
-              <span className="text-sm text-gray-200 animate-pulse">
-                {dayjs(d.notificationDate).fromNow()}
-              </span>
+                <div className="flex flex-col items-end">
+                  <span className="text-sm text-gray-200 animate-pulse">
+                    {dayjs(d.notificationDate).fromNow()}
+                  </span>
 
-              {d.deadline && (
-                <span
-                  className={`text-xs font-semibold truncate ${
-                    timeLefts[d._id] === "Closed"
-                      ? "text-red-500"
-                      : "text-green-400"
-                  }`}
-                >
-                  {timeLefts[d._id] === "Closed"
-                    ? "❌ Closed"
-                    : `⏳ ${timeLefts[d._id]}`}
-                </span>
+                  {d.deadline && (
+                    <span
+                      className={`text-xs font-semibold truncate ${
+                        timeLefts[d._id] === "Closed"
+                          ? "text-red-500"
+                          : "text-green-400"
+                      }`}
+                    >
+                      {timeLefts[d._id] === "Closed"
+                        ? "❌ Closed"
+                        : `⏳ ${timeLefts[d._id]}`}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {idx < finalNotification.length - 1 && (
+                <hr className="border-gray-700 mx-2" />
               )}
             </div>
-          </div>
+          ))}
 
-          {idx < finalNotification.length - 1 && (
-            <hr className="border-gray-700 mx-2" />
-          )}
-        </div>
-      ))}
-
-      <button
-        onClick={toggleNotification}
-        className="mt-4 self-end font-semibold hover:bg-[var(--color-tertiary)] bg-[var(--color-secondary)] rounded-md px-4 py-1"
-      >
-        See All
-      </button>
-    </>
-  ) : (
-    <h1 className="text-white/70 m-auto pt-5">
-      Not available notifications
-    </h1>
-  )}
-</div>
-
+          <button
+            onClick={toggleNotification}
+            className="mt-4 self-end font-semibold hover:bg-[var(--color-tertiary)] bg-[var(--color-secondary)] rounded-md px-4 py-1"
+          >
+            See All
+          </button>
+        </>
+      ) : (
+        <h1 className="text-white/70 m-auto pt-5">
+          Not available notifications
+        </h1>
+      )}
+    </div>
   );
 };
 
