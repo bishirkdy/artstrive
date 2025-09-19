@@ -25,7 +25,7 @@ const ProfileScanned = () => {
     return <ErrorMessage code={code} title={title} details={details} />;
   }
   return (
-    <div className="flex flex-col mt-6 lg:mt-20 mx-2 md:ml-4 lg:ml-[23vw] xl:ml-[30vw] w-[96vw] max-w-3xl bg-[var(--color-primary)] rounded-2xl shadow-2xl p-10">
+    <div className="flex flex-col mt-6 lg:mt-20 mx-auto w-[96vw] max-w-3xl bg-gradient-to-br from-black via-gray-900 to-neutral-900 rounded-2xl shadow-2xl p-10">
       <h1 className="text-center text-3xl text-white font-extrabold mb-12 tracking-wide">
         Profile
       </h1>
@@ -45,9 +45,9 @@ const ProfileScanned = () => {
 
         <div className="flex flex-col space-y-6 w-full md:w-[45%] max-w-lg">
           {[
-            { label: "Name", value: data.name },
+            { label: "Name", value: data.name.charAt(0).toUpperCase() + data.name.slice(1) },
             { label: "ID", value: data.id },
-            { label: "Team", value: data.team.teamName },
+            { label: "Team", value: data.team.teamName.charAt(0).toUpperCase() + data.name.slice(1) },
             { label: "Zone", value: data.zone.zone },
           ].map((item, index) => (
             <div key={index} className="flex justify-between items-center pb-2">

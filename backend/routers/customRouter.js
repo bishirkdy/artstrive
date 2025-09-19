@@ -1,6 +1,6 @@
 import express from "express";
 import { authenticatedAdmin, authenticateJWT } from '../middlewares/authentication.js';
-import { addDeadline, addIdCardUi, deleteMessages, getIdCardUi, getMessages, performanceGraph, programAddingDeadline, progressResult, recentMessage, resendResult, sendMessages,  stoppedDeadline,  studentAddingDeadline,  topDashboard } from "../controllers/customController.js";
+import { addDeadline, addIdCardUi, addLimits, deleteMessages, getIdCardUi, getMessages, performanceGraph, programAddingDeadline, progressResult, recentMessage, resendResult, sendMessages,  showLimits,  stoppedDeadline,  studentAddingDeadline,  topDashboard } from "../controllers/customController.js";
 import upload from "../middlewares/imageUpload.js";
 
 const router = express.Router();
@@ -27,5 +27,8 @@ router.post('/adddeadline' , authenticateJWT ,authenticatedAdmin , addDeadline)
 router.get('/studentaddingdeadline' , authenticateJWT  , studentAddingDeadline)
 router.get('/programaddingdeadline' , authenticateJWT  , programAddingDeadline)
 router.get('/stopdeadline' , stoppedDeadline)
+//.............................................
+router.put("/addlimit" , authenticateJWT , authenticatedAdmin , addLimits)
+router.get("/showlimits" , authenticateJWT , authenticatedAdmin , showLimits)
 
 export default router;

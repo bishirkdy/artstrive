@@ -98,8 +98,8 @@ const router = createBrowserRouter(
       </Route>
 
       <Route path="s/:slug" element={<ScannedStudentHome />} errorElement={<RouteErrorBoundary />}>
-        <Route  element={<ScannedHome />} />
-        <Route index path="dashboard" element={<DashBoard />} />
+        <Route index element={<ScannedHome />} />
+        <Route path="dashboard" element={<DashBoard />} />
         <Route path="profile" element={<ProfileScanned />} />
         <Route path="program" element={<ProgramScanned />} />
         <Route path="result" element={<ResultScanned />} />

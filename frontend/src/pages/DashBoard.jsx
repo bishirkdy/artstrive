@@ -18,6 +18,7 @@ import {
 import { useViewTeamScoreQuery } from "../redux/api/programApi";
 import { Loader } from "../components/Loader";
 import ErrorMessage from "../components/ErrorMessage";
+import { useParams } from "react-router";
 const DashBoard = () => {
   const [isNotification, setIsNotification] = useState(false);
   const toggleNotification = () => setIsNotification(!isNotification);
@@ -62,7 +63,7 @@ const DashBoard = () => {
     isError: resendMessageError,
     error: resendMessageErrorData,
   } = useRecentMessageQuery();
-
+  const { slug } = useParams();
   if (
     topBarLoading ||
     graphLoading ||
@@ -116,7 +117,11 @@ const DashBoard = () => {
 
   return (
     <>
-      <div className="flex flex-col xl:w-[82vw] xl:ml-[17vw] lg:ml-[23vw] lg:mr-4 lg:mt-4 pb-10 md:pb-4 bg-[#141414] rounded-lg shadow-lg overflow-y-auto scrollbar-hide">
+      <div
+        className={`flex flex-col  ${
+          slug ? "xl:w-full" : "xl:w-[82vw] xl:ml-[17vw] lg:ml-[23vw]"
+        }  lg:mr-4 lg:mt-4 pb-10 md:pb-4 bg-[#141414] rounded-lg shadow-lg overflow-y-auto scrollbar-hide`}
+      >
         <div className="w-full flex justify-end md:justify-between p-4 border-b border-gray-700 bg-[#111111]">
           <h1 className="hidden md:block md:pl-[8vw] lg:pl-0 font-semibold text-2xl text-[var(--color-secondary)]">
             Welcome to the Art Strive

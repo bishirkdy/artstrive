@@ -10,7 +10,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "cloudinary": "^2.6.0",
     "cookie-parser": "^1.4.7",
@@ -28,5 +27,6 @@
   },
   "devDependencies": {
     "@types/mongoose": "^5.11.96"
-  }
+  },
+  "description": ""
 }

@@ -19,6 +19,7 @@ import ErrorMessage from "../../../components/ErrorMessage";
 import EditCodeLetter from "./EditCodeLetter";
 import EditScore from "./EditScore";
 import Deadline from "./Deadline";
+import GroupLimitSettings from "./GroupLimitSettings";
 
 const SettingsPopUp = ({ setIsActive }) => {
   const [selectedComponent, setSelectedComponent] = useState(null);
@@ -82,6 +83,15 @@ const SettingsPopUp = ({ setIsActive }) => {
     //     <LimitSettings settingsToggle={() => setSelectedComponent(null)} limitRefetch={limitRefetch}/>
     //   ),
     // },
+     {
+      title: "Update Limit",
+      description: "Modify existing limits",
+      icon: <TbClockStop className="text-2xl" />,
+      component: (
+        <GroupLimitSettings settingsToggle={() => setSelectedComponent(null)} programFromDB={programFromDB}
+ />
+      ),
+    },
     {
       title: "Message",
       description: "Send information",

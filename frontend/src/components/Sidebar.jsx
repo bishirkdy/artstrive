@@ -18,7 +18,6 @@ import { useLogoutMutation } from "../redux/api/authApi";
 import { BeatLoader } from "react-spinners";
 import logo from '../assets/logo.png';
 import { IoIosChatbubbles } from "react-icons/io";
-
 const adminItems = (toggleSidebar) => [
    {
     icon: <IoIosChatbubbles className="text-[#DAD6D1] text-2xl" />,
@@ -99,38 +98,38 @@ const menuItems = (toggleSidebar) => [
   },
 ];
 
-const profileItems = (toggleSidebar) => [
-  {
-    icon: <IoIosChatbubbles className="text-[#DAD6D1] text-2xl" />,
-    text: "Strive bot",
-    path: "bot",
-    onClick: toggleSidebar,
-  },
-  {
-    icon: <LuLayoutDashboard className="text-[#DAD6D1] text-2xl" />,
-    text: "Dashboard",
-    path: "dashboard",
-    onClick: toggleSidebar,
-  },
-  {
-    icon: <SlPeople className="text-[#DAD6D1] text-2xl" />,
-    text: "Profile",
-    path: "profile",
-    onClick: toggleSidebar,
-  },
-  {
-    icon: <GoTasklist className="text-[#DAD6D1] text-2xl" />,
-    text: "Programs",
-    path: "program",
-    onClick: toggleSidebar,
-  },
-  {
-    icon: <GiAchievement className="text-[#DAD6D1] text-2xl" />,
-    text: "Results",
-    path: "result",
-    onClick: toggleSidebar,
-  },
-];
+// const profileItems = (toggleSidebar) => [
+//   {
+//     icon: <IoIosChatbubbles className="text-[#DAD6D1] text-2xl" />,
+//     text: "Strive bot",
+//     path: "/bot",
+//     onClick: toggleSidebar,
+//   },
+//   {
+//     icon: <LuLayoutDashboard className="text-[#DAD6D1] text-2xl" />,
+//     text: "Dashboard",
+//     path: "dashboard",
+//     onClick: toggleSidebar,
+//   },
+//   {
+//     icon: <SlPeople className="text-[#DAD6D1] text-2xl" />,
+//     text: "Profile",
+//     path: "profile",
+//     onClick: toggleSidebar,
+//   },
+//   {
+//     icon: <GoTasklist className="text-[#DAD6D1] text-2xl" />,
+//     text: "Programs",
+//     path: "program",
+//     onClick: toggleSidebar,
+//   },
+//   {
+//     icon: <GiAchievement className="text-[#DAD6D1] text-2xl" />,
+//     text: "Results",
+//     path: "result",
+//     onClick: toggleSidebar,
+//   },
+// ];
 
 const menuDropdowns = (isAdmin) => ({
   Students: [
@@ -193,20 +192,27 @@ const Sidebar = ({ setIsActives }) => {
   const isAdmin = user?.user?.isAdmin;
   const id = user?.user?._id;
 
-  const forceProfileMenu = useSelector(
-    (state) => state.profileMode.forceProfileMode
-  );
+  // const forceProfileMenu = useSelector(
+  //   (state) => state.profileMode.forceProfileMode
+  // );
+  // let menus;
+  // if (forceProfileMenu) {
+  //   menus = profileItems(() => setSideBarOpen(false));
+  // } else if (user) {
+  //   menus = isAdmin
+  //     ? adminItems(() => setSideBarOpen(false))
+  //     : menuItems(() => setSideBarOpen(false));
+  // }
+
+
   let menus;
-  if (forceProfileMenu) {
-    menus = profileItems(() => setSideBarOpen(false));
-  } else if (user) {
+   if (user) {
     menus = isAdmin
       ? adminItems(() => setSideBarOpen(false))
       : menuItems(() => setSideBarOpen(false));
   }
 
   const dropdowns = menuDropdowns(isAdmin);
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -296,7 +302,7 @@ const Sidebar = ({ setIsActives }) => {
             <SlArrowLeftCircle />
           </button>
         </header>
-        <div className="flex flex-col mt-[10dvh] h-[90dvh] lg:h-[88dvh] lg:mt-0 justify-between overflow-auto scrollbar-hide">
+        <div className={`flex flex-col mt-[10dvh] h-[90dvh] lg:h-[88dvh] lg:mt-0 justify-between overflow-auto scrollbar-hide`}>
           <nav className="h-full flex flex-col overflow-auto scrollbar-hide">
             <ul className="p-4 flex flex-col space-y-2">
               {menus.map((item, idx) => (
@@ -348,9 +354,7 @@ const Sidebar = ({ setIsActives }) => {
           {user && (
             <button
               onClick={() => setProfilePopupVisible((prev) => !prev)}
-              className={`${
-                forceProfileMenu ? "hidden" : ""
-              } bg-[var(--color-secondary)] p-2 h-12 w-[80%] mx-auto mb-4 rounded-lg text-[#121212] hover:bg-[var(--color-tertiary)] truncate`}
+              className={`bg-[var(--color-secondary)] p-2 h-12 w-[80%] mx-auto mb-4 rounded-lg text-[#121212] hover:bg-[var(--color-tertiary)] truncate`}
             >
               <div className="flex gap-4 justify-between p-1 items-center">
                 <div className="flex gap-2 items-center">

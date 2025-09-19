@@ -2,6 +2,7 @@ import cloudinary from "../db/cloudinary.js";
 import Auth from "../models/authModel.js";
 import Custom from "../models/customModel.js";
 import Graph from "../models/graphModel.js";
+import GroupLimit from "../models/groupLimit.js";
 import IdCardUi from "../models/IdCardUiModel.js";
 import Message from "../models/MessageModel.js";
 import Program from "../models/programModel.js";
@@ -383,6 +384,54 @@ export const stoppedDeadline = async (req, res, next) => {
       return res.status(200).json({ message: "No score-deadline found" });
     }
     res.status(200).json({ data: stopper });
+  } catch (error) {
+    next(error);
+  }
+};
+//.................................................................
+export const addLimits = async (req, res, next) => {
+  try {
+    const { programId, groupLimit } = req.body;
+
+    if (!programId || !groupLimit) {
+      return next(new CustomError("All fields are required", 401));
+    }
+
+    if (groupLimit <= 0) {
+      return next(new CustomError("Limit must be positive number", 401));
+    }
+
+    const limit = await GroupLimit.findOneAndUpdate(
+      { program : programId },
+      { groupLimit },
+      { new: true, upsert: true, setDefaultsOnInsert: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      data: limit,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const showLimits = async (req, res, next) => {
+  try {
+   const data = await GroupLimit.find()
+  .populate({
+    path: "program",
+    select: "name id zone",
+    populate: {
+      path: "zone", 
+      select: "zone",
+    },
+  });
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
   } catch (error) {
     next(error);
   }

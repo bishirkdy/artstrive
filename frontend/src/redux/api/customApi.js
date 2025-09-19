@@ -131,9 +131,23 @@ const customApi = createApiSlice.injectEndpoints({
             }),
             keepUnusedDataFor : 30,
         }),
-
+        //........................................
+        addGroupLimits : builder.mutation({
+            query: (data) => ({
+                url: `${CUSTOM_URL}/addlimit`,
+                method: "PUT",
+                body: data,
+            }),
+        }),
+        showGroupLimits : builder.query({
+            query : () => ({
+                url : `${CUSTOM_URL}/showlimits`,
+                method : "GET"
+            }),
+            keepUnusedDataFor : 30,
+        }),
     }),
 });
 
-export const {useShowStageCountQuery ,useShowLimitsQuery,useStageCountMutation,useGetIdCardUiQuery , useAddIdCardUiMutation , useRecentMessageQuery , useGetMessageQuery ,  useSendMessagesMutation,useAddLimitsMutation ,useTopDashBoardQuery , usePerformanceGraphQuery , useResendResultsQuery , useProgressResultsQuery , useAddDeadLineMutation , useProgramAddingDeadlineQuery , useStudentAddingDeadlineQuery , useDeleteMessageMutation , useStopDeadlineQuery} = customApi;
+export const {useShowStageCountQuery ,useShowLimitsQuery,useStageCountMutation,useGetIdCardUiQuery , useAddIdCardUiMutation , useRecentMessageQuery , useGetMessageQuery ,  useSendMessagesMutation,useAddLimitsMutation ,useTopDashBoardQuery , usePerformanceGraphQuery , useResendResultsQuery , useProgressResultsQuery , useAddDeadLineMutation , useProgramAddingDeadlineQuery , useStudentAddingDeadlineQuery , useDeleteMessageMutation , useStopDeadlineQuery , useAddGroupLimitsMutation , useShowGroupLimitsQuery } = customApi;
 export default customApi;

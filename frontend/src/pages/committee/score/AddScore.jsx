@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useGetStudentByProgramQuery } from "../../../redux/api/programApi";
-import { useAddScoreOfProgramMutation } from "../../../redux/api/programApi";
-
+import {
+  useGetStudentByProgramQuery,
+  useAddScoreOfProgramMutation,
+} from "../../../redux/api/programApi";
 import { toast } from "react-toastify";
 import { Loader } from "../../../components/Loader";
 import ErrorMessage from "../../../components/ErrorMessage";
@@ -12,22 +13,21 @@ const AddScore = () => {
   const [pZone, setPZone] = useState("");
   const [mark, setMark] = useState({});
 
-  const [markEntry , { isLoading : markLoading}] = useAddScoreOfProgramMutation();
-  const { data, isLoading , refetch , error , isError } = useGetStudentByProgramQuery();
+  const [markEntry, { isLoading: markLoading }] =
+    useAddScoreOfProgramMutation();
+  const { data, isLoading, refetch, error, isError } =
+    useGetStudentByProgramQuery();
 
-  const selectedProgram = data?.filter((p) => p.program.id === pId);
-  const selectedProgramName = selectedProgram?.[0]?.program?.name || "";
-  const selectedProgramZone = selectedProgram?.[0]?.program?.zone || "";
-  const programId = selectedProgram?.[0]?.program._id || "";
-
-
+  const selectedProgram = data?.filter((p) => p.program.id === pId) || [];
+  const programInfo = selectedProgram?.[0]?.program || {};
+  const programId = programInfo?._id || "";
 
   useEffect(() => {
-    if (selectedProgram) {
-      setPName(selectedProgramName);
-      setPZone(selectedProgramZone?.zone);
+    if (programInfo) {
+      setPName(programInfo.name || "");
+      setPZone(programInfo.zone?.zone || "");
     }
-  }, [selectedProgram]);
+  }, [programInfo]);
 
   const handleChange = (id, value) => {
     setMark((prev) => ({
@@ -54,28 +54,45 @@ const AddScore = () => {
       );
     }
   };
-  useEffect(() => {
-    toast.info("Enter program Id" , {
-      position: "top-right",
-      autoClose: 2000,
-    });
-  }, []);
-  if (isLoading) return (
-    <div className="flex justify-center items-center h-screen"><Loader/></div>
-  )
+
+
+  if (isLoading)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader />
+      </div>
+    );
+
   if (isError) {
     const code = error?.originalStatus || "Error";
     const details = error?.error || error?.data || "Something went wrong";
     const title = error?.status || "Error fetching programs";
     return <ErrorMessage code={code} title={title} details={details} />;
   }
+
+  // --------- CONDITIONAL STATES ----------
+  const noProgramFound = pId.length >= 4 && selectedProgram.length === 0;
+  const alreadyDeclared = programInfo?.declare === true;
+  const alreadyScored =
+    selectedProgram.length > 0 &&
+    selectedProgram.some((sp) => sp.score);
+
+  // Only students with codeLetter
+  const studentsWithCode = selectedProgram.filter((sp) => sp.codeLetter);
+
+  const canSubmit =
+    pName &&
+    studentsWithCode.length > 0 &&
+    !alreadyScored &&
+    Object.keys(mark).length > 0;
+
   return (
     <div className="mx-auto  mt-[6rem] flex flex-col p-6 w-[90vw] lg:ml-[28vw] md:max-w-2xl bg-[var(--color-primary)] rounded-lg shadow-lg">
       <h1 className="text-white text-2xl font-semibold text-center mb-4">
         Add Score
       </h1>
 
-      <form onSubmit={handleSubmit} className="flex  flex-col space-y-4 ">
+      <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex flex-col w-full">
             <label className="text-white font-medium mb-1">Program ID</label>
@@ -87,7 +104,7 @@ const AddScore = () => {
               max={100}
               maxLength={4}
               onChange={(e) => setPId(e.target.value)}
-              placeholder="Enter student id"
+              placeholder="Enter program id"
               className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
             />
           </div>
@@ -112,33 +129,28 @@ const AddScore = () => {
             />
           </div>
         </div>
+
         <div className="flex items-center">
           <ul className="flex flex-col gap-4 w-[90vw] rounded-md">
-            {selectedProgram?.length === 0 && pId.length >= 4 ? (
+            {noProgramFound ? (
               <h1 className="text-center text-white/70 py-6">
                 No program found
               </h1>
-            ) : selectedProgram?.length > 0 && selectedProgram[0].program.declare === true ? (
+            ) : alreadyDeclared ? (
               <h1 className="text-center text-white/70 py-6">
                 Program already declared
               </h1>
-            ) :
-             selectedProgram.some(
-                (sp) => sp.score
-              ) ? (
+            ) : alreadyScored ? (
               <div className="text-center py-6 text-white/70">
                 Score Assigned
               </div>
-            ) : selectedProgram.some((sp) => !sp.codeLetter) ? (
+            ) : studentsWithCode.length === 0 ? (
               <div className="text-center py-6 text-white/70">
-                Please assign code letter
+                No students with code letters
               </div>
-            ) :
-            (
-              selectedProgram.map((sp, i) => {
+            ) : (
+              studentsWithCode.map((sp, i) => {
                 const studentId = sp.student?._id || i;
-                console.log(selectedProgram);
-                
                 return (
                   <li
                     key={studentId}
@@ -150,12 +162,13 @@ const AddScore = () => {
                         type="text"
                         pattern="\d*"
                         placeholder="Out of 100"
+                        value={mark[studentId] || ""}
                         onChange={(e) =>
                           handleChange(studentId, e.target.value)
                         }
                         maxLength={3}
                         className="border border-gray-600 p-2 w-36 text-center text-lg bg-black text-white 
-                  focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] rounded-md transition-all duration-300"
+                        focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] rounded-md transition-all duration-300"
                       />
                     )}
                   </li>
@@ -164,7 +177,8 @@ const AddScore = () => {
             )}
           </ul>
         </div>
-        {pName && selectedProgram.length > 0 && !selectedProgram.some(sp => sp.score) && selectedProgram.every(sp => sp.codeLetter) && (
+
+        {canSubmit && (
           <button
             disabled={markLoading}
             className="w-full mt-2 py-2 bg-[var(--color-secondary)] hover:bg-[var(--color-tertiary)] text-black font-bold rounded-lg transition duration-300"
@@ -172,7 +186,7 @@ const AddScore = () => {
           >
             {markLoading ? "Updating Mark" : "Update"}
           </button>
-         )}
+        )}
       </form>
     </div>
   );

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import DataTable from "react-data-table-component";
 import { useGetAllProgramQuery } from "../../../redux/api/programApi";
-import { useViewZoneQuery } from "../../../redux/api/zoneApi";
 import { useResultUnDeclarationsMutation } from "../../../redux/api/programApi";
 
 import { MdDeleteForever } from "react-icons/md";
@@ -21,19 +20,10 @@ const DeclaredResults = () => {
     isError: dataIsError,
     error: dataError,
   } = useGetAllProgramQuery();
-  const {
-    data: zoneData,
-    isLoading: zoneIsLoading,
-    isError: zoneIsError,
-    error: zoneError,
-  } = useViewZoneQuery();
+
   const isMobile = UseIsMobile();
 
-  const filterZone = (id) => {
-    const zones = zoneData?.find((z) => z._id === id);
-    if (zones) return zones.zone;
-  };
-
+ 
   const handleClick = async (id) => {
     try {
       await unDeclarableResults({ _id: id }).unwrap();
@@ -45,7 +35,7 @@ const DeclaredResults = () => {
       toast.error(`${error?.data?.message || error.message}`);
     }
   };
-  if (isLoading || zoneIsLoading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen w-screen">
         <Loader />
@@ -76,7 +66,7 @@ const DeclaredResults = () => {
     },
     {
       name: "Zone",
-      selector: (row) => filterZone(row.zone),
+      selector: (row) => row.zone.zone,
       sortable: true,
       width: isMobile ? "120px" : "13%",
       wrap: true,
@@ -153,17 +143,15 @@ const DeclaredResults = () => {
     },
   };
 
-  if (dataIsError || zoneIsError) {
+  if (dataIsError ) {
     const code =
-      dataError?.originalStatus || zoneError?.originalStatus || "Error";
+      dataError?.originalStatus  || "Error";
     const details =
       dataError?.error ||
       dataError?.data ||
-      zoneError?.error ||
-      zoneError?.data ||
       "Something went wrong";
     const title =
-      dataError?.status || zoneError?.status || "Error fetching programs";
+      dataError?.status || "Error fetching programs";
     return <ErrorMessage code={code} title={title} details={details} />;
   }
 
@@ -175,7 +163,7 @@ const DeclaredResults = () => {
       d.declaredOrder || "",
       d.id || "",
       d.name || "",
-      filterZone(d.zone) || "",
+      d.zone.zone || "",
       d.type || "",
     ].some((item) =>
       String(item).toLowerCase().includes(filterText.toLowerCase())

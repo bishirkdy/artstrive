@@ -22,7 +22,7 @@ const ResultScanned = () => {
     }
 
   return (
-    <div className="mt-20 mx-2 md:ml-4 lg:ml-[23vw] xl:ml-[22vw] w-[96vw] xl:max-w-5xl lg:max-w-3xl bg-[var(--color-primary)] rounded-2xl shadow-2xl p-4 md:p-8">
+    <div className="mt-20 mx-auto w-[96vw] xl:max-w-5xl lg:max-w-3xl bg-gradient-to-br from-black via-gray-900 to-neutral-900 rounded-2xl shadow-2xl p-4 md:p-8">
       <h1 className="text-center text-3xl text-white font-extrabold mb-12 tracking-wide">
         Results
       </h1>

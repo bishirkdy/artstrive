@@ -13,6 +13,7 @@ const CallList = () => {
   const selectedStudents = selectedProgram.length > 0 ? selectedProgram : [];
   const selectedProgramName = selectedProgram[0]?.program?.name || null;
   const selectedProgramId = selectedProgram[0]?.program?.id || "";
+  const selectedProgramType = selectedProgram[0]?.program?.type || "";
   const selectedProgramZone = selectedProgram[0]?.program?.zone.zone || "";
 
   useEffect(() => {
@@ -27,36 +28,60 @@ const CallList = () => {
     );
   if (isError) return <h1>Error loading data.</h1>;
 
-  const handlePrint = () => {
-    printJS({
-      printable: "printable",
-      type: "html",
-      scanStyles: false,
-      honorMarginPadding: true,
-      header: `
-        <div style="display: flex ; flex-direction : column">
-            <h1 style="text-align: center; font-weight: 700; font-size: 20px;">Call list</h1>
-            <div style="display : flex ; flex-direction : row ; justify-content: space-between ; align-items : center ">
-                <h3 style="font-size : 16px ; font-weight : 600 ; padding-left : 3px">Id: ${selectedProgramId}</h3>
-                <h3 style="font-size : 16px ; font-weight : 600">Program : ${selectedProgramName.replace(
-                  /^./,
-                  (c) => c.toUpperCase()
-                )}</h3>
-                <h3 style="font-size : 16px ; font-weight : 600; padding-right : 3px">Zone: ${selectedProgramZone} </h3>
-            </div>
-        </div>`,
-      style: `
-        @page { size: auto }
-        body { font-family: Arial, sans-serif; }
-        #printable-area { color: black; }
+const handlePrint = () => {
+  printJS({
+    printable: "printable",
+    type: "html",
+    scanStyles: false,
+    honorMarginPadding: true,
+    header: `
+      <div style="display: flex; flex-direction: column; margin-bottom: 12px;">
+        <!-- Title -->
+        <h1 style="text-align: center; font-weight: 700; font-size: 22px; margin: 0; text-transform: uppercase;">
+          Call List
+        </h1>
+        <hr style="margin: 8px 0 12px 0; border: 1px solid #000;" />
 
-        table {table-layout : fixed; width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #000; padding: 15px; text-align: center; font-size: 16px; }
-        thead { background-color: #f0f0f0; }
+        <!-- Program Info Row -->
+        <div style="
+          display: flex; 
+          flex-direction: row; 
+          justify-content: space-between; 
+          align-items: center; 
+          font-size: 14px; 
+          font-weight: 600;">
+          
+          <span style="padding-left: 3px;">Id: ${selectedProgramId}</span>
+          <span>Program: ${selectedProgramName.replace(/^./, (c) => c.toUpperCase())}</span>
+          <span>Type: ${selectedProgramType}</span>
+          <span style="padding-right: 3px;">Zone: ${selectedProgramZone}</span>
+        </div>
+      </div>
+    `,
+    style: `
+      @page { size: auto; margin: 15mm; }
+      body { font-family: Arial, sans-serif; color: black; }
+      #printable-area { color: black; }
 
-        `,
-    });
-  };
+      table {
+        table-layout: fixed;
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+      th, td {
+        border: 1px solid #000;
+        padding: 12px;
+        text-align: center;
+        font-size: 14px;
+      }
+      thead {
+        background-color: #f0f0f0;
+      }
+    `,
+  });
+};
+
   return (
     <div className=" mt-[10dvh] lg:mt-[6rem] mb-[3dvh] lg:mb-0 flex flex-col mx-auto p-4 w-[90vw] lg:max-w-[75vw] lg:ml-[23vw] xl:ml-[20vw] bg-[var(--color-primary)] rounded-lg shadow-lg">
       <h2 className="text-white text-center text-xl font-semibold">

@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import Graph from "../models/graphModel.js";
 import Message from "../models/MessageModel.js";
 import filterProgramsRank from "../utils/resultFunction.js";
+import GroupLimit from "../models/groupLimit.js";
 
 export const addProgramsName = async (req, res, next) => {
   try {
@@ -28,7 +29,7 @@ export const addProgramsName = async (req, res, next) => {
 };
 export const getAllPrograms = async (req, res, next) => {
   try {
-    const programs = await Program.find().populate("zone")
+    const programs = await Program.find().populate("zone");
     res.json(programs);
   } catch (error) {
     next(error);
@@ -126,10 +127,8 @@ export const addStudentToProgram = async (req, res, next) => {
 
     const [program, student] = await Promise.all([
       Program.findById(programId).populate({ path: "zone", select: "zone" }),
-      Student.findById(studentId).populate({path: "zone", select: "zone"})
+      Student.findById(studentId).populate({ path: "zone", select: "zone" }),
     ]);
-    console.log(program.zone, student.zone);
-    
     if (!program) return next(new CustomError("Program not found"));
     if (!student) return next(new CustomError("Student not found"));
 
@@ -145,10 +144,13 @@ export const addStudentToProgram = async (req, res, next) => {
     const individualLimits = {
       Stage: { "HIGH ZONE": 3, "MID ZONE": 4, "LOW ZONE": 4 },
       "Non-stage": { "HIGH ZONE": 6, "MID ZONE": 6, "LOW ZONE": 5 },
-      Sports: { "HIGH ZONE": 3, "MID ZONE": 3, "LOW ZONE": 3 },
+      Sports: { "HIGH ZONE": 5, "MID ZONE": 5, "LOW ZONE": 5 },
     };
 
-    if (program.type === "Individual") {
+    if (
+      program.type === "Individual" &&
+      !["CAT-A", "CAT-B", "MIX ZONE"].includes(program.zone.zone)
+    ) {
       const stage = program.stage;
       const zoneName = program.zone?.zone;
 
@@ -179,18 +181,27 @@ export const addStudentToProgram = async (req, res, next) => {
     }
 
     // ......................................................................
+    let teamLimit;
+
+    if (program.type === "Individual") {
+      teamLimit = 3;
+    } else if (program.type === "Group") {
+      const groupLimit = await GroupLimit.findOne({ program: programId });
+      teamLimit = groupLimit?.groupLimit ?? 5;
+    } else {
+      teamLimit = 0;
+    }
+
     const teamStudents = await Student.find({ team: student.team }).distinct(
       "_id"
     );
-    const teamLimits = { Group: 1, Individual: 3 };
-    const studentFromTeamLimit = teamLimits[program.type] || 0;
 
     const studentsFromTeamCount = await StudentProgram.countDocuments({
       program: programId,
       student: { $in: teamStudents },
     });
 
-    if (studentsFromTeamCount >= studentFromTeamLimit) {
+    if (studentsFromTeamCount >= teamLimit) {
       return next(
         new CustomError("Student's team has reached the participation limit")
       );
@@ -489,7 +500,6 @@ export const editCodeLetter = async (req, res, next) => {
   }
 };
 
-
 export const addScoreOfAProgram = async (req, res, next) => {
   try {
     const { programId, mark } = req.body;
@@ -578,15 +588,15 @@ export const addScoreOfAProgram = async (req, res, next) => {
         const totalScore = Math.round(
           (Number(score) || 0) + (Number(gradeScore) || 0)
         );
-          const finalTotalScore = totalScore > 0 ? totalScore : null;
+        const finalTotalScore = totalScore > 0 ? totalScore : null;
 
-    return StudentProgram.findOneAndUpdate(
-      { student: studentId, program: programId },
-      { $set: { score, grade, totalScore: finalTotalScore } }, 
-      { new: true, upsert: true }
+        return StudentProgram.findOneAndUpdate(
+          { student: studentId, program: programId },
+          { $set: { score, grade, totalScore: finalTotalScore } },
+          { new: true, upsert: true }
+        );
+      })
     );
-  })
-);
     if (updatedMarks.length === 0) {
       throw new CustomError("No students found");
     }
@@ -1091,7 +1101,6 @@ export const getStudentsPoint = async (req, res, next) => {
   }
 };
 
-
 export const studentScoreByZone = async (req, res, next) => {
   try {
     const { zoneId } = req.body;
@@ -1168,4 +1177,3 @@ export const studentScoreByZone = async (req, res, next) => {
     next(error);
   }
 };
-

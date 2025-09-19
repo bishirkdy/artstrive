@@ -58,7 +58,7 @@ export const addStudent = async (req, res, next) => {
       student.id
     }`;
     const qrDataUrl = await QRCode.toDataURL(
-      `${process.env.CLIENT_URL_PROD}/s/${slug}`
+      `${process.env.CLIENT_URL_DEV}/s/${slug}`
     );
 
     student.qrCode = qrDataUrl;

@@ -3,7 +3,7 @@ import {configureStore} from '@reduxjs/toolkit';
 // import { persistStore, persistReducer } from 'redux-persist';
 import { createApiSlice } from './api/api';
 import authReducer from './features/authSlice';
-import profileReducer from './features/profileModeSlice';
+// import profileReducer from './features/profileModeSlice';
 
 // const persistsConfig = {
 //     key : "profileMode",
@@ -16,7 +16,7 @@ export const store = configureStore({
     reducer:{
         [createApiSlice.reducerPath] : createApiSlice.reducer,
         auth : authReducer,
-        profileMode : profileReducer
+        // profileMode : profileReducer
     },
 
     middleware : (getDefaultMiddleware) => getDefaultMiddleware().concat(createApiSlice.middleware),
