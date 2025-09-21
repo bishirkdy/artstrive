@@ -9,7 +9,11 @@ import ErrorMessage from "../../components/ErrorMessage";
 import { useStudentAddingDeadlineQuery } from "../../redux/api/customApi";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+// Extend dayjs with UTC and timezone support
 dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const AddStudent = () => {
   const [name, setName] = useState("");
@@ -20,29 +24,37 @@ const AddStudent = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fileInputRef = useRef(null);
+
+  // API Hooks
   const {
     data: studentDeadlineData,
     isLoading,
     error,
     isError,
   } = useStudentAddingDeadlineQuery();
+
   const [student, { isLoading: isStudentLoading }] = useAddStudentMutation();
+
   const {
     data: teamFormDB,
     isLoading: teamIsLoading,
     error: teamError,
     isError: teamIsError,
   } = useViewTeamsQuery();
+
   const {
     data: zoneFromDB,
     isLoading: zoneIsLoading,
     error: zoneError,
     isError: zoneIsError,
   } = useViewZoneQuery();
+
   const { user } = useSelector((state) => state.auth);
 
+  // Extract team information
   const teamFromStore = user.user.teamName;
   const teams = user.user.isAdmin === false;
+
   const sameTeam =
     teamFormDB?.teamName && teamFromStore
       ? teamFormDB.teamName.find((team) => team.teamName === teamFromStore)
@@ -53,6 +65,8 @@ const AddStudent = () => {
       setTeam(sameTeam._id);
     }
   }, [sameTeam, team]);
+
+  // Loading states
   if (teamIsLoading || zoneIsLoading || isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#121212]">
@@ -61,31 +75,45 @@ const AddStudent = () => {
     );
   }
 
-  const currentDate = dayjs.utc();
-  const deadlineDate = dayjs.utc(studentDeadlineData?.data?.deadline);
-console.log("Current UTC:", currentDate.format());
-console.log("Deadline UTC:", deadlineDate.format());
- if (teams && deadlineDate.isBefore(currentDate)) {
-  return (
-    <div className="flex items-center justify-center h-screen bg-[#121212]">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-white mb-4">
-          Student Adding Deadline closed
-        </h1>
-        <p className="text-white">
-          The deadline for adding students has passed. You can no longer add
-          new students.
-        </p>
+  /**
+   * Handle UTC vs IST conversion
+   */
+  const currentDate = dayjs().tz("Asia/Kolkata"); // Current IST
+  const deadlineDate = studentDeadlineData?.data?.deadline
+    ? dayjs.utc(studentDeadlineData.data.deadline).tz("Asia/Kolkata") // Convert UTC → IST
+    : null;
+
+  console.log("Current IST:", currentDate.format());
+  console.log("Deadline IST:", deadlineDate?.format());
+
+  // If deadline exists and has passed
+  if (teams && deadlineDate && deadlineDate.isBefore(currentDate)) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-[#121212]">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-white mb-4">
+            Student Adding Deadline Closed
+          </h1>
+          <p className="text-white">
+            The deadline for adding students has passed. You can no longer add
+            new students.
+          </p>
+          <p className="text-gray-400 mt-4">
+            Deadline was: {deadlineDate.format("YYYY-MM-DD hh:mm A")} IST
+          </p>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
+
+  // Handle API errors
   if (teamIsError || zoneIsError || isError) {
     const code =
       teamError?.originalStatus ||
       zoneError?.originalStatus ||
       error?.originalStatus ||
       "Error";
+
     const details =
       teamError?.error ||
       teamError?.data ||
@@ -102,11 +130,17 @@ console.log("Deadline UTC:", deadlineDate.format());
       zoneError?.status ||
       error?.status ||
       "Error fetching zones";
+
     return <ErrorMessage code={code} title={title} details={detailsString} />;
   }
+
+  /**
+   * Handle form submission
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+
     try {
       if (!id || !team || !name || !zone) {
         toast.error("All fields are required");
@@ -122,6 +156,8 @@ console.log("Deadline UTC:", deadlineDate.format());
       formData.append("profile", image);
 
       await student(formData).unwrap();
+
+      // Reset form
       setImage(null);
       setName("");
       setId("");
@@ -146,6 +182,9 @@ console.log("Deadline UTC:", deadlineDate.format());
     }
   };
 
+  /**
+   * Filter zones
+   */
   const selectedZone = zoneFromDB.filter(
     (z) =>
       z.zone !== "GENERAL" &&
@@ -166,7 +205,15 @@ console.log("Deadline UTC:", deadlineDate.format());
         </div>
       )}
 
+      {/* Display deadline */}
+      {deadlineDate && (
+        <div className="text-center text-gray-400 mb-4">
+          Deadline: {deadlineDate.format("YYYY-MM-DD hh:mm A")} IST
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+        {/* Profile Image */}
         <div className="flex flex-col items-center gap-4">
           <label className="text-white font-medium w-full md:w-40">
             Profile Image
@@ -181,6 +228,7 @@ console.log("Deadline UTC:", deadlineDate.format());
         </div>
 
         <div className="flex flex-col md:flex-row gap-4">
+          {/* Team */}
           <div className="flex flex-col w-full">
             <label className="text-white font-medium mb-1">Team</label>
             {sameTeam ? (
@@ -209,6 +257,8 @@ console.log("Deadline UTC:", deadlineDate.format());
               </select>
             )}
           </div>
+
+          {/* Zone */}
           <div className="flex flex-col w-full">
             <label className="text-white font-medium mb-1">Zone</label>
             <select
@@ -230,6 +280,7 @@ console.log("Deadline UTC:", deadlineDate.format());
           </div>
         </div>
 
+        {/* Student Info */}
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex flex-col w-full">
             <label className="text-white font-medium mb-1">Student ID</label>
@@ -260,7 +311,7 @@ console.log("Deadline UTC:", deadlineDate.format());
           className="w-full mt-2 py-2 bg-[var(--color-secondary)] hover:bg-[var(--color-tertiary)] text-black font-bold rounded-lg transition duration-300"
           disabled={isSubmitting}
         >
-          {isStudentLoading ? `Adding ${name} ` : "Add Student"}
+          {isStudentLoading ? `Adding ${name}...` : "Add Student"}
         </button>
       </form>
     </div>
