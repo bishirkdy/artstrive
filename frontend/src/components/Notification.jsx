@@ -9,36 +9,29 @@ import { toast } from "react-toastify";
 dayjs.extend(relativeTime);
 
 const Notification = () => {
-  // Access both 'data' and the new 'serverTime' field from the query response
   const { data, isLoading, refetch } = useGetMessageQuery();
   const { user } = useSelector((state) => state.auth);
   const isTeamOrAdmin = user?.user?.teamName;
   const [timeLefts, setTimeLefts] = useState({});
   const [deleteMessage, { isLoading: deleteLoading }] = useDeleteMessageMutation();
 
+  // Defensive: always use an array
+  const notificationsArray = Array.isArray(data?.data) ? data.data : [];
   const finalNotification = isTeamOrAdmin
-    ? data?.data
-    : data?.data?.filter((d) => d.notificationOfTo === "all");
+    ? notificationsArray
+    : notificationsArray.filter((d) => d.notificationOfTo === "all");
 
   useEffect(() => {
-    // Check if both the notifications and server time exist
     if (!finalNotification?.length || !data?.serverTime) return;
 
-    // Use the server's time as the consistent starting point
     const serverNow = dayjs(data.serverTime);
 
     const interval = setInterval(() => {
       const updates = {};
-      const now = dayjs(); // Use a new `dayjs()` instance for each tick
-
+      const now = dayjs();
       finalNotification.forEach((d) => {
         if (!d.deadline) return;
-
-        // Calculate the difference between the server's time and now.
-        // This gives us the total elapsed time since the data was fetched.
         const elapsed = now.diff(serverNow);
-        
-        // Add the elapsed time to the original deadline
         const end = dayjs(d.deadline);
         const correctedEnd = end.add(elapsed, 'millisecond');
         const diff = correctedEnd.diff(now);
@@ -57,7 +50,7 @@ const Notification = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [finalNotification, data]); // Add `data` to the dependency array
+  }, [finalNotification, data]);
 
   if (isLoading)
     return (
@@ -81,7 +74,7 @@ const Notification = () => {
 
   return (
     <div className="flex flex-col bg-[#111111] w-full rounded-2xl space-y-2 pb-6 shadow-lg transition-transform duration-300">
-      {finalNotification?.length > 0 ? (
+      {finalNotification.length > 0 ? (
         finalNotification.map((d, idx) => (
           <div key={d._id}>
             <div className="flex flex-col text-white w-full px-2 py-1">
@@ -100,10 +93,8 @@ const Notification = () => {
                   </span>
                 </div>
               </div>
-
               <div className="flex flex-row justify-between items-center">
                 <p className="text-sm opacity-80">{d.notification}</p>
-
                 {d.deadline && (
                   <span
                     className={`text-xs font-semibold ml-4 whitespace-nowrap ${
@@ -119,7 +110,6 @@ const Notification = () => {
                 )}
               </div>
             </div>
-
             {idx < finalNotification.length - 1 && (
               <hr className="border-gray-700 mx-2" />
             )}
