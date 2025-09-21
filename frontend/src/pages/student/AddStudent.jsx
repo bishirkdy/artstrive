@@ -2,18 +2,12 @@ import React, { useEffect, useState, useRef } from "react";
 import { useAddStudentMutation } from "../../redux/api/studentApi";
 import { useViewTeamsQuery } from "../../redux/api/authApi";
 import { useViewZoneQuery } from "../../redux/api/zoneApi";
-import { toast } from "react-toastify";
-import { useSelector } from "react-redux";
+import { useStudentAddingDeadlineQuery } from "../../redux/api/customApi";
 import { Loader } from "../../components/Loader";
 import ErrorMessage from "../../components/ErrorMessage";
-import { useStudentAddingDeadlineQuery } from "../../redux/api/customApi";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-
-// Extend dayjs with UTC and timezone support
-dayjs.extend(utc);
-dayjs.extend(timezone);
+import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import { nowIST, toIST } from "../../utils/dayjsSetup";
 
 const AddStudent = () => {
   const [name, setName] = useState("");
@@ -22,71 +16,44 @@ const AddStudent = () => {
   const [zone, setZone] = useState("");
   const [image, setImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const fileInputRef = useRef(null);
 
-  // API Hooks
-  const {
-    data: studentDeadlineData,
-    isLoading,
-    error,
-    isError,
-  } = useStudentAddingDeadlineQuery();
+  const { user } = useSelector((state) => state.auth);
+  const teams = user?.user?.isAdmin === false;
+
+  const { data: studentDeadlineData, isLoading, error, isError } =
+    useStudentAddingDeadlineQuery();
 
   const [student, { isLoading: isStudentLoading }] = useAddStudentMutation();
 
-  const {
-    data: teamFormDB,
-    isLoading: teamIsLoading,
-    error: teamError,
-    isError: teamIsError,
-  } = useViewTeamsQuery();
+  const { data: teamFormDB, isLoading: teamIsLoading, error: teamError, isError: teamIsError } =
+    useViewTeamsQuery();
+  const { data: zoneFromDB, isLoading: zoneIsLoading, error: zoneError, isError: zoneIsError } =
+    useViewZoneQuery();
 
-  const {
-    data: zoneFromDB,
-    isLoading: zoneIsLoading,
-    error: zoneError,
-    isError: zoneIsError,
-  } = useViewZoneQuery();
-
-  const { user } = useSelector((state) => state.auth);
-
-  // Extract team information
-  const teamFromStore = user.user.teamName;
-  const teams = user.user.isAdmin === false;
-
+  const teamFromStore = user?.user?.teamName;
   const sameTeam =
     teamFormDB?.teamName && teamFromStore
-      ? teamFormDB.teamName.find((team) => team.teamName === teamFromStore)
+      ? teamFormDB.teamName.find((t) => t.teamName === teamFromStore)
       : undefined;
 
   useEffect(() => {
-    if (sameTeam && !team) {
-      setTeam(sameTeam._id);
-    }
+    if (sameTeam && !team) setTeam(sameTeam._id);
   }, [sameTeam, team]);
 
-  // Loading states
-  if (teamIsLoading || zoneIsLoading || isLoading) {
+  if (teamIsLoading || zoneIsLoading || isLoading)
     return (
       <div className="flex items-center justify-center h-screen bg-[#121212]">
         <Loader />
       </div>
     );
-  }
 
-  /**
-   * Handle UTC vs IST conversion
-   */
-  const currentDate = dayjs().tz("Asia/Kolkata"); // Current IST
+  // Convert deadline to IST
+  const currentDate = nowIST();
   const deadlineDate = studentDeadlineData?.data?.deadline
-    ? dayjs.utc(studentDeadlineData.data.deadline).tz("Asia/Kolkata") // Convert UTC → IST
+    ? toIST(studentDeadlineData.data.deadline)
     : null;
 
-  console.log("Current IST:", currentDate.format());
-  console.log("Deadline IST:", deadlineDate?.format());
-
-  // If deadline exists and has passed
   if (teams && deadlineDate && deadlineDate.isBefore(currentDate)) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#121212]">
@@ -94,10 +61,7 @@ const AddStudent = () => {
           <h1 className="text-3xl font-bold text-white mb-4">
             Student Adding Deadline Closed
           </h1>
-          <p className="text-white">
-            The deadline for adding students has passed. You can no longer add
-            new students.
-          </p>
+          <p className="text-white">The deadline for adding students has passed.</p>
           <p className="text-gray-400 mt-4">
             Deadline was: {deadlineDate.format("YYYY-MM-DD hh:mm A")} IST
           </p>
@@ -106,41 +70,19 @@ const AddStudent = () => {
     );
   }
 
-  // Handle API errors
   if (teamIsError || zoneIsError || isError) {
     const code =
-      teamError?.originalStatus ||
-      zoneError?.originalStatus ||
-      error?.originalStatus ||
-      "Error";
-
+      teamError?.originalStatus || zoneError?.originalStatus || error?.originalStatus || "Error";
     const details =
-      teamError?.error ||
-      teamError?.data ||
-      error?.error ||
-      error?.data ||
-      zoneError?.error ||
-      zoneError?.data;
-
-    const detailsString =
-      typeof details === "object" ? JSON.stringify(details) : details;
-
+      teamError?.error || zoneError?.error || error?.error || "Something went wrong";
     const title =
-      teamError?.status ||
-      zoneError?.status ||
-      error?.status ||
-      "Error fetching zones";
-
-    return <ErrorMessage code={code} title={title} details={detailsString} />;
+      teamError?.status || zoneError?.status || error?.status || "Error fetching data";
+    return <ErrorMessage code={code} title={title} details={details} />;
   }
 
-  /**
-   * Handle form submission
-   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
       if (!id || !team || !name || !zone) {
         toast.error("All fields are required");
@@ -157,55 +99,30 @@ const AddStudent = () => {
 
       await student(formData).unwrap();
 
-      // Reset form
-      setImage(null);
-      setName("");
+      // reset form
       setId("");
+      setName("");
       setTeam("");
       setZone("");
+      setImage(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
 
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-
-      toast.success("Student added successfully", { position: "bottom-right" });
-    } catch (error) {
-      console.error("Error adding student:", error);
-
-      if (error?.data?.message) {
-        toast.error(error.data.message);
-      } else {
-        toast.error("An error occurred while adding the student");
-      }
+      toast.success("Student added successfully");
+    } catch (err) {
+      toast.error(err?.data?.message || "Error adding student");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  /**
-   * Filter zones
-   */
   const selectedZone = zoneFromDB.filter(
-    (z) =>
-      z.zone !== "GENERAL" &&
-      z.zone !== "MIX ZONE" &&
-      z.zone !== "CAT-A" &&
-      z.zone !== "CAT-B"
+    (z) => !["GENERAL", "MIX ZONE", "CAT-A", "CAT-B"].includes(z.zone)
   );
 
   return (
     <div className="mx-auto lg:ml-[28vw] mt-[6rem] flex flex-col p-6 w-[90vw] md:max-w-2xl bg-[#121212] rounded-lg shadow-lg">
-      <h1 className="text-white text-2xl font-semibold text-center mb-4">
-        Add Students
-      </h1>
+      <h1 className="text-white text-2xl font-semibold text-center mb-4">Add Students</h1>
 
-      {isSubmitting && (
-        <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-          <div className="text-white text-xl animate-pulse">Submitting...</div>
-        </div>
-      )}
-
-      {/* Display deadline */}
       {deadlineDate && (
         <div className="text-center text-gray-400 mb-4">
           Deadline: {deadlineDate.format("YYYY-MM-DD hh:mm A")} IST
@@ -213,11 +130,8 @@ const AddStudent = () => {
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
-        {/* Profile Image */}
         <div className="flex flex-col items-center gap-4">
-          <label className="text-white font-medium w-full md:w-40">
-            Profile Image
-          </label>
+          <label className="text-white font-medium w-full md:w-40">Profile Image</label>
           <input
             type="file"
             accept="image/jpeg"
@@ -228,88 +142,76 @@ const AddStudent = () => {
         </div>
 
         <div className="flex flex-col md:flex-row gap-4">
-          {/* Team */}
           <div className="flex flex-col w-full">
             <label className="text-white font-medium mb-1">Team</label>
             {sameTeam ? (
               <input
                 type="text"
-                value={sameTeam?.teamName}
+                value={sameTeam.teamName}
                 readOnly
-                className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
+                className="w-full p-2 rounded-lg bg-black text-white border border-gray-600"
               />
             ) : (
               <select
                 value={team}
                 onChange={(e) => setTeam(e.target.value)}
-                defaultValue=""
                 required
-                className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
+                className="w-full p-2 rounded-lg bg-black text-white border border-gray-600"
               >
-                <option value="" hidden disabled>
+                <option value="" hidden>
                   Select a team
                 </option>
-                {teamFormDB.teamName.map((team, i) => (
-                  <option key={i} value={team._id}>
-                    {team.teamName}
+                {teamFormDB.teamName.map((t) => (
+                  <option key={t._id} value={t._id}>
+                    {t.teamName}
                   </option>
                 ))}
               </select>
             )}
           </div>
 
-          {/* Zone */}
           <div className="flex flex-col w-full">
             <label className="text-white font-medium mb-1">Zone</label>
             <select
               value={zone}
               onChange={(e) => setZone(e.target.value)}
-              defaultValue=""
               required
-              className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
+              className="w-full p-2 rounded-lg bg-black text-white border border-gray-600"
             >
-              <option value="" hidden disabled>
+              <option value="" hidden>
                 Select a zone
               </option>
-              {selectedZone.map((zone, i) => (
-                <option key={i} value={zone._id}>
-                  {zone.zone}
+              {selectedZone.map((z) => (
+                <option key={z._id} value={z._id}>
+                  {z.zone}
                 </option>
               ))}
             </select>
           </div>
         </div>
 
-        {/* Student Info */}
         <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex flex-col w-full">
-            <label className="text-white font-medium mb-1">Student ID</label>
-            <input
-              pattern="\d*"
-              type="text"
-              value={id}
-              onChange={(e) => setId(e.target.value)}
-              maxLength={4}
-              placeholder="Enter student ID"
-              className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
-            />
-          </div>
-          <div className="flex flex-col w-full">
-            <label className="text-white font-medium mb-1">Student Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter student name"
-              className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
-            />
-          </div>
+          <input
+            type="text"
+            value={id}
+            onChange={(e) => setId(e.target.value)}
+            maxLength={4}
+            placeholder="Student ID"
+            className="w-full p-2 rounded-lg bg-black text-white border border-gray-600"
+          />
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Student Name"
+            className="w-full p-2 rounded-lg bg-black text-white border border-gray-600"
+          />
         </div>
 
         <button
           type="submit"
-          className="w-full mt-2 py-2 bg-[var(--color-secondary)] hover:bg-[var(--color-tertiary)] text-black font-bold rounded-lg transition duration-300"
           disabled={isSubmitting}
+          className="w-full py-2 bg-[var(--color-secondary)] hover:bg-[var(--color-tertiary)] text-black font-bold rounded-lg"
         >
           {isStudentLoading ? `Adding ${name}...` : "Add Student"}
         </button>
