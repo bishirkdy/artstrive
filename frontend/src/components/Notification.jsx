@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useGetMessageQuery } from "../redux/api/customApi";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import utc from "dayjs/plugin/utc";
 import { useSelector } from "react-redux";
 import { FaDeleteLeft } from "react-icons/fa6";
 import { useDeleteMessageMutation } from "../redux/api/customApi";
 import { toast } from "react-toastify";
+
 dayjs.extend(relativeTime);
+dayjs.extend(utc);
 
 const Notification = () => {
   const { data, isLoading, refetch } = useGetMessageQuery();
@@ -15,42 +18,47 @@ const Notification = () => {
   const [timeLefts, setTimeLefts] = useState({});
   const [deleteMessage, { isLoading: deleteLoading }] = useDeleteMessageMutation();
 
-  // Defensive: always use an array
   const notificationsArray = Array.isArray(data?.data) ? data.data : [];
   const finalNotification = isTeamOrAdmin
     ? notificationsArray
     : notificationsArray.filter((d) => d.notificationOfTo === "all");
 
   useEffect(() => {
-    if (!finalNotification?.length || !data?.serverTime) return;
-
-    const serverNow = dayjs(data.serverTime);
+    if (!finalNotification?.length) return;
 
     const interval = setInterval(() => {
       const updates = {};
-      const now = dayjs();
+
       finalNotification.forEach((d) => {
-        if (!d.deadline) return;
-        const elapsed = now.diff(serverNow);
-        const end = dayjs(d.deadline);
-        const correctedEnd = end.add(elapsed, 'millisecond');
-        const diff = correctedEnd.diff(now);
+        if (!d.deadline) {
+          updates[d._id] = "";
+          return;
+        }
+        // Always parse deadline as UTC
+        const now = dayjs.utc();
+        const end = dayjs.utc(d.deadline);
+        if (!end.isValid()) {
+          updates[d._id] = "Invalid date";
+          return;
+        }
+        const diff = end.diff(now);
 
         if (diff <= 0) {
           updates[d._id] = "Closed";
         } else {
-          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+          const days = end.diff(now, "day");
+          const hours = end.diff(now, "hour") % 24;
+          const minutes = end.diff(now, "minute") % 60;
+          const seconds = end.diff(now, "second") % 60;
           updates[d._id] = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
       });
+
       setTimeLefts(updates);
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [finalNotification, data]);
+  }, [finalNotification]);
 
   if (isLoading)
     return (
@@ -84,13 +92,15 @@ const Notification = () => {
                   <span className="text-sm text-gray-200 animate-pulse">
                     {dayjs(d.notificationDate).fromNow()}
                   </span>
-                  <span
-                    disabled={deleteLoading}
-                    className="cursor-pointer text-red-500 hover:text-red-800"
-                    onClick={() => deleteHandler(d._id)}
-                  >
-                    <FaDeleteLeft />
-                  </span>
+                  {user?.user?.isAdmin && (
+                    <span
+                      disabled={deleteLoading}
+                      className="cursor-pointer text-red-500 hover:text-red-800"
+                      onClick={() => deleteHandler(d._id)}
+                    >
+                      <FaDeleteLeft />
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="flex flex-row justify-between items-center">
@@ -105,7 +115,11 @@ const Notification = () => {
                   >
                     {timeLefts[d._id] === "Closed"
                       ? "❌ Closed"
-                      : `⏳ ${timeLefts[d._id]}`}
+                      : timeLefts[d._id] === "Invalid date"
+                      ? "Invalid deadline"
+                      : timeLefts[d._id]
+                        ? `⏳ ${timeLefts[d._id]}`
+                        : ""}
                   </span>
                 )}
               </div>

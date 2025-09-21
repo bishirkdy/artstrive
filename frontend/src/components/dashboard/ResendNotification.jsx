@@ -27,27 +27,31 @@ dayjs.updateLocale("en", {
   },
 });
 
-const ResendNotification = ({ toggleNotification, data }) => {
+const ResendNotification = ({ toggleNotification, data, loading }) => {
   const [timeLefts, setTimeLefts] = useState({});
   const { user } = useSelector((state) => state.auth);
   const isTeamOrAdmin = user?.user?.teamName;
 
+  // Robust handling of notifications array
+  const notificationsArray = Array.isArray(data?.data) ? data.data : [];
   const finalNotification = isTeamOrAdmin
-    ? data?.data
-    : data?.data?.filter((d) => d.notificationOfTo === "all");
+    ? notificationsArray
+    : notificationsArray.filter((d) => d.notificationOfTo === "all");
 
   useEffect(() => {
-    if (!finalNotification?.length) return;
+    if (!finalNotification.length) return;
 
     const interval = setInterval(() => {
       const updates = {};
 
       finalNotification.forEach((d) => {
         if (!d.deadline) return;
-
-        // Use UTC to avoid timezone issues
         const now = dayjs.utc();
         const end = dayjs.utc(d.deadline);
+        if (!end.isValid()) {
+          updates[d._id] = "Invalid date";
+          return;
+        }
         const diff = end.diff(now);
 
         if (diff <= 0) {
@@ -57,7 +61,6 @@ const ResendNotification = ({ toggleNotification, data }) => {
           const hours = end.diff(now, "hour") % 24;
           const minutes = end.diff(now, "minute") % 60;
           const seconds = end.diff(now, "second") % 60;
-
           updates[d._id] = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
       });
@@ -68,26 +71,32 @@ const ResendNotification = ({ toggleNotification, data }) => {
     return () => clearInterval(interval);
   }, [finalNotification]);
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <h1 className="text-white">Loading notifications...</h1>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col bg-[#111111] w-full rounded-2xl space-y-2 p-4 pb-6 shadow-lg transition-transform duration-300">
       <h1 className="text-white font-semibold text-lg">Resend Notifications</h1>
 
-      {finalNotification?.length > 0 ? (
+      {finalNotification.length > 0 ? (
         <>
           {finalNotification.map((d, idx) => (
             <div key={d._id}>
               <div className="flex flex-row text-white items-center justify-between w-full px-2 py-1">
                 <p className="truncate max-w-[70%]">
-                  {d.notificationTitle.length > 20
+                  {typeof d.notificationTitle === "string" && d.notificationTitle.length > 20
                     ? `${d.notificationTitle.slice(0, 20)}...`
-                    : d.notificationTitle}
+                    : d.notificationTitle || ""}
                 </p>
-
                 <div className="flex flex-col items-end">
                   <span className="text-sm text-gray-200 animate-pulse">
-                    {dayjs(d.notificationDate).fromNow()}
+                    {d.notificationDate ? dayjs(d.notificationDate).fromNow() : ""}
                   </span>
-
                   {d.deadline && (
                     <span
                       className={`text-xs font-semibold truncate ${
@@ -98,18 +107,20 @@ const ResendNotification = ({ toggleNotification, data }) => {
                     >
                       {timeLefts[d._id] === "Closed"
                         ? "❌ Closed"
-                        : `⏳ ${timeLefts[d._id]}`}
+                        : timeLefts[d._id] === "Invalid date"
+                        ? "Invalid deadline"
+                        : timeLefts[d._id]
+                        ? `⏳ ${timeLefts[d._id]}`
+                        : ""}
                     </span>
                   )}
                 </div>
               </div>
-
               {idx < finalNotification.length - 1 && (
                 <hr className="border-gray-700 mx-2" />
               )}
             </div>
           ))}
-
           <button
             onClick={toggleNotification}
             className="mt-4 self-end font-semibold hover:bg-[var(--color-tertiary)] bg-[var(--color-secondary)] rounded-md px-4 py-1"
