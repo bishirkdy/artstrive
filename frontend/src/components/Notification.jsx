@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { useGetMessageQuery, useDeleteMessageMutation } from "../redux/api/customApi";
+import { useGetMessageQuery } from "../redux/api/customApi";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
 import { FaDeleteLeft } from "react-icons/fa6";
-import { nowIST, toIST } from "../utils/dayjsSetup";
+import { useDeleteMessageMutation } from "../redux/api/customApi";
+import { toast } from "react-toastify";
+dayjs.extend(relativeTime);
 
 const Notification = () => {
+  // Access both 'data' and the new 'serverTime' field from the query response
   const { data, isLoading, refetch } = useGetMessageQuery();
   const { user } = useSelector((state) => state.auth);
   const isTeamOrAdmin = user?.user?.teamName;
-
   const [timeLefts, setTimeLefts] = useState({});
   const [deleteMessage, { isLoading: deleteLoading }] = useDeleteMessageMutation();
 
@@ -17,47 +20,44 @@ const Notification = () => {
     ? data?.data
     : data?.data?.filter((d) => d.notificationOfTo === "all");
 
-  // Countdown timer
   useEffect(() => {
-    if (!finalNotification?.length) return;
+    // Check if both the notifications and server time exist
+    if (!finalNotification?.length || !data?.serverTime) return;
+
+    // Use the server's time as the consistent starting point
+    const serverNow = dayjs(data.serverTime);
 
     const interval = setInterval(() => {
       const updates = {};
+      const now = dayjs(); // Use a new `dayjs()` instance for each tick
 
       finalNotification.forEach((d) => {
         if (!d.deadline) return;
 
-        const now = nowIST();
-        const end = toIST(d.deadline);
-        const diff = end.diff(now);
+        // Calculate the difference between the server's time and now.
+        // This gives us the total elapsed time since the data was fetched.
+        const elapsed = now.diff(serverNow);
+        
+        // Add the elapsed time to the original deadline
+        const end = dayjs(d.deadline);
+        const correctedEnd = end.add(elapsed, 'millisecond');
+        const diff = correctedEnd.diff(now);
 
         if (diff <= 0) {
           updates[d._id] = "Closed";
         } else {
-          const days = end.diff(now, "day");
-          const hours = end.diff(now, "hour") % 24;
-          const minutes = end.diff(now, "minute") % 60;
-          const seconds = end.diff(now, "second") % 60;
-
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
           updates[d._id] = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
       });
-
       setTimeLefts(updates);
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [finalNotification]);
-
-  const deleteHandler = async (_id) => {
-    try {
-      await deleteMessage({ _id }).unwrap();
-      refetch();
-      toast.success("Message deleted successfully");
-    } catch (err) {
-      toast.error(err?.data?.message || "Error deleting message");
-    }
-  };
+  }, [finalNotification, data]); // Add `data` to the dependency array
 
   if (isLoading)
     return (
@@ -65,6 +65,19 @@ const Notification = () => {
         <h1 className="text-white">Loading notifications...</h1>
       </div>
     );
+
+  const deleteHandler = async (_id) => {
+    try {
+      await deleteMessage({ _id }).unwrap();
+      refetch();
+      toast.success("message deleted successfully");
+    } catch (error) {
+      toast.error(
+        "error deleting message ",
+        error?.data?.message || error.message
+      );
+    }
+  };
 
   return (
     <div className="flex flex-col bg-[#111111] w-full rounded-2xl space-y-2 pb-6 shadow-lg transition-transform duration-300">
@@ -76,9 +89,10 @@ const Notification = () => {
                 <h1 className="max-w-[70%] text-base">{d.notificationTitle}</h1>
                 <div className="flex flex-row gap-2 items-end">
                   <span className="text-sm text-gray-200 animate-pulse">
-                    {toIST(d.notificationDate).from(nowIST())} ago
+                    {dayjs(d.notificationDate).fromNow()}
                   </span>
                   <span
+                    disabled={deleteLoading}
                     className="cursor-pointer text-red-500 hover:text-red-800"
                     onClick={() => deleteHandler(d._id)}
                   >
@@ -93,20 +107,28 @@ const Notification = () => {
                 {d.deadline && (
                   <span
                     className={`text-xs font-semibold ml-4 whitespace-nowrap ${
-                      timeLefts[d._id] === "Closed" ? "text-red-500" : "text-green-400"
+                      timeLefts[d._id] === "Closed"
+                        ? "text-red-500"
+                        : "text-green-400"
                     }`}
                   >
-                    {timeLefts[d._id] === "Closed" ? "❌ Closed" : `⏳ ${timeLefts[d._id]}`}
+                    {timeLefts[d._id] === "Closed"
+                      ? "❌ Closed"
+                      : `⏳ ${timeLefts[d._id]}`}
                   </span>
                 )}
               </div>
             </div>
 
-            {idx < finalNotification.length - 1 && <hr className="border-gray-700 mx-2" />}
+            {idx < finalNotification.length - 1 && (
+              <hr className="border-gray-700 mx-2" />
+            )}
           </div>
         ))
       ) : (
-        <h1 className="text-white/70 m-auto pt-5">No notifications available</h1>
+        <h1 className="text-white/70 m-auto pt-5">
+          Not available notifications
+        </h1>
       )}
     </div>
   );

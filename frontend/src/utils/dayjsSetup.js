@@ -12,3 +12,8 @@ export const nowIST = () => dayjs().tz("Asia/Kolkata");
 
 // Convert UTC timestamp to IST
 export const toIST = (utcTime) => dayjs.utc(utcTime).tz("Asia/Kolkata");
+
+// Convert local time string to IST, then to UTC ISO string
+export const localToISTUtcISOString = (localTimeStr) => {
+  return dayjs(localTimeStr).tz("Asia/Kolkata").utc().format();
+};

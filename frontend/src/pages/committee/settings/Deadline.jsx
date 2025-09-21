@@ -2,16 +2,31 @@ import React, { useState } from "react";
 import { IoCaretBack } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { useAddDeadLineMutation } from "../../../redux/api/customApi";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 const Deadline = ({ settingsToggle }) => {
   const [messageSubject, setMessageSubject] = useState("");
   const [message, setMessage] = useState("");
-  const [deadline , setDeadline] = useState("");
-  const [deadlineOf , setDeadlineOf] = useState("");
-  const [addDeadLine , {isLoading}] = useAddDeadLineMutation();
+  const [deadline, setDeadline] = useState(""); // will hold UTC ISO string
+  const [deadlineOf, setDeadlineOf] = useState("");
+  const [addDeadLine, { isLoading }] = useAddDeadLineMutation();
+
+  // Convert local datetime-local to IST, then to UTC ISO string
+  const handleDeadlineChange = (e) => {
+    const localTime = e.target.value;
+    // Interpret as local time, convert to IST, then get UTC ISO string
+    const istDate = dayjs(localTime).tz("Asia/Kolkata");
+    setDeadline(istDate.utc().format());
+  };
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    try {addDeadLine({messageSubject, message, deadline, deadlineOf}).unwrap();
+    try {
+      await addDeadLine({ messageSubject, message, deadline, deadlineOf }).unwrap();
       toast.success("deadline sent successfully", { position: "bottom-right" });
       setMessage("");
       setMessageSubject("");
@@ -36,15 +51,15 @@ const Deadline = ({ settingsToggle }) => {
           </h1>
         </div>
         <p className="leading-5 pt-3 text-center animate-pulse">
-            Set deadlines for students or programs and notify  teams
+            Set deadlines for students or programs and notify teams
         </p>
       </div>
       <form
         onSubmit={submitHandler}
-        className="flex mt-5 w-[75%]  flex-col space-y-4 "
+        className="flex mt-5 w-[75%] flex-col space-y-4 "
       >
         <div className="flex flex-col w-full space-y-3">
-            <select
+          <select
             value={deadlineOf}
             onChange={(e) => setDeadlineOf(e.target.value)}
             defaultValue=""
@@ -64,7 +79,7 @@ const Deadline = ({ settingsToggle }) => {
             required
             className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
             placeholder="Enter message title"
-          ></input>
+          />
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
@@ -72,11 +87,10 @@ const Deadline = ({ settingsToggle }) => {
             className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
             rows={10}
             placeholder="Enter message here..."
-          ></textarea>
+          />
           <input
             type="datetime-local"
-            value={deadline}
-            onChange={(e) => setDeadline(e.target.value)}
+            onChange={handleDeadlineChange}
             required
             className="w-full mt-4 p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
           />
