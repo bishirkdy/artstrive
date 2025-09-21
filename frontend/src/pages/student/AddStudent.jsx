@@ -7,6 +7,9 @@ import { useSelector } from "react-redux";
 import { Loader } from "../../components/Loader";
 import ErrorMessage from "../../components/ErrorMessage";
 import { useStudentAddingDeadlineQuery } from "../../redux/api/customApi";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
 
 const AddStudent = () => {
   const [name, setName] = useState("");
@@ -39,7 +42,7 @@ const AddStudent = () => {
   const { user } = useSelector((state) => state.auth);
 
   const teamFromStore = user.user.teamName;
-  const teams = user.user.isAdmin === false
+  const teams = user.user.isAdmin === false;
   const sameTeam =
     teamFormDB?.teamName && teamFromStore
       ? teamFormDB.teamName.find((team) => team.teamName === teamFromStore)
@@ -57,25 +60,26 @@ const AddStudent = () => {
       </div>
     );
   }
-  
-  const currentDate = new Date();
-  const deadlineDate = new Date(studentDeadlineData?.data?.deadline);
-  
-  if (teams && deadlineDate < currentDate) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-[#121212]">
-        <div className="text-center"> 
-          <h1 className="text-3xl font-bold text-white mb-4">
-            Student Adding Deadline closed
-          </h1>
-          <p className="text-white">
-            The deadline for adding students has passed. You can no longer add
-            new students.
-          </p>
-        </div>
+
+  const currentDate = dayjs.utc();
+  const deadlineDate = dayjs.utc(studentDeadlineData?.data?.deadline);
+console.log("Current UTC:", currentDate.format());
+console.log("Deadline UTC:", deadlineDate.format());
+ if (teams && deadlineDate.isBefore(currentDate)) {
+  return (
+    <div className="flex items-center justify-center h-screen bg-[#121212]">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold text-white mb-4">
+          Student Adding Deadline closed
+        </h1>
+        <p className="text-white">
+          The deadline for adding students has passed. You can no longer add
+          new students.
+        </p>
       </div>
-    );
-  }
+    </div>
+  );
+}
   if (teamIsError || zoneIsError || isError) {
     const code =
       teamError?.originalStatus ||

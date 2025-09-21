@@ -98,6 +98,7 @@ export default function Bot() {
       socket.emit("getTeamScore", (res) => {
         setLoading(false);
         const teamsScore = Array.isArray(res?.data?.data) ? res.data.data : [];
+        console.log(teamsScore);
         if (!teamsScore.length) {
           setChat((prev) => [
             ...prev,
@@ -204,6 +205,8 @@ export default function Bot() {
     socket.emit("getStudentScore", zone._id, (res) => {
       setLoading(false);
       const studentsScore = Array.isArray(res?.data?.data) ? res.data.data : [];
+      console.log(studentsScore);
+
       if (!studentsScore.length) {
         setChat((prev) => [
           ...prev,
@@ -277,7 +280,7 @@ export default function Bot() {
             className="w-10 h-10 rounded-full object-contain"
           />
           <div className="flex flex-col">
-            <span className="text-white font-medium">Art Strive Bot</span>
+            <span className="text-white font-medium">Strive Bot</span>
             <span className="text-xs text-green-400">Online</span>
           </div>
         </div>
@@ -348,103 +351,156 @@ export default function Bot() {
                   ))}
 
                 {/* Team Scores */}
-                {msg.score && (
-                  <div className="mt-2">
-                    <ul className="text-xs space-y-1">
-                      {msg.score.map((s, i) => (
-                        <li key={i} className="flex justify-between">
-                          <span>{s.teamName || s.team}</span>
-                          <span className="font-medium">{s.score ?? "-"}</span>
-                        </li>
-                      ))}
-                    </ul>
+                {msg.score?.length > 0 && (
+                  <div className="mt-4 space-y-4">
+                    <div className="bg-gray-900/70 border border-gray-700 rounded-2xl p-4 shadow-md">
+                      <h3 className="text-lg font-bold text-blue-400 mb-3">
+                        Team Scores
+                      </h3>
+
+                      {/* Team Score Cards */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        {msg.score.map((t, i) => {
+                          let rankBadge = "⭐";
+                          if (i === 0) rankBadge = "🥇";
+                          else if (i === 1) rankBadge = "🥈";
+                          else if (i === 2) rankBadge = "🥉";
+
+                          return (
+                            <div
+                              key={t.teamName}
+                              className="bg-gray-800/50 border border-gray-700 rounded-xl p-3 flex flex-col shadow-sm hover:scale-105 transform transition"
+                            >
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="font-semibold text-sm">
+                                  {t.teamName}
+                                </span>
+                                <span className="text-lg">{rankBadge}</span>
+                              </div>
+                              <div className="flex flex-wrap gap-2 mt-2">
+                                <span className="px-2 py-1 bg-indigo-600 rounded-full text-xs font-medium">
+                                  Total: {t.totalScore ?? "-"}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
                 )}
 
                 {/* Student Scores */}
-                {msg.studentsScore && (
-                  <div className="mt-2">
-                    <ul className="text-xs space-y-1">
-                      {msg.studentsScore.map((s, i) => (
-                        <li key={i} className="flex justify-between">
-                          <span>{s.name || s.studentName}</span>
-                          <span className="font-medium">{s.score ?? "-"}</span>
-                        </li>
-                      ))}
-                    </ul>
+                {msg.studentsScore?.length > 0 && (
+                  <div className="mt-4 space-y-4">
+                    <div className="bg-gray-900/70 border border-gray-700 rounded-2xl p-4 shadow-md">
+                      <h3 className="text-lg font-bold text-green-400 mb-3">
+                        Student Scores
+                      </h3>
+
+                      {/* Student Score Cards */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        {msg.studentsScore.map((s) => (
+                          <div
+                            key={s.id}
+                            className="bg-gray-800/50 border border-gray-700 rounded-xl p-3 flex flex-col shadow-sm hover:scale-105 transform transition"
+                          >
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="font-semibold text-sm">
+                                {s.name}
+                              </span>
+                              <span className="text-sm text-yellow-400">
+                                ⭐
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-400 mb-1">
+                              ID: {s.id}
+                            </p>
+                            <p className="text-xs text-gray-400 mb-1">
+                              Team: {s.team}
+                            </p>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              <span className="px-2 py-1 bg-indigo-600 rounded-full text-xs font-medium">
+                                Score: {s.totalScore ?? "-"}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 )}
 
-              {msg.programResult?.length > 0 && (
-  <div className="mt-4 space-y-4">
-    <div className="bg-gray-900/70 border border-gray-700 rounded-2xl p-4 shadow-md">
-      <h3 className="text-lg font-bold text-indigo-400 mb-3">
-        {msg.programResult[0]?.program?.name || "Program Results"}
-      </h3>
+                {msg.programResult?.length > 0 && (
+                  <div className="mt-4 space-y-4">
+                    <div className="bg-gray-900/70 border border-gray-700 rounded-2xl p-4 shadow-md">
+                      <h3 className="text-lg font-bold text-indigo-400 mb-3">
+                        {msg.programResult[0]?.program?.name ||
+                          "Program Results"}
+                      </h3>
 
-      {/* Results Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {msg.programResult
-          .filter((it) => it.score && it.score > 0) // only show students with score > 0
-          .map((it) => {
-            let rankBadge = "-";
+                      {/* Results Cards */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        {msg.programResult
+                          .filter((it) => it.score && it.score > 0)
+                          .map((it) => {
+                            let rankBadge = "-";
 
-            switch (it.rank) {
-              case "first":
-                rankBadge = "🥇";
-                break;
-              case "second":
-                rankBadge = "🥈";
-                break;
-              case "third":
-                rankBadge = "🥉";
-                break;
-              default:
-                rankBadge = it.rank || "-";
-            }
+                            switch (it.rank) {
+                              case "first":
+                                rankBadge = "🥇";
+                                break;
+                              case "second":
+                                rankBadge = "🥈";
+                                break;
+                              case "third":
+                                rankBadge = "🥉";
+                                break;
+                              default:
+                                rankBadge = it.rank || "-";
+                            }
 
-            return (
-              <div
-                key={it._id}
-                className="bg-gray-800/50 border border-gray-700 rounded-xl p-3 flex flex-col shadow-sm hover:scale-105 transform transition"
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-semibold text-sm">
-                    {it.student?.name}
-                  </span>
-                  <span className="text-sm">{rankBadge}</span>
-                </div>
-                <p className="text-xs text-gray-400 mb-1">
-                  ID: {it.student?.id}
-                </p>
-                <p className="text-xs text-gray-400 mb-1">
-                  Team: {it.student?.team?.teamName}
-                </p>
-                <p className="text-xs text-gray-400 mb-1">
-                  Zone: {it.student?.zone?.zone}
-                </p>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  <span className="px-2 py-1 bg-indigo-600 rounded-full text-xs font-medium">
-                    Score: {it.score ?? "-"}
-                  </span>
-                  <span className="px-2 py-1 bg-green-600 rounded-full text-xs font-medium">
-                    Code: {it.codeLetter || "-"}
-                  </span>
-                  <span className="px-2 py-1 bg-yellow-500 rounded-full text-xs font-medium">
-                    Grade: {it.grade || "-"}
-                  </span>
-                  <span className="px-2 py-1 bg-pink-500 rounded-full text-xs font-medium">
-                    Total: {it.totalScore || "-"}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-      </div>
-    </div>
-  </div>
-)}
-
+                            return (
+                              <div
+                                key={it._id}
+                                className="bg-gray-800/50 border border-gray-700 rounded-xl p-3 flex flex-col shadow-sm hover:scale-105 transform transition"
+                              >
+                                <div className="flex justify-between items-center mb-2">
+                                  <span className="font-semibold text-sm">
+                                    {it.student?.name}
+                                  </span>
+                                  <span className="text-sm">{rankBadge}</span>
+                                </div>
+                                <p className="text-xs text-gray-400 mb-1">
+                                  ID: {it.student?.id}
+                                </p>
+                                <p className="text-xs text-gray-400 mb-1">
+                                  Team: {it.student?.team?.teamName}
+                                </p>
+                                <p className="text-xs text-gray-400 mb-1">
+                                  Zone: {it.student?.zone?.zone}
+                                </p>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                  <span className="px-2 py-1 bg-indigo-600 rounded-full text-xs font-medium">
+                                    Score: {it.score ?? "-"}
+                                  </span>
+                                  <span className="px-2 py-1 bg-green-600 rounded-full text-xs font-medium">
+                                    Code: {it.codeLetter || "-"}
+                                  </span>
+                                  <span className="px-2 py-1 bg-yellow-500 rounded-full text-xs font-medium">
+                                    Grade: {it.grade || "-"}
+                                  </span>
+                                  <span className="px-2 py-1 bg-pink-500 rounded-full text-xs font-medium">
+                                    Total: {it.totalScore || "-"}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* No Result Message */}
                 {msg.noResult && (
