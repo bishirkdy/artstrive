@@ -5,7 +5,9 @@ import { ChartsXAxis } from "@mui/x-charts/ChartsXAxis";
 import { ChartsYAxis } from "@mui/x-charts/ChartsYAxis";
 
 import { ChartsLegend, ChartsTooltip } from "@mui/x-charts";
-export default function LineChartWithReferenceLines({data}) {
+
+const teamColors = ["#FF5733", "#33C1FF", "#9D33FF"];
+export default function LineChartWithReferenceLines({ data }) {
   const isMobile = window.innerWidth < 768;
 
   let series = [];
@@ -18,10 +20,11 @@ export default function LineChartWithReferenceLines({data}) {
       Array.isArray(data[teamNames[0]]) &&
       data[teamNames[0]].length > 0
     ) {
-      series = teamNames.map((teamName) => ({
+      series = teamNames.map((teamName, index) => ({
         data: Array.isArray(data[teamName]) ? data[teamName].slice(0, 8) : [],
         label: teamName,
         type: "line",
+        color: teamColors[index % teamColors.length],
       }));
     } else {
       series = [{ data: [], label: "No Data", type: "line" }];
@@ -41,7 +44,11 @@ export default function LineChartWithReferenceLines({data}) {
     "Final",
   ];
   return (
-    <div className={`rounded-2xl mt-4 bg-[#111111] w-full overflow-x-auto shadow-lg flex items-center justify-center transition-transform duration-300 p-2 text-white ${!isMobile ? "scrollbar-hide" : ""}`}>
+    <div
+      className={`rounded-2xl mt-4 bg-[#111111] w-full overflow-x-auto shadow-lg flex items-center justify-center transition-transform duration-300 p-2 text-white ${
+        !isMobile ? "scrollbar-hide" : ""
+      }`}
+    >
       <div className="w-full">
         <h2 className="text-lg md:text-2xl font-semibold md:mb-2 text-center">
           Performance Over Time

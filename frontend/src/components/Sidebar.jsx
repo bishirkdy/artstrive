@@ -16,10 +16,10 @@ import { FaSignOutAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useLogoutMutation } from "../redux/api/authApi";
 import { BeatLoader } from "react-spinners";
-import logo from '../assets/logo.png';
+import logo from "../assets/logo.png";
 import { IoIosChatbubbles } from "react-icons/io";
 const adminItems = (toggleSidebar) => [
-   {
+  {
     icon: <IoIosChatbubbles className="text-[#DAD6D1] text-2xl" />,
     text: "Strive bot",
     path: "/bot",
@@ -49,12 +49,12 @@ const adminItems = (toggleSidebar) => [
     text: "Programs",
   },
   {
-    icon: <SiGoogleforms className="text-[#DAD6D1] text-2xl" />,
-    text: "Forms",
-  },
-  {
     icon: <RiLetterSpacing2 className="text-[#DAD6D1] text-2xl" />,
     text: "Code Letter",
+  },
+  {
+    icon: <SiGoogleforms className="text-[#DAD6D1] text-2xl" />,
+    text: "Forms",
   },
   {
     icon: <FaPenToSquare className="text-[#DAD6D1] text-2xl" />,
@@ -204,9 +204,8 @@ const Sidebar = ({ setIsActives }) => {
   //     : menuItems(() => setSideBarOpen(false));
   // }
 
-
   let menus;
-   if (user) {
+  if (user) {
     menus = isAdmin
       ? adminItems(() => setSideBarOpen(false))
       : menuItems(() => setSideBarOpen(false));
@@ -302,7 +301,9 @@ const Sidebar = ({ setIsActives }) => {
             <SlArrowLeftCircle />
           </button>
         </header>
-        <div className={`flex flex-col mt-[10dvh] h-[90dvh] lg:h-[88dvh] lg:mt-0 justify-between overflow-auto scrollbar-hide`}>
+        <div
+          className={`flex flex-col mt-[10dvh] h-[90dvh] lg:h-[88dvh] lg:mt-0 justify-between overflow-auto scrollbar-hide`}
+        >
           <nav className="h-full flex flex-col overflow-auto scrollbar-hide">
             <ul className="p-4 flex flex-col space-y-2">
               {menus.map((item, idx) => (
@@ -326,7 +327,7 @@ const Sidebar = ({ setIsActives }) => {
                       </span>
                     </button>
                   </Link>
-                        
+
                   {expandedMenu === idx && dropdowns[item.text] && (
                     <div
                       className={`ml-8 mt-2 bg-[#000000] p-2 rounded shadow-lg ${

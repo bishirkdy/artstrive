@@ -8,7 +8,8 @@ const graphSchema = new mongoose.Schema({
         }
     ],
      id: { type: Number, required: true },
-    xLabelPercentage: { type: Number, required: true }
+    xLabelPercentage: { type: Number, required: true },
+    declareCount : { type: Number, required: true }
 });
 
 const Graph = mongoose.model("Graph", graphSchema);

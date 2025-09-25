@@ -5,6 +5,9 @@ import { TbClockStop } from "react-icons/tb";
 import { RiMessage3Line } from "react-icons/ri";
 import { BiSolidCreditCard } from "react-icons/bi";
 // import { MdConfirmationNumber } from "react-icons/md";
+import { MdBlock } from "react-icons/md";
+import { CiTimer } from "react-icons/ci";
+
 
 import MarkSettings from "./MarkSettings";
 import MessageSettings from "./MessageSettings";
@@ -20,6 +23,10 @@ import EditCodeLetter from "./EditCodeLetter";
 import EditScore from "./EditScore";
 import Deadline from "./Deadline";
 import GroupLimitSettings from "./GroupLimitSettings";
+import ScoreBlock from "./ScoreBlock";
+import { FaCopyright } from "react-icons/fa";
+import { FaMarker } from "react-icons/fa6";
+
 
 const SettingsPopUp = ({ setIsActive }) => {
   const [selectedComponent, setSelectedComponent] = useState(null);
@@ -111,7 +118,7 @@ const SettingsPopUp = ({ setIsActive }) => {
      {
       title: "Edit Code Letter",
       description: "Edit existing Code Letters",
-      icon: <TbClockStop className="text-2xl" />,
+      icon: <FaCopyright className="text-2xl" />,
       component: (
         <EditCodeLetter settingsToggle={() => setSelectedComponent(null)}/>
       ),
@@ -119,7 +126,7 @@ const SettingsPopUp = ({ setIsActive }) => {
      {
       title: "Edit Score",
       description: "Edit Marks",
-      icon: <TbClockStop className="text-2xl" />,
+      icon: <FaMarker className="text-2xl" />,
       component: (
         <EditScore settingsToggle={() => setSelectedComponent(null)}/>
       ),
@@ -127,9 +134,17 @@ const SettingsPopUp = ({ setIsActive }) => {
     {
       title: "DeadLine",
       description: "Set deadline",
-      icon: <TbClockStop className="text-2xl" />,
+      icon: <CiTimer className="text-2xl" />,
       component: (
         <Deadline settingsToggle={() => setSelectedComponent(null)}/>
+      ),
+    },
+     {
+      title: "Score handle",
+      description: "Display the score",
+      icon: <MdBlock  className="text-2xl" />,
+      component: (
+        <ScoreBlock settingsToggle={() => setSelectedComponent(null)}/>
       ),
     },
   ];

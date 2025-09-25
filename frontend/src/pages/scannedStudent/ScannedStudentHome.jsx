@@ -5,7 +5,7 @@ import { ToastContainer } from "react-toastify";
 const ScannedStudentHome = () => {
   
   return (
-    <div className="fixed h-screen w-full bg-[#000000] overflow-auto scrollbar-hide">
+    <div className="fixed h-[100dvh] w-full bg-[#000000] overflow-auto scrollbar-hide">
       <ToastContainer />
       <Outlet />
     </div>

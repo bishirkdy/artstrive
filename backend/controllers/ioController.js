@@ -3,6 +3,7 @@ import Program from "../models/programModel.js";
 import StudentProgram from "../models/studentProgramModel.js";
 import Zone from "../models/zoneModel.js";
 import { filterProgramsRankForSocket } from "../utils/filterProgramsRankForSocket.js";
+import ShowingCount from "../models/ShowingResult.js";
 
 export async function getAllZones() {
   const zones = await Zone.find();
@@ -21,67 +22,73 @@ export async function getProgramsByZone(zoneId) {
 }
 
 export async function getTeamScore() {
-    const totalTeamScores = await StudentProgram.aggregate([
-      {
-        $lookup: {
-          from: "students",
-          localField: "student",
-          foreignField: "_id",
-          as: "studentData",
-        },
+  const publishingCount = await ShowingCount.findOne().select("-_id");
+  const showingCount = Number(publishingCount?.showingCount) || 0;
+  const totalTeamScores = await StudentProgram.aggregate([
+    {
+      $lookup: {
+        from: "students",
+        localField: "student",
+        foreignField: "_id",
+        as: "studentData",
       },
-      {
-        $unwind: "$studentData",
+    },
+    {
+      $unwind: "$studentData",
+    },
+    {
+      $lookup: {
+        from: "auths",
+        localField: "studentData.team",
+        foreignField: "_id",
+        as: "teamData",
       },
-      {
-        $lookup: {
-          from: "auths",
-          localField: "studentData.team",
-          foreignField: "_id",
-          as: "teamData",
-        },
+    },
+    {
+      $unwind: "$teamData",
+    },
+    {
+      $lookup: {
+        from: "programs",
+        localField: "program",
+        foreignField: "_id",
+        as: "programData",
       },
-      {
-        $unwind: "$teamData",
+    },
+    {
+      $unwind: "$programData",
+    },
+    {
+      $match: {
+        "programData.declare": true,
+        "programData.declaredOrder": { $gte: 1, $lte: showingCount },
       },
-      {
-        $lookup: {
-          from: "programs",
-          localField: "program",
-          foreignField: "_id",
-          as: "programData",
-        },
+    },
+    {
+      $group: {
+        _id: "$teamData.teamName",
+        totalScore: { $sum: { $ifNull: ["$totalScore", 0] } },
       },
-      {
-        $unwind: "$programData",
+    },
+    {
+      $project: {
+        _id: 0,
+        teamName: "$_id",
+        totalScore: 1,
       },
-      {
-        $match: { "programData.declare": true },
-      },
-      {
-        $group: {
-          _id: "$teamData.teamName",
-          totalScore: { $sum: { $ifNull: ["$totalScore", 0] } },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          teamName: "$_id",
-          totalScore: 1,
-        },
-      },
-      {
-        $sort: { totalScore: -1 },
-      },
-    ]);
-    return {success : true , data : totalTeamScores}
-  };
+    },
+    {
+      $sort: { totalScore: -1 },
+    },
+  ]);
+  return { success: true, data: totalTeamScores, showingCount };
+}
 
 export const studentScoreByZone = async (zoneId) => {
   try {
     if (!zoneId) throw new Error("Zone ID is required");
-
+    const publishingCount = await ShowingCount.findOne().select("-_id");
+    const showingCount = Number(publishingCount?.showingCount) || 0;
     const studentScoreByZone = await StudentProgram.aggregate([
       {
         $lookup: {
@@ -123,6 +130,7 @@ export const studentScoreByZone = async (zoneId) => {
         $match: {
           "zoneData._id": new mongoose.Types.ObjectId(zoneId),
           "programData.declare": true,
+          "programData.declaredOrder": { $gte: 1, $lte: showingCount },
           "programData.type": { $ne: "Group" },
           "programData.stage": { $ne: "Sports" },
         },
@@ -147,7 +155,7 @@ export const studentScoreByZone = async (zoneId) => {
       { $sort: { totalScore: -1 } },
     ]);
 
-    return { success: true, data: studentScoreByZone };
+    return { success: true, data: studentScoreByZone, showingCount };
   } catch (error) {
     console.error("Error in studentScoreByZone:", error);
     return { success: false, error: error.message };
@@ -191,14 +199,10 @@ export const viewOneResult = async (programId) => {
         ],
       });
 
-      
-
-    const ranked = await filterProgramsRankForSocket(program);    
+    const ranked = await filterProgramsRankForSocket(program);
     return { success: true, data: ranked };
   } catch (error) {
     console.error("Error in viewOneResult:", error);
     return { success: false, error: error.message };
   }
 };
-
-

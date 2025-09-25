@@ -144,7 +144,7 @@ const EditScore = ({ settingsToggle }) => {
               </h1>
             ) : (
               selectedProgram
-                .filter((sp) => sp.codeLetter)
+                .filter((sp) => sp.codeLetter).sort((a , b) => a.codeLetter.localeCompare(b.codeLetter))
                 .map((sp, i) => {
                   const studentId = sp.student?._id || i;
                   const currentScore = mark[studentId] ?? sp.score ?? "";

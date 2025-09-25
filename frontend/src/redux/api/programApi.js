@@ -146,10 +146,14 @@ const programApi = createApiSlice.injectEndpoints({
                 method: "POST",
                 body : body,
             })
-        })
+        }),
+         programCount : builder.query({
+            query : () => `${PROGRAM_URL}/programcount`
+        }),
+       
     }),
     
 });
 
-export const { useGetProgramStudentWiseQuery,useStudentDetailByIdQuery , useGetProgramToDeclareQuery ,useGetProgramForCodeLetterQuery , useViewStudentPointsByZoneMutation , useViewStudentPointsQuery, useViewTeamScoreQuery,useViewSelectedResultQuery,useDeclaredProgramsQuery,useGetAllDeclaredResultsQuery, useResultUnDeclarationsMutation , useResultDeclarationsMutation,useViewMarksMutation, useViewCodeLetterMutation, useAddScoreOfProgramMutation ,useAddCodeLetterMutation,useGetStudentByProgramQuery,useAddStudentToProgramsMutation,useAddProgramMutation , useGetAllProgramQuery , useEditProgramsMutation , useDeleteProgramMutation , useAddMarkToProgramsMutation , useGetProgramForCodeLetterForEditQuery , useEditCodeLetterMutation } = programApi
+export const {useProgramCountQuery ,  useGetProgramStudentWiseQuery,useStudentDetailByIdQuery , useGetProgramToDeclareQuery ,useGetProgramForCodeLetterQuery , useViewStudentPointsByZoneMutation , useViewStudentPointsQuery, useViewTeamScoreQuery,useViewSelectedResultQuery,useDeclaredProgramsQuery,useGetAllDeclaredResultsQuery, useResultUnDeclarationsMutation , useResultDeclarationsMutation,useViewMarksMutation, useViewCodeLetterMutation, useAddScoreOfProgramMutation ,useAddCodeLetterMutation,useGetStudentByProgramQuery,useAddStudentToProgramsMutation,useAddProgramMutation , useGetAllProgramQuery , useEditProgramsMutation , useDeleteProgramMutation , useAddMarkToProgramsMutation , useGetProgramForCodeLetterForEditQuery , useEditCodeLetterMutation } = programApi
 export default programApi;

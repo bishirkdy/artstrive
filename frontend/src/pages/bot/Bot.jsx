@@ -2,6 +2,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { socket } from "../bot/Socket";
 import logo from "../../assets/logo.png";
+import { useProgramCountQuery } from "../../redux/api/programApi";
 
 export default function Bot() {
   const defaultMessages = [
@@ -10,6 +11,9 @@ export default function Bot() {
     "Student Score",
     "About Strive",
   ];
+  const { data, isLoading } = useProgramCountQuery();
+
+  const programCount = data?.programCount;
 
   const ABOUT_TEXT =
     "ART STRIVE is a celebration of Islamic culture, creativity, and expression. This vibrant festival brings together talents from all walks of life to participate in a diverse range of competitions, both on stage and off. From powerful speeches and captivating songs to a variety of artistic and intellectual challenges, ART STRIVE is a platform for showcasing the beauty of Islamic art and culture. Whether you're competing or cheering from the audience, this event is sure to inspire and kindle the soul. Come be a part of a journey that deciphers cultural codes through the universal language of art.";
@@ -21,7 +25,6 @@ export default function Bot() {
   const listRef = useRef(null);
   const endRef = useRef(null);
 
-  // Auto scroll to last message
   useEffect(() => {
     if (endRef.current) {
       endRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -98,7 +101,7 @@ export default function Bot() {
       socket.emit("getTeamScore", (res) => {
         setLoading(false);
         const teamsScore = Array.isArray(res?.data?.data) ? res.data.data : [];
-        console.log(teamsScore);
+        const showingCount = res?.data?.showingCount;
         if (!teamsScore.length) {
           setChat((prev) => [
             ...prev,
@@ -108,14 +111,19 @@ export default function Bot() {
         }
         setChat((prev) => [
           ...prev,
-          { from: "bot", text: "Teams Scores", score: teamsScore },
+          {
+            from: "bot",
+            text: "Teams Scores",
+            score: teamsScore,
+            showingCount,
+          },
         ]);
       });
     } else if (normalized === "student score") {
       setLoading(true);
       socket.emit("getStudentsZones", (res) => {
         setLoading(false);
-        const studentZone = Array.isArray(res?.data?.data) ? res.data.data : [];
+        const studentZone = Array.isArray(res?.data?.data) ? res.data.data : [];   
         if (!studentZone.length) {
           setChat((prev) => [
             ...prev,
@@ -205,8 +213,7 @@ export default function Bot() {
     socket.emit("getStudentScore", zone._id, (res) => {
       setLoading(false);
       const studentsScore = Array.isArray(res?.data?.data) ? res.data.data : [];
-      console.log(studentsScore);
-
+        const showingCount = res?.data?.showingCount;        
       if (!studentsScore.length) {
         setChat((prev) => [
           ...prev,
@@ -216,10 +223,13 @@ export default function Bot() {
       }
       setChat((prev) => [
         ...prev,
-        { from: "bot", text: `Scores in ${zone.zone}:`, studentsScore },
+        { from: "bot", text: `Scores in ${zone.zone}:`, studentsScore , showingCount },
       ]);
     });
   };
+  if (isLoading) {
+    return <h1 className="text-white p-4">Loading...</h1>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-gray-100 flex flex-col lg:flex-row">
@@ -351,86 +361,119 @@ export default function Bot() {
                   ))}
 
                 {/* Team Scores */}
-                {msg.score?.length > 0 && (
+                {msg.score && (
                   <div className="mt-4 space-y-4">
                     <div className="bg-gray-900/70 border border-gray-700 rounded-2xl p-4 shadow-md">
                       <h3 className="text-lg font-bold text-blue-400 mb-3">
                         Team Scores
                       </h3>
 
-                      {/* Team Score Cards */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        {msg.score.map((t, i) => {
-                          let rankBadge = "⭐";
-                          if (i === 0) rankBadge = "🥇";
-                          else if (i === 1) rankBadge = "🥈";
-                          else if (i === 2) rankBadge = "🥉";
+                      {msg.score.length === 0 ? (
+                        <p className="text-center text-sm text-gray-400">
+                          0 = No results published
+                        </p>
+                      ) : (
+                        <>
+                          <p className="text-xs text-gray-400 mb-3">
+                            {msg.showingCount > 0 && msg.showingCount !== programCount
+                              ? `After ${msg.showingCount} ${
+                                  msg.showingCount === 1 ? "result" : "results"
+                                }`
+                              : msg.showingCount === programCount
+                              ? "Final Status"
+                              : "No result published"}
+                          </p>
 
-                          return (
-                            <div
-                              key={t.teamName}
-                              className="bg-gray-800/50 border border-gray-700 rounded-xl p-3 flex flex-col shadow-sm hover:scale-105 transform transition"
-                            >
-                              <div className="flex justify-between items-center mb-2">
-                                <span className="font-semibold text-sm">
-                                  {t.teamName}
-                                </span>
-                                <span className="text-lg">{rankBadge}</span>
-                              </div>
-                              <div className="flex flex-wrap gap-2 mt-2">
-                                <span className="px-2 py-1 bg-indigo-600 rounded-full text-xs font-medium">
-                                  Total: {t.totalScore ?? "-"}
-                                </span>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            {msg.score.map((t, i) => {
+                              let rankBadge = "⭐";
+                              if (i === 0) rankBadge = "🥇";
+                              else if (i === 1) rankBadge = "🥈";
+                              else if (i === 2) rankBadge = "🥉";
+
+                              return (
+                                <div
+                                  key={t.teamName}
+                                  className="bg-gray-800/50 border border-gray-700 rounded-xl p-3 flex flex-col shadow-sm hover:scale-105 transform transition"
+                                >
+                                  <div className="flex justify-between items-center mb-2">
+                                    <span className="font-semibold text-sm">
+                                      {t.teamName}
+                                    </span>
+                                    <span className="text-lg">{rankBadge}</span>
+                                  </div>
+                                  <div className="flex flex-wrap gap-2 mt-2">
+                                    <span className="px-2 py-1 bg-indigo-600 rounded-full text-xs font-medium">
+                                      Total: {t.totalScore ?? "-"}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
 
                 {/* Student Scores */}
-                {msg.studentsScore?.length > 0 && (
+                {msg.studentsScore && (
                   <div className="mt-4 space-y-4">
                     <div className="bg-gray-900/70 border border-gray-700 rounded-2xl p-4 shadow-md">
                       <h3 className="text-lg font-bold text-green-400 mb-3">
                         Student Scores
                       </h3>
 
-                      {/* Student Score Cards */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        {msg.studentsScore.map((s) => (
-                          <div
-                            key={s.id}
-                            className="bg-gray-800/50 border border-gray-700 rounded-xl p-3 flex flex-col shadow-sm hover:scale-105 transform transition"
-                          >
-                            <div className="flex justify-between items-center mb-2">
-                              <span className="font-semibold text-sm">
-                                {s.name}
-                              </span>
-                              <span className="text-sm text-yellow-400">
-                                ⭐
-                              </span>
-                            </div>
-                            <p className="text-xs text-gray-400 mb-1">
-                              ID: {s.id}
-                            </p>
-                            <p className="text-xs text-gray-400 mb-1">
-                              Team: {s.team}
-                            </p>
-                            <div className="flex flex-wrap gap-2 mt-2">
-                              <span className="px-2 py-1 bg-indigo-600 rounded-full text-xs font-medium">
-                                Score: {s.totalScore ?? "-"}
-                              </span>
-                            </div>
+                      {msg.studentsScore.length === 0 ? (
+                        <p className="text-center text-sm text-gray-400">
+                          0 = No results published
+                        </p>
+                      ) : (
+                        <>
+                            <p className="text-xs text-gray-400 mb-3">
+                            {msg.showingCount > 0 && msg.showingCount !== programCount
+                              ? `After ${msg.showingCount} ${
+                                  msg.showingCount === 1 ? "result" : "results"
+                                }`
+                              : msg.showingCount === programCount
+                              ? "Final Status"
+                              : "No result published"}
+                          </p>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            {msg.studentsScore.map((s) => (
+                              <div
+                                key={s.id}
+                                className="bg-gray-800/50 border border-gray-700 rounded-xl p-3 flex flex-col shadow-sm hover:scale-105 transform transition"
+                              >
+                                <div className="flex justify-between items-center mb-2">
+                                  <span className="font-semibold text-sm">
+                                    {s.name}
+                                  </span>
+                                  <span className="text-sm text-yellow-400">
+                                    ⭐
+                                  </span>
+                                </div>
+                                <p className="text-xs text-gray-400 mb-1">
+                                  ID: {s.id}
+                                </p>
+                                <p className="text-xs text-gray-400 mb-1">
+                                  Team: {s.team}
+                                </p>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                  <span className="px-2 py-1 bg-indigo-600 rounded-full text-xs font-medium">
+                                    Score: {s.totalScore ?? "-"}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
-
                 {msg.programResult?.length > 0 && (
                   <div className="mt-4 space-y-4">
                     <div className="bg-gray-900/70 border border-gray-700 rounded-2xl p-4 shadow-md">

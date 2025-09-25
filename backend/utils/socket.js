@@ -41,7 +41,7 @@ export function initSocket(server, allowedOrigin) {
     //get teams score
     socket.on("getTeamScore", async (cb) => {
       try {
-        const teamScore = await getTeamScore();
+        const teamScore = await getTeamScore();        
         cb({ type: "team score", data: teamScore });
       } catch (error) {
         cb({ error: "Failed to fetch team scores" });
@@ -50,7 +50,7 @@ export function initSocket(server, allowedOrigin) {
 
     socket.on("getStudentScore", async (zoneId, cb) => {
       try {
-        const studentScore = await studentScoreByZone(zoneId);
+        const studentScore = await studentScoreByZone(zoneId);        
         cb({ type: "students score", data: studentScore });
       } catch (error) {
         cb({ error: "Error fetching students" });

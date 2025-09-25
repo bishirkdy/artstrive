@@ -47,7 +47,7 @@ const ProfileScanned = () => {
           {[
             { label: "Name", value: data.name.charAt(0).toUpperCase() + data.name.slice(1) },
             { label: "ID", value: data.id },
-            { label: "Team", value: data.team.teamName.charAt(0).toUpperCase() + data.name.slice(1) },
+            { label: "Team", value: data.team.teamName.charAt(0).toUpperCase() + data.team.teamName.slice(1) },
             { label: "Zone", value: data.zone.zone },
           ].map((item, index) => (
             <div key={index} className="flex justify-between items-center pb-2">

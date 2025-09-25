@@ -6,6 +6,7 @@ import GroupLimit from "../models/groupLimit.js";
 import IdCardUi from "../models/IdCardUiModel.js";
 import Message from "../models/MessageModel.js";
 import Program from "../models/programModel.js";
+import ShowingCount from "../models/ShowingResult.js";
 import Student from "../models/studentModel.js";
 import { CustomError } from "../utils/errorUtils.js";
 import streamifier from "streamifier";
@@ -34,13 +35,17 @@ export const topDashboard = async (req, res, next) => {
 export const performanceGraph = async (req, res, next) => {
   try {
     const graph = await Graph.find().sort({ xLabelPercentage: 1 });
+     const publishingCount = await ShowingCount.findOne().select("-_id");
+    const showingCount = Number(publishingCount?.showingCount) || 0;
 
     if (!graph || graph.length === 0) {
       return res.status(200).json({});
     }
     const teamScores = {};
 
-    graph.forEach((entry) => {
+    graph
+    .filter((entry) => entry.declareCount <= showingCount)
+    .forEach((entry) => {
       if (!entry.teams || !Array.isArray(entry.teams)) return;
 
       entry.teams.forEach((team) => {
@@ -402,7 +407,7 @@ export const addLimits = async (req, res, next) => {
     }
 
     const limit = await GroupLimit.findOneAndUpdate(
-      { program : programId },
+      { program: programId },
       { groupLimit },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
@@ -418,15 +423,14 @@ export const addLimits = async (req, res, next) => {
 
 export const showLimits = async (req, res, next) => {
   try {
-   const data = await GroupLimit.find()
-  .populate({
-    path: "program",
-    select: "name id zone",
-    populate: {
-      path: "zone", 
-      select: "zone",
-    },
-  });
+    const data = await GroupLimit.find().populate({
+      path: "program",
+      select: "name id zone",
+      populate: {
+        path: "zone",
+        select: "zone",
+      },
+    });
 
     res.status(200).json({
       success: true,
@@ -436,3 +440,57 @@ export const showLimits = async (req, res, next) => {
     next(error);
   }
 };
+
+//.....................................................................
+export const getCountForShowingResult = async (req, res, next) => {
+  try {
+    const programs = await Program.find({
+      declaredOrder: { $ne: null, $ne: "" },
+    })
+      .select("declaredOrder -_id")
+      .sort({ declaredOrder: 1 });
+
+    const declaredOrders = programs
+      .map((p) => p.declaredOrder)
+      .filter((order) => typeof order === "number");
+
+    res.status(200).json({ data: declaredOrders });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateShowingCount = async (req, res, next) => {
+  try {
+    const { declareCount } = req.body;
+    if (!declareCount) {
+      return next(new CustomError("Count is required", 400));
+    }
+
+    const updateCount = await ShowingCount.findOneAndUpdate(
+      {},
+      { showingCount: declareCount },
+      { new: true, upsert: true }
+    );
+
+    res.status(200).json({ data: updateCount });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getShowingCount = async (req, res, next) => {
+  try {
+    const count = await ShowingCount.findOne().select("-_id");
+
+    const showingCount =
+      count?.showingCount && !isNaN(count.showingCount)
+        ? Number(count.showingCount)
+        : 0;
+
+    res.status(200).json({ data: { showingCount } });
+  } catch (error) {
+    next(error);
+  }
+};
+

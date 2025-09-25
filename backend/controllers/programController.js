@@ -7,6 +7,7 @@ import Graph from "../models/graphModel.js";
 import Message from "../models/MessageModel.js";
 import filterProgramsRank from "../utils/resultFunction.js";
 import GroupLimit from "../models/groupLimit.js";
+import ShowingCount from "../models/ShowingResult.js";
 
 export const addProgramsName = async (req, res, next) => {
   try {
@@ -611,7 +612,10 @@ export const viewMarks = async (req, res, next) => {
   try {
     const { programId } = req.body;
     if (!programId) return next(new CustomError("Program ID is required"));
-    const program = await StudentProgram.find({ program: programId })
+    const program = await StudentProgram.find({
+      program: programId,
+      totalScore: { $ne: null, $gt: 0 },
+    })
       .select("-student")
       .populate("program", "name");
     res.json(program);
@@ -823,6 +827,7 @@ export const declareResults = async (req, res, next) => {
             teams: totalTeamScores[0].teams,
             id: program.id,
             xLabelPercentage: xLabelPercentage,
+            declareCount,
           });
 
           if (newProgress) {
@@ -966,6 +971,9 @@ export const viewOneResult = async (req, res, next) => {
 
 export const getTeamScore = async (req, res, next) => {
   try {
+    const publishingCount = await ShowingCount.findOne().select("-_id");
+    const showingCount = Number(publishingCount?.showingCount) || 0;
+
     const totalTeamScores = await StudentProgram.aggregate([
       {
         $lookup: {
@@ -1001,7 +1009,10 @@ export const getTeamScore = async (req, res, next) => {
         $unwind: "$programData",
       },
       {
-        $match: { "programData.declare": true },
+        $match: {
+          "programData.declare": true,
+          "programData.declaredOrder": { $gte: 1, $lte: showingCount },
+        },
       },
       {
         $group: {
@@ -1020,7 +1031,7 @@ export const getTeamScore = async (req, res, next) => {
         $sort: { totalScore: -1 },
       },
     ]);
-    res.status(200).json(totalTeamScores);
+    res.status(200).json({ showingCount, totalTeamScores });
   } catch (error) {
     next(error);
   }
@@ -1028,6 +1039,8 @@ export const getTeamScore = async (req, res, next) => {
 
 export const getStudentsPoint = async (req, res, next) => {
   try {
+    const publishingCount = await ShowingCount.findOne().select("-_id");
+    const showingCount = Number(publishingCount?.showingCount) || 0;
     const studentPoints = await StudentProgram.aggregate([
       {
         $lookup: {
@@ -1052,6 +1065,7 @@ export const getStudentsPoint = async (req, res, next) => {
           "programData.type": { $ne: "Group" },
           "programData.stage": { $ne: "Sports" },
           "programData.declare": true,
+          "programData.declaredOrder": { $gte: 1, $lte: showingCount },
         },
       },
       {
@@ -1095,7 +1109,7 @@ export const getStudentsPoint = async (req, res, next) => {
       { $sort: { totalScore: -1 } },
     ]);
 
-    res.status(200).json(studentPoints);
+    res.status(200).json({ studentPoints, showingCount });
   } catch (error) {
     next(error);
   }
@@ -1105,7 +1119,8 @@ export const studentScoreByZone = async (req, res, next) => {
   try {
     const { zoneId } = req.body;
     if (!zoneId) return next(new CustomError("Zone ID is required"));
-
+    const publishingCount = await ShowingCount.findOne().select("-_id");
+    const showingCount = Number(publishingCount?.showingCount) || 0;
     const studentScoreByZone = await StudentProgram.aggregate([
       {
         $lookup: {
@@ -1147,6 +1162,7 @@ export const studentScoreByZone = async (req, res, next) => {
         $match: {
           "zoneData._id": new mongoose.Types.ObjectId(zoneId),
           "programData.declare": true,
+          "programData.declaredOrder": { $gte: 1, $lte: showingCount },
           "programData.type": { $ne: "Group" },
           "programData.stage": { $ne: "Sports" },
         },
@@ -1172,7 +1188,16 @@ export const studentScoreByZone = async (req, res, next) => {
       { $sort: { totalScore: -1 } },
     ]);
 
-    res.status(200).json(studentScoreByZone);
+    res.status(200).json({ studentScoreByZone, showingCount });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const programCount = async (req, res, next) => {
+  try {
+    const count = await Program.countDocuments();
+    res.status(200).json({ programCount: count });
   } catch (error) {
     next(error);
   }

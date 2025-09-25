@@ -146,8 +146,29 @@ const customApi = createApiSlice.injectEndpoints({
             }),
             keepUnusedDataFor : 30,
         }),
+         getCountForShowingResult : builder.query({
+            query : () => ({
+                url : `${CUSTOM_URL}/getcountforshowingresult`,
+                method : "GET"
+            }),   
+                keepUnusedDataFor : 30,
+        }),
+         updateShowingCount : builder.mutation({
+            query : (data) => ({
+                url : `${CUSTOM_URL}/updateshowingcount`,
+                method : "PUT",
+                body : data
+            }),   
+        }),
+         getShowingCount : builder.query({
+            query : () => ({
+                url : `${CUSTOM_URL}/getshowingcount`,
+                method : "GET"
+            }),   
+                keepUnusedDataFor : 30,
+        }),
     }),
 });
 
-export const {useShowStageCountQuery ,useShowLimitsQuery,useStageCountMutation,useGetIdCardUiQuery , useAddIdCardUiMutation , useRecentMessageQuery , useGetMessageQuery ,  useSendMessagesMutation,useAddLimitsMutation ,useTopDashBoardQuery , usePerformanceGraphQuery , useResendResultsQuery , useProgressResultsQuery , useAddDeadLineMutation , useProgramAddingDeadlineQuery , useStudentAddingDeadlineQuery , useDeleteMessageMutation , useStopDeadlineQuery , useAddGroupLimitsMutation , useShowGroupLimitsQuery } = customApi;
+export const {useShowStageCountQuery ,useShowLimitsQuery,useStageCountMutation,useGetIdCardUiQuery , useAddIdCardUiMutation , useRecentMessageQuery , useGetMessageQuery ,  useSendMessagesMutation,useAddLimitsMutation ,useTopDashBoardQuery , usePerformanceGraphQuery , useResendResultsQuery , useProgressResultsQuery , useAddDeadLineMutation , useProgramAddingDeadlineQuery , useStudentAddingDeadlineQuery , useDeleteMessageMutation , useStopDeadlineQuery , useAddGroupLimitsMutation , useShowGroupLimitsQuery , useGetCountForShowingResultQuery  , useUpdateShowingCountMutation , useGetShowingCountQuery} = customApi;
 export default customApi;

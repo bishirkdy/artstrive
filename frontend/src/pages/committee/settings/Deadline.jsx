@@ -11,14 +11,12 @@ dayjs.extend(timezone);
 const Deadline = ({ settingsToggle }) => {
   const [messageSubject, setMessageSubject] = useState("");
   const [message, setMessage] = useState("");
-  const [deadline, setDeadline] = useState(""); // will hold UTC ISO string
+  const [deadline, setDeadline] = useState("");
   const [deadlineOf, setDeadlineOf] = useState("");
   const [addDeadLine, { isLoading }] = useAddDeadLineMutation();
 
-  // Convert local datetime-local to IST, then to UTC ISO string
   const handleDeadlineChange = (e) => {
     const localTime = e.target.value;
-    // Interpret as local time, convert to IST, then get UTC ISO string
     const istDate = dayjs(localTime).tz("Asia/Kolkata");
     setDeadline(istDate.utc().format());
   };
@@ -71,7 +69,6 @@ const Deadline = ({ settingsToggle }) => {
             </option>
             <option value="student-deadline">Student adding deadline</option>
             <option value="program-deadline">Program adding deadline</option>
-            <option value="score-deadline">deadline for showing scores</option>
           </select>
           <input
             value={messageSubject}

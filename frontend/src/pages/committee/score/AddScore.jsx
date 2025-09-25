@@ -78,7 +78,7 @@ const AddScore = () => {
     selectedProgram.some((sp) => sp.score);
 
   // Only students with codeLetter
-  const studentsWithCode = selectedProgram.filter((sp) => sp.codeLetter);
+  const studentsWithCode = selectedProgram.filter((sp) => sp.codeLetter).sort((a ,b) => a.codeLetter.localeCompare(b.codeLetter))
 
   const canSubmit =
     pName &&

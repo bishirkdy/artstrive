@@ -6,7 +6,7 @@ import { useAddIdCardUiMutation } from "../../../redux/api/customApi";
 import { toast } from "react-toastify";
 
 const portrait = "w-[53.98mm] h-[85.6mm]";
-const landscape = "w-[85.6mm] h-[53.98mm]";
+const landscape = "w-[97.86mm] h-[39.88mm]";
 
 const IdCardEdit = ({ settingsToggle }) => {
   const initialState = {

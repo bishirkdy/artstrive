@@ -21,15 +21,27 @@ const AddStudent = () => {
   const { user } = useSelector((state) => state.auth);
   const teams = user?.user?.isAdmin === false;
 
-  const { data: studentDeadlineData, isLoading, error, isError } =
-    useStudentAddingDeadlineQuery();
+  const {
+    data: studentDeadlineData,
+    isLoading,
+    error,
+    isError,
+  } = useStudentAddingDeadlineQuery();
 
   const [student, { isLoading: isStudentLoading }] = useAddStudentMutation();
 
-  const { data: teamFormDB, isLoading: teamIsLoading, error: teamError, isError: teamIsError } =
-    useViewTeamsQuery();
-  const { data: zoneFromDB, isLoading: zoneIsLoading, error: zoneError, isError: zoneIsError } =
-    useViewZoneQuery();
+  const {
+    data: teamFormDB,
+    isLoading: teamIsLoading,
+    error: teamError,
+    isError: teamIsError,
+  } = useViewTeamsQuery();
+  const {
+    data: zoneFromDB,
+    isLoading: zoneIsLoading,
+    error: zoneError,
+    isError: zoneIsError,
+  } = useViewZoneQuery();
 
   const teamFromStore = user?.user?.teamName;
   const sameTeam =
@@ -48,7 +60,6 @@ const AddStudent = () => {
       </div>
     );
 
-  // Convert deadline to IST
   const currentDate = nowIST();
   const deadlineDate = studentDeadlineData?.data?.deadline
     ? toIST(studentDeadlineData.data.deadline)
@@ -61,7 +72,9 @@ const AddStudent = () => {
           <h1 className="text-3xl font-bold text-white mb-4">
             Student Adding Deadline Closed
           </h1>
-          <p className="text-white">The deadline for adding students has passed.</p>
+          <p className="text-white">
+            The deadline for adding students has passed.
+          </p>
           <p className="text-gray-400 mt-4">
             Deadline was: {deadlineDate.format("YYYY-MM-DD hh:mm A")} IST
           </p>
@@ -72,11 +85,20 @@ const AddStudent = () => {
 
   if (teamIsError || zoneIsError || isError) {
     const code =
-      teamError?.originalStatus || zoneError?.originalStatus || error?.originalStatus || "Error";
+      teamError?.originalStatus ||
+      zoneError?.originalStatus ||
+      error?.originalStatus ||
+      "Error";
     const details =
-      teamError?.error || zoneError?.error || error?.error || "Something went wrong";
+      teamError?.error ||
+      zoneError?.error ||
+      error?.error ||
+      "Something went wrong";
     const title =
-      teamError?.status || zoneError?.status || error?.status || "Error fetching data";
+      teamError?.status ||
+      zoneError?.status ||
+      error?.status ||
+      "Error fetching data";
     return <ErrorMessage code={code} title={title} details={details} />;
   }
 
@@ -99,7 +121,6 @@ const AddStudent = () => {
 
       await student(formData).unwrap();
 
-      // reset form
       setId("");
       setName("");
       setTeam("");
@@ -121,17 +142,21 @@ const AddStudent = () => {
 
   return (
     <div className="mx-auto lg:ml-[28vw] mt-[6rem] flex flex-col p-6 w-[90vw] md:max-w-2xl bg-[#121212] rounded-lg shadow-lg">
-      <h1 className="text-white text-2xl font-semibold text-center mb-4">Add Students</h1>
+      <h1 className="text-white text-2xl font-semibold text-center mb-4">
+        Add Students
+      </h1>
 
       {deadlineDate && (
         <div className="text-center text-gray-400 mb-4">
-          Deadline: {deadlineDate.format("YYYY-MM-DD hh:mm A")} IST
+          Deadline: {deadlineDate.format("YYYY-MM-DD hh:mm A")}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
         <div className="flex flex-col items-center gap-4">
-          <label className="text-white font-medium w-full md:w-40">Profile Image</label>
+          <label className="text-white font-medium w-full md:w-40">
+            Profile Image
+          </label>
           <input
             type="file"
             accept="image/jpeg"

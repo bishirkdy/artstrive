@@ -57,7 +57,7 @@ const viewMarks = () => {
               value={pId}
               maxLength={4}
               onChange={(e) => setPId(e.target.value)}
-              placeholder="Enter student id"
+              placeholder="Enter program id"
               className="w-full p-2 rounded-lg bg-black text-white border border-gray-600 focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
             />
           </div>
@@ -93,23 +93,28 @@ const viewMarks = () => {
                 No program found
               </h1>
             ) : (
-              selectedProgram.map((sp) => (
-                <li
-                  key={sp.student._id}
-                  className={`border-b border-gray-700 px-6 py-4 flex justify-around w-full items-center 
-                 transition-all duration-200`}
-                >
-                  <span className="flex-1 truncate min-w-[120px] text-white">
-                    Letter - {sp.codeLetter || "--"}
-                  </span>
-                  <span className="flex-1 truncate min-w-[120px] text-yellow-400 font-medium">
-                    Grade - {sp.grade || "--"}
-                  </span>
-                  <span className="flex-1 truncate min-w-[120px] font-bold text-green-400">
-                    Total - {sp.totalScore || "--"}
-                  </span>
-                </li>
-              ))
+              selectedProgram
+                ?.filter((sp) => sp.totalScore !== null && sp.totalScore > 0)
+                .slice()
+                .sort((a, b) =>
+                  (a.codeLetter || "").localeCompare(b.codeLetter || "")
+                )
+                .map((sp) => (
+                  <li
+                    key={sp.student._id}
+                    className="border-b border-gray-700 px-6 py-4 flex justify-around w-full items-center transition-all duration-200"
+                  >
+                    <span className="flex-1 truncate min-w-[120px] text-white">
+                      Letter - {sp.codeLetter || "--"}
+                    </span>
+                    <span className="flex-1 truncate min-w-[120px] text-yellow-400 font-medium">
+                      Grade - {sp.grade || "--"}
+                    </span>
+                    <span className="flex-1 truncate min-w-[120px] font-bold text-green-400">
+                      Total - {sp.totalScore || "--"}
+                    </span>
+                  </li>
+                ))
             )}
           </ul>
         </div>

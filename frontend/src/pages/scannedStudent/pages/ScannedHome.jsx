@@ -18,7 +18,7 @@ const ScannedHome = () => {
   ];
   const navigate = useNavigate()
   return (
-    <main className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-neutral-900 text-white flex items-center justify-center p-6">
+    <main className="min-h-[100dvh] bg-gradient-to-br from-black via-gray-900 to-neutral-900 text-white flex items-center justify-center p-6">
       <section className="w-full max-w-5xl mx-auto">
         <div className="bg-gray-900/30 backdrop-blur-md rounded-2xl shadow-2xl p-8 md:p-12 border border-white/6 animate-fadeIn">
           {/* Header */}

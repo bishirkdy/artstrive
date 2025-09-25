@@ -1,5 +1,5 @@
 import express from 'express';
-import { addCodeLetter, addMarkToPrograms, addProgramsName, addScoreOfAProgram, addStudentToProgram, declaredPrograms, declareResults, deletePrograms, editCodeLetter, editPrograms, getAllPrograms, getProgramForCodeLetter, getProgramForCodeLetterForEdit, getProgramsStudentWise, getProgramToDeclare, getStudentsByProgram, getStudentsPoint, getTeamScore, oneStudentProgram, showDeclaredresults, studentScoreByZone, unDeclareResults, viewMarks, viewOneResult } from '../controllers/programController.js';
+import { addCodeLetter, addMarkToPrograms, addProgramsName, addScoreOfAProgram, addStudentToProgram, declaredPrograms, declareResults, deletePrograms, editCodeLetter, editPrograms, getAllPrograms, getProgramForCodeLetter, getProgramForCodeLetterForEdit, getProgramsStudentWise, getProgramToDeclare, getStudentsByProgram, getStudentsPoint, getTeamScore, oneStudentProgram, programCount, showDeclaredresults, studentScoreByZone, unDeclareResults, viewMarks, viewOneResult } from '../controllers/programController.js';
 import {  authenticateJWT , authenticatedAdmin } from '../middlewares/authentication.js';
 
 const router = express.Router();
@@ -32,6 +32,9 @@ router.get('/view/:_id', authenticateJWT , viewOneResult)
 router.get('/teamscore' , getTeamScore)
 router.get('/studentpoints', authenticateJWT , getStudentsPoint)
 router.post('/studentpointsbyzone', authenticateJWT , studentScoreByZone)
+
+
+router.get('/programcount' , programCount)
 
 
 

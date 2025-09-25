@@ -16,8 +16,7 @@ const EvaluationSheet = () => {
   const selectedProgramName = selectedProgram[0]?.program?.name || "";
   const selectedProgramId = selectedProgram[0]?.program?.id || "";
   const selectedProgramZone = selectedProgram[0]?.program?.zone.zone || "";
-    const selectedProgramType = selectedProgram[0]?.program?.type || "";
-
+  const selectedProgramType = selectedProgram[0]?.program?.type || "";
 
   useEffect(() => {
     setProgram(selectedProgramName);
@@ -29,15 +28,16 @@ const EvaluationSheet = () => {
         <Loader />
       </div>
     );
-  if (isError) return toast.error("A Error occurred while loading , try again ");
+  if (isError)
+    return toast.error("A Error occurred while loading , try again ");
 
- const handlePrint = () => {
-  printJS({
-    printable: "printable",
-    type: "html",
-    scanStyles: false,
-    honorMarginPadding: true,
-    header: `
+  const handlePrint = () => {
+    printJS({
+      printable: "printable",
+      type: "html",
+      scanStyles: false,
+      honorMarginPadding: true,
+      header: `
       <div class="print-header">
         <p style="font-style: italic; font-size: 14px; margin: 0; text-align: center;">Kindle the soul</p>
         <h1 style="margin: 2px 0; font-size: 26px; font-weight: 700; text-align: center;">ART STRIVE 2025</h1>
@@ -51,7 +51,7 @@ const EvaluationSheet = () => {
         </div>
       </div>
     `,
-    style: `
+      style: `
       @page { size: auto; margin: 15mm; }
       body { font-family: Arial, sans-serif; color: black; }
       #printable-area { color: black; }
@@ -77,11 +77,12 @@ const EvaluationSheet = () => {
         background-color: #f0f0f0;
       }
     `,
-  });
-};
+    });
+  };
 
-
-  const studentsWithCodeLetter = selectedStudents.filter((s) => s.codeLetter);
+  const studentsWithCodeLetter = selectedStudents
+    .filter((s) => s.codeLetter)
+    .sort((a, b) => a.codeLetter.localeCompare(b.codeLetter));
 
   return (
     <div className=" mt-[10dvh] lg:mt-[6rem] mb-[2dvh] lg:mb-0 flex flex-col mx-auto p-4 w-[90vw] lg:max-w-[75vw] lg:ml-[23vw] xl:ml-[20vw] bg-[var(--color-primary)] rounded-lg overflow-hidden shadow-lg">
