@@ -13,7 +13,7 @@ export const generateToken = (res, userId , isAdmin ) => {
       httpOnly: true,
       expires: new Date(Date.now() + 3600000 * 24 * 30), 
       secure: process.env.NODE_ENV === 'production' ? true : false,
-      sameSite: process.env.NODE_ENV === 'production' ? "none" : "lax",
+      sameSite: "lax",
     });
 
 

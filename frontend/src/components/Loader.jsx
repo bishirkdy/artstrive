@@ -1,5 +1,6 @@
-import React from 'react';
-import logo from '../assets/logo.png';
+import React from "react";
+import loader from "../assets/full.mov";
+import logo from "../assets/logo.png";
 
 const rockingAnimation = `
 @keyframes rocking {
@@ -34,3 +35,22 @@ export function Loader() {
     </>
   );
 }
+
+// export function Loader() {
+//   return (
+//     <>
+//       {/* <style>{rockingAnimation}</style> */}
+//       <video
+//         src={loader}
+//         style={{
+//           width: "100px",
+//           animation: "rocking 3s ease-in-out infinite",
+//           transformOrigin: "center bottom",
+//         }}
+//         autoPlay
+//         loop
+//         muted
+//       />
+//     </>
+//   );
+// }

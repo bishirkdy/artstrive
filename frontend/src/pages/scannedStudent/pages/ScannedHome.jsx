@@ -1,22 +1,41 @@
 import React from "react";
 import { Loader } from "../../../components/Loader";
-import { ArrowRight, Play, Star  } from "lucide-react";
+import { ArrowRight, Play, Star } from "lucide-react";
 import { CgProfile } from "react-icons/cg";
 import { MdOutlinePlaylistAddCheck } from "react-icons/md";
 import { FaInstagram } from "react-icons/fa";
 import { RiFacebookCircleLine } from "react-icons/ri";
 import { useNavigate } from "react-router";
 
-
 const ScannedHome = () => {
   const buttons = [
-    { id: 1, label: "Strive progress", icon: <Play size={18} /> , path : "dashboard" },
-    { id: 2, label: "Who is i am", icon: <CgProfile  size={18} /> , path : "profile" },
-    { id: 3, label: "Explore my program", icon: <MdOutlinePlaylistAddCheck size={18} />  , path : "program" },
-    { id: 4, label: "Performance", icon: <Star size={18} /> , path : "result" },
-    { id: 5, label: "Strive bot", icon: <ArrowRight size={18} /> , path : "/bot" },
+    {
+      id: 1,
+      label: "Strive progress",
+      icon: <Play size={18} />,
+      path: "dashboard",
+    },
+    {
+      id: 2,
+      label: "Who is i am",
+      icon: <CgProfile size={18} />,
+      path: "profile",
+    },
+    {
+      id: 3,
+      label: "Explore my program",
+      icon: <MdOutlinePlaylistAddCheck size={18} />,
+      path: "program",
+    },
+    { id: 4, label: "Performance", icon: <Star size={18} />, path: "result" },
+    {
+      id: 5,
+      label: "Strive bot",
+      icon: <ArrowRight size={18} />,
+      path: "/bot",
+    },
   ];
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   return (
     <main className="min-h-[100dvh] bg-gradient-to-br from-black via-gray-900 to-neutral-900 text-white flex items-center justify-center p-6">
       <section className="w-full max-w-5xl mx-auto">
@@ -35,27 +54,23 @@ const ScannedHome = () => {
                 expression. This vibrant festival brings together talents from
                 all walks of life to participate in a diverse range of
                 competitions, both on stage and off. From powerful speeches and
-                captivating songs to a variety of artistic and intellectual
-                challenges, ART STRIVE is a platform for showcasing the beauty
-                of Islamic art and culture. Whether you're competing or cheering
-                from the audience, this event is sure to inspire and kindle the
-                soul. Come be a part of a journey that deciphers cultural codes
-                through the universal language of art.
+                captivating songs to a variety of artistic and
+                intellectual challenges.
               </p>
             </div>
 
             <div className="flex items-center gap-4">
               <button
                 className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/6 border border-white/6 hover:bg-white/8 transition"
-                onClick={() =>navigate("/bot")}
+                onClick={() => navigate("/bot")}
               >
                 <Play size={16} />
                 Strive bot
               </button>
 
               <button
-              onClick={() => navigate("result")}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-rose-500 to-indigo-500 shadow-md font-medium hover:scale-105 transform transition"
+                onClick={() => navigate("result")}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-rose-500 to-indigo-500 shadow-md font-medium hover:scale-105 transform transition"
               >
                 Performance
               </button>
@@ -80,8 +95,18 @@ const ScannedHome = () => {
               Join a community of art strive. Student update publish quickly.
             </div>
             <div className="flex items-center gap-3">
-              <a href="https://www.instagram.com/irad_hidaya_palazhi" className="px-3 py-1 rounded-full bg-white/5 cursor-pointer"><FaInstagram/></a>
-              <a href="https://www.facebook.com/profile.php?id=100063699746422&mibextid=ZbWKwL" className="px-3 py-1 rounded-full bg-white/5 cursor-pointer"><RiFacebookCircleLine/></a>
+              <a
+                href="https://www.instagram.com/irad_hidaya_palazhi"
+                className="px-3 py-1 rounded-full bg-white/5 cursor-pointer"
+              >
+                <FaInstagram />
+              </a>
+              <a
+                href="https://www.facebook.com/profile.php?id=100063699746422&mibextid=ZbWKwL"
+                className="px-3 py-1 rounded-full bg-white/5 cursor-pointer"
+              >
+                <RiFacebookCircleLine />
+              </a>
             </div>
           </div>
         </div>

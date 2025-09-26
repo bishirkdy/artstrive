@@ -59,7 +59,7 @@ const EditScore = ({ settingsToggle }) => {
   };
   if (isLoading)
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex items-center justify-center h-screen w-screen">
         <Loader />
       </div>
     );
@@ -73,8 +73,7 @@ const EditScore = ({ settingsToggle }) => {
 
   // ✅ true if at least one code letter exists
   const hasAnyCodeLetter =
-    selectedProgram.length > 0 &&
-    selectedProgram.some((sp) => sp.codeLetter);
+    selectedProgram.length > 0 && selectedProgram.some((sp) => sp.codeLetter);
 
   return (
     <div className="h-[100dvh] w-screen md:w-[50vw] lg:w-[40vw] xl:w-[30vw] pb-10 overflow-y-auto scrollbar-hide flex flex-col items-center inset-0 lg:border-l-2 md:border-l-2 border-black bg-[var(--color-primary)]">
@@ -144,7 +143,8 @@ const EditScore = ({ settingsToggle }) => {
               </h1>
             ) : (
               selectedProgram
-                .filter((sp) => sp.codeLetter).sort((a , b) => a.codeLetter.localeCompare(b.codeLetter))
+                .filter((sp) => sp.codeLetter)
+                .sort((a, b) => a.codeLetter.localeCompare(b.codeLetter))
                 .map((sp, i) => {
                   const studentId = sp.student?._id || i;
                   const currentScore = mark[studentId] ?? sp.score ?? "";
@@ -176,7 +176,7 @@ const EditScore = ({ settingsToggle }) => {
         {pName &&
           selectedProgram.length > 0 &&
           !programInfo?.declare &&
-          hasAnyCodeLetter && ( 
+          hasAnyCodeLetter && (
             <button
               disabled={markLoading}
               className="w-full mt-2 py-2 bg-[var(--color-secondary)] hover:bg-[var(--color-tertiary)] text-black font-bold rounded-lg transition duration-300"

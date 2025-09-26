@@ -6,7 +6,7 @@ import { ChartsYAxis } from "@mui/x-charts/ChartsYAxis";
 
 import { ChartsLegend, ChartsTooltip } from "@mui/x-charts";
 
-const teamColors = ["#FF5733", "#33C1FF", "#9D33FF"];
+const teamColors = ["#060270", "#7DDA58", "#D20103"];
 export default function LineChartWithReferenceLines({ data }) {
   const isMobile = window.innerWidth < 768;
 

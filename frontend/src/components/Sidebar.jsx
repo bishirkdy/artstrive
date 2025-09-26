@@ -409,7 +409,7 @@ const Sidebar = ({ setIsActives }) => {
               <ul className="space-y-2">
                 <li
                   onClick={logOutHandler}
-                  className="p-2 rounded-lg hover:bg-[#13F287] hover:text-black transition-colors duration-200"
+                  className="p-2 rounded-lg hover:bg-[var(--color-secondary)] hover:text-black transition-colors duration-200"
                 >
                   {logoutLoading ? (
                     <span className="animate-pulse">

@@ -17,7 +17,7 @@ const MarkSettings = ({
     useAddMarkToProgramsMutation();
 
   const selectedProgram = zone
-    ? programFromDB.filter((p) => p.zone === zone)
+    ? programFromDB.filter((p) => p.zone._id === zone)
     : programFromDB;
 
   const handleSubmit = async (e) => {

@@ -16,7 +16,7 @@ export default function Bot() {
   const programCount = data?.programCount;
 
   const ABOUT_TEXT =
-    "ART STRIVE is a celebration of Islamic culture, creativity, and expression. This vibrant festival brings together talents from all walks of life to participate in a diverse range of competitions, both on stage and off. From powerful speeches and captivating songs to a variety of artistic and intellectual challenges, ART STRIVE is a platform for showcasing the beauty of Islamic art and culture. Whether you're competing or cheering from the audience, this event is sure to inspire and kindle the soul. Come be a part of a journey that deciphers cultural codes through the universal language of art.";
+    "ART STRIVE is a celebration of Islamic culture, creativity, and expression. This vibrant festival brings together talents from all walks of life to participate in a diverse range of competitions, both on stage and off. From powerful speeches and captivating songs to a variety of artistic and intellectual challenges.";
 
   const [chat, setChat] = useState([]);
   const [input, setInput] = useState("");
