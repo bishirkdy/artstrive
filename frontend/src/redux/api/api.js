@@ -4,7 +4,7 @@ import { BASE_URL } from "../constants";
 // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: BASE_URL,
+  baseUrl: "/api",
   credentials: "include",
 });
 
