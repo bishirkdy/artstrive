@@ -4,8 +4,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { setUser } from "../redux/features/authSlice";
 import { toast } from "react-toastify";
-import { Loader } from "./Loader";
-
+import logo from "../assets/logo.png";
 const Login = () => {
   const [teamName, setTeamName] = useState("");
   const [password, setPassword] = useState("");
@@ -28,7 +27,7 @@ const Login = () => {
       console.log("Login error:", error);
       const message =
         (error?.data && error.data.message) ||
-        error?.error || 
+        error?.error ||
         error?.message ||
         "Something went wrong during login.";
       toast.error(message.charAt(0).toUpperCase() + message.slice(1), {
@@ -50,9 +49,14 @@ const Login = () => {
 
       <div className="w-full lg:w-1/3 flex flex-col justify-center items-center px-6 py-12 bg-gray-900 min-h-[100vh] lg:min-h-screen">
         <div className="flex flex-col items-center mb-10">
-          <div className="text-3xl text-[var(--color-secondary)] mb-4">
-            <Loader />
+          <div className="mb-4">
+            <img
+              src={logo}
+              alt="Festival Logo"
+              className="w-24 h-28 object-contain"
+            />
           </div>
+
           <h1 className="text-2xl font-bold text-white mb-2 text-center">
             Login to Festival
           </h1>
