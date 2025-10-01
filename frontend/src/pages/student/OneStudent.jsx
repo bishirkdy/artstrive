@@ -56,7 +56,7 @@ const OneStudent = () => {
   const currentDate = new Date();
   const deadlineDate = new Date(data?.data?.deadline);
   const finaldeadline = teams && deadlineDate < currentDate;
-  const handleDelete = async (program) => {
+  const  handleDelete = async (program) => {
     const id = program?._id || program;
     if (!id) {
       toast.error("Invalid program ID");

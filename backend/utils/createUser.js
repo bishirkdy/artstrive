@@ -1,25 +1,21 @@
 import jwt from "jsonwebtoken";
 
-export const generateToken = (res, userId , isAdmin ) => {
+export const generateToken = (res, userId, isAdmin) => {
   try {
-    
-    const token = jwt.sign(
-      { userId , isAdmin },
-      process.env.SECRET_KEY,
-      { expiresIn: "30d" }
-    );
-    
+    const token = jwt.sign({ userId, isAdmin }, process.env.SECRET_KEY, {
+      expiresIn: "12h",
+    });
+
     res.cookie("jwt", token, {
       httpOnly: true,
-      expires: new Date(Date.now() + 3600000 * 24 * 30), 
-      secure: process.env.NODE_ENV === 'production' ? true : false,
+      maxAge: 12 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === "production" ? true : false,
       sameSite: "lax",
     });
 
-
-    return token; 
+    return token;
   } catch (error) {
-        console.error("JWT generation error:", error); 
+    console.error("JWT generation error:", error);
 
     res.status(400).json({ error: error.message });
   }
