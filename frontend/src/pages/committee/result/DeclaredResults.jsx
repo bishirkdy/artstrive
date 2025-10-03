@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import { useGetAllProgramQuery } from "../../../redux/api/programApi";
 import { useResultUnDeclarationsMutation } from "../../../redux/api/programApi";
@@ -22,8 +22,10 @@ const DeclaredResults = () => {
   } = useGetAllProgramQuery();
 
   const isMobile = UseIsMobile();
+  useEffect(() => {
+    refetch();
+  }, []);
 
- 
   const handleClick = async (id) => {
     try {
       await unDeclarableResults({ _id: id }).unwrap();
@@ -78,7 +80,7 @@ const DeclaredResults = () => {
       width: isMobile ? "120px" : "12%",
       wrap: true,
     },
-     {
+    {
       name: "Stage",
       selector: (row) => row.stage,
       sortable: true,
@@ -143,15 +145,11 @@ const DeclaredResults = () => {
     },
   };
 
-  if (dataIsError ) {
-    const code =
-      dataError?.originalStatus  || "Error";
+  if (dataIsError) {
+    const code = dataError?.originalStatus || "Error";
     const details =
-      dataError?.error ||
-      dataError?.data ||
-      "Something went wrong";
-    const title =
-      dataError?.status || "Error fetching programs";
+      dataError?.error || dataError?.data || "Something went wrong";
+    const title = dataError?.status || "Error fetching programs";
     return <ErrorMessage code={code} title={title} details={details} />;
   }
 

@@ -624,6 +624,38 @@ export const viewMarks = async (req, res, next) => {
   }
 };
 
+export const checkMarkForDeclare = async (req, res, next) => {
+  try {
+  const program = await StudentProgram.find({ totalScore: { $exists: true, $ne: null } })
+  .populate({
+    path: "program",
+    match: { declare: false },
+    select: "name zone type id declaredOrder stage score",
+    populate: {
+      path: "zone",
+      select: "zone",
+    },
+  })
+  .populate({
+    path: "student",
+    select: "name zone id team",
+    populate: [
+      {
+        path: "zone",
+        select: "zone",
+      },
+      {
+        path: "team",
+        model: "Auth",
+        select: "teamName",
+      },
+    ],
+  });
+    filterProgramsRank(program, res, next);
+  } catch (error) {
+    next(error);
+  }
+};
 export const getProgramToDeclare = async (req, res, next) => {
   try {
     const program = await StudentProgram.aggregate([
@@ -1189,6 +1221,88 @@ export const studentScoreByZone = async (req, res, next) => {
     ]);
 
     res.status(200).json({ studentScoreByZone, showingCount });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const studentScoreByStage = async (req, res, next) => {
+  try {
+    const { stage } = req.body;
+    console.log(stage);
+    
+    if (!stage) return next(new CustomError("field is required"));
+    const publishingCount = await ShowingCount.findOne().select("-_id");
+    const showingCount = Number(publishingCount?.showingCount) || 0;
+    const studentScoreByStage = await StudentProgram.aggregate([
+      {
+        $lookup: {
+          from: "students",
+          localField: "student",
+          foreignField: "_id",
+          as: "studentData",
+        },
+      },
+      { $unwind: "$studentData" },
+      {
+        $lookup: {
+          from: "zones",
+          localField: "studentData.zone",
+          foreignField: "_id",
+          as: "zoneData",
+        },
+      },
+      { $unwind: "$zoneData" },
+      {
+        $lookup: {
+          from: "programs",
+          localField: "program",
+          foreignField: "_id",
+          as: "programData",
+        },
+      },
+      { $unwind: "$programData" },
+      {
+        $lookup: {
+          from: "auths",
+          localField: "studentData.team",
+          foreignField: "_id",
+          as: "teamData",
+        },
+      },
+      { $unwind: "$teamData" },
+      {
+        $match: {
+          "programData.stage": stage,
+          "programData.declare": true,
+          "programData.declaredOrder": { $gte: 1, $lte: showingCount },
+          "programData.type": { $ne: "Group" },
+        },
+      },
+      {
+        $group: {
+          _id: "$studentData._id",
+          totalScore: { $sum: { $ifNull: ["$totalScore", 0] } },
+          name: { $first: "$studentData.name" },
+          team: { $first: "$teamData.teamName" },
+          id: { $first: "$studentData.id" },
+          zone : {$first : "$zoneData.zone"}
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          id: 1,
+          name: 1,
+          totalScore: 1,
+          team: 1,
+          zone : 1
+        },
+      },
+      { $sort: { totalScore: -1 } },
+    ]);
+
+    res.status(200).json({ studentScoreByStage, showingCount });
   } catch (error) {
     next(error);
   }

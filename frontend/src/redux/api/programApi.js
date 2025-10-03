@@ -107,6 +107,10 @@ const programApi = createApiSlice.injectEndpoints({
                 body: body,
             })
         }),
+         cheeksMarkToDeclare : builder.query({
+            query : () => `${PROGRAM_URL}/checkmarkfordeclare`,
+            method : "GET",
+        }),
         getProgramToDeclare : builder.query({
             query : () => `${PROGRAM_URL}/getprogramtodeclare`,
             method : "GET",
@@ -147,6 +151,13 @@ const programApi = createApiSlice.injectEndpoints({
                 body : body,
             })
         }),
+        viewStudentPointsByStage : builder.mutation({
+            query : (body) => ({
+                url: `${PROGRAM_URL}/studentpointsbystage`,
+                method: "POST",
+                body : body,
+            })
+        }),
          programCount : builder.query({
             query : () => `${PROGRAM_URL}/programcount`
         }),
@@ -155,5 +166,5 @@ const programApi = createApiSlice.injectEndpoints({
     
 });
 
-export const {useProgramCountQuery ,  useGetProgramStudentWiseQuery,useStudentDetailByIdQuery , useGetProgramToDeclareQuery ,useGetProgramForCodeLetterQuery , useViewStudentPointsByZoneMutation , useViewStudentPointsQuery, useViewTeamScoreQuery,useViewSelectedResultQuery,useDeclaredProgramsQuery,useGetAllDeclaredResultsQuery, useResultUnDeclarationsMutation , useResultDeclarationsMutation,useViewMarksMutation, useViewCodeLetterMutation, useAddScoreOfProgramMutation ,useAddCodeLetterMutation,useGetStudentByProgramQuery,useAddStudentToProgramsMutation,useAddProgramMutation , useGetAllProgramQuery , useEditProgramsMutation , useDeleteProgramMutation , useAddMarkToProgramsMutation , useGetProgramForCodeLetterForEditQuery , useEditCodeLetterMutation } = programApi
+export const {useProgramCountQuery , useCheeksMarkToDeclareQuery ,  useGetProgramStudentWiseQuery,useStudentDetailByIdQuery , useGetProgramToDeclareQuery ,useGetProgramForCodeLetterQuery , useViewStudentPointsByZoneMutation , useViewStudentPointsQuery, useViewTeamScoreQuery,useViewSelectedResultQuery,useDeclaredProgramsQuery,useGetAllDeclaredResultsQuery, useResultUnDeclarationsMutation , useResultDeclarationsMutation,useViewMarksMutation, useViewCodeLetterMutation, useAddScoreOfProgramMutation ,useAddCodeLetterMutation,useGetStudentByProgramQuery,useAddStudentToProgramsMutation,useAddProgramMutation , useGetAllProgramQuery , useEditProgramsMutation , useDeleteProgramMutation , useAddMarkToProgramsMutation , useGetProgramForCodeLetterForEditQuery , useViewStudentPointsByStageMutation , useEditCodeLetterMutation } = programApi
 export default programApi;

@@ -17,7 +17,13 @@ const Login = () => {
     toast.dismiss();
     try {
       const res = await login({ teamName, password }).unwrap();
-      dispatch(setUser({ ...res }));
+
+      dispatch(
+        setUser({
+          userData: res.user,
+          token: res.user.token,
+        })
+      );
       toast.success("Login Successful", {
         autoClose: 3000,
         position: "bottom-right",

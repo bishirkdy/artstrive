@@ -1,5 +1,5 @@
 import express from 'express';
-import { addCodeLetter, addMarkToPrograms, addProgramsName, addScoreOfAProgram, addStudentToProgram, declaredPrograms, declareResults, deletePrograms, editCodeLetter, editPrograms, getAllPrograms, getProgramForCodeLetter, getProgramForCodeLetterForEdit, getProgramsStudentWise, getProgramToDeclare, getStudentsByProgram, getStudentsPoint, getTeamScore, oneStudentProgram, programCount, showDeclaredresults, studentScoreByZone, unDeclareResults, viewMarks, viewOneResult } from '../controllers/programController.js';
+import { addCodeLetter, addMarkToPrograms, addProgramsName, addScoreOfAProgram, addStudentToProgram, checkMarkForDeclare, declaredPrograms, declareResults, deletePrograms, editCodeLetter, editPrograms, getAllPrograms, getProgramForCodeLetter, getProgramForCodeLetterForEdit, getProgramsStudentWise, getProgramToDeclare, getStudentsByProgram, getStudentsPoint, getTeamScore, oneStudentProgram, programCount, showDeclaredresults, studentScoreByStage, studentScoreByZone, unDeclareResults, viewMarks, viewOneResult } from '../controllers/programController.js';
 import {  authenticateJWT , authenticatedAdmin } from '../middlewares/authentication.js';
 
 const router = express.Router();
@@ -24,6 +24,7 @@ router.post('/viewmarks',authenticateJWT , authenticatedAdmin , viewMarks)
 router.post('/declare', authenticateJWT , authenticatedAdmin , declareResults)
 router.post('/undeclare', authenticateJWT , authenticatedAdmin , unDeclareResults)
 router.get('/getprogramtodeclare', authenticateJWT , authenticatedAdmin , getProgramToDeclare)
+router.get('/checkmarkfordeclare', authenticateJWT , authenticatedAdmin , checkMarkForDeclare)
 
 router.get('/viewdeclared', authenticateJWT  , showDeclaredresults)
 router.get('/alldeclared', authenticateJWT  , declaredPrograms)
@@ -32,6 +33,7 @@ router.get('/view/:_id', authenticateJWT , viewOneResult)
 router.get('/teamscore' , getTeamScore)
 router.get('/studentpoints', authenticateJWT , getStudentsPoint)
 router.post('/studentpointsbyzone', authenticateJWT , studentScoreByZone)
+router.post('/studentpointsbystage', authenticateJWT , studentScoreByStage)
 
 
 router.get('/programcount' , programCount)

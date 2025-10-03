@@ -21,8 +21,8 @@ const AddProgram = () => {
   const [pZone, setPZone] = useState("");
 
   const { user } = useSelector((state) => state.auth);
-  const admin = user.user.isAdmin === true;
-  const teams = user.user.isAdmin === false;
+  const admin = user.isAdmin === true;
+  const teams = user.isAdmin === false;
 
   const {data , isLoading , isError , error : dlError } = useProgramAddingDeadlineQuery();
   const [addStudentToProgram, { isLoading: addStudentIsLoading }] =
@@ -65,7 +65,7 @@ const AddProgram = () => {
     }
   }, [student, setSId, setSName, setZone]);
   const studentTeam = student?.team.teamName;
-  const sameTeam = user.user.teamName === studentTeam;
+  const sameTeam = user.teamName === studentTeam;
 
   const program = programFromDB?.find((p) => p.id === pId);
   useEffect(() => {

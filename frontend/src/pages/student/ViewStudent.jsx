@@ -32,9 +32,9 @@ const ViewStudent = () => {
   const { data, isLoading, isError, error } = useStudentAddingDeadlineQuery();
 
   const user = useSelector((state) => state.auth.user);
-  const isAdmin = user.user.isAdmin;
-  const teamFromStore = user.user.teamName;
-  const teams = user.user.isAdmin === false;
+  const isAdmin = user.isAdmin;
+  const teamFromStore = user.teamName;
+  const teams = user.isAdmin === false;
 
   const currentDate = new Date();
   const deadlineDate = new Date(data?.data?.deadline);

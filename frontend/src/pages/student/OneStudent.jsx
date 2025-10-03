@@ -33,7 +33,7 @@ const OneStudent = () => {
     error: dlError,
   } = useProgramAddingDeadlineQuery();
   const { user } = useSelector((state) => state.auth);
-  const teams = user.user.isAdmin === false;
+  const teams = user.isAdmin === false;
 
   const [deleteStudentOneProgram, { isLoading: isDeleting }] =
     useDeleteStudentOneProgramMutation();

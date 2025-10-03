@@ -19,7 +19,7 @@ const AddStudent = () => {
   const fileInputRef = useRef(null);
 
   const { user } = useSelector((state) => state.auth);
-  const teams = user?.user?.isAdmin === false;
+  const teams = user?.isAdmin === false;
 
   const {
     data: studentDeadlineData,
@@ -43,7 +43,7 @@ const AddStudent = () => {
     isError: zoneIsError,
   } = useViewZoneQuery();
 
-  const teamFromStore = user?.user?.teamName;
+  const teamFromStore = user?.teamName;
   const sameTeam =
     teamFormDB?.teamName && teamFromStore
       ? teamFormDB.teamName.find((t) => t.teamName === teamFromStore)

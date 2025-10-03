@@ -161,6 +161,7 @@ const menuDropdowns = (isAdmin) => ({
   Results: [
     ...(isAdmin
       ? [
+          { to: "committee/checkmark", text: "Mark check" },
           { to: "committee/declareresults", text: "Declare Results" },
           { to: "committee/declaredresults", text: "Declared Results" },
         ]
@@ -170,7 +171,8 @@ const menuDropdowns = (isAdmin) => ({
   ],
   Achievements: [
     { to: "teamscore", text: "Team Score" },
-    { to: "scorebyzone", text: "Student Score" },
+    { to: "scorebyzone", text: "Zone Score" },
+    { to: "scorebystage", text: "Stage Score" },
     { to: "studentscore", text: "All Student Score" },
   ],
 });
@@ -189,8 +191,8 @@ const Sidebar = ({ setIsActives }) => {
   const navigate = useNavigate();
   const auth = useSelector((state) => state.auth);
   const user = auth?.user || null;
-  const isAdmin = user?.user?.isAdmin;
-  const id = user?.user?._id;
+  const isAdmin = user?.isAdmin;
+  const id = user?._id;
 
   // const forceProfileMenu = useSelector(
   //   (state) => state.profileMode.forceProfileMode
@@ -361,7 +363,7 @@ const Sidebar = ({ setIsActives }) => {
                 <div className="flex gap-2 items-center">
                   <CgProfile className="text-2xl ml-2" />
                   <span className={`text-xl ${!isActive ? "hidden" : ""}`}>
-                    {user?.user?.teamName}
+                    {user?.teamName}
                   </span>
                 </div>
                 <span>

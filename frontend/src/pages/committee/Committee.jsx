@@ -5,7 +5,7 @@ import { Navigate, Outlet } from "react-router-dom";
 const Committee = () => {
   const { user } = useSelector((state) => state.auth);
 
-  return user.user.isAdmin ? (
+  return user.isAdmin ? (
     <Outlet />
   ) : (
     <Navigate to="/login" replace={true} />

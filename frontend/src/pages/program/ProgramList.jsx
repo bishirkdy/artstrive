@@ -24,7 +24,7 @@ const ProgramList = () => {
     refetch,
   } = useGetAllProgramQuery();
   const user = useSelector((state) => state.auth.user);
-  const isAdmin = user.user.isAdmin;
+  const isAdmin = user.isAdmin;
 
   useEffect(() => {
     refetch();

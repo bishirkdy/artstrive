@@ -26,10 +26,10 @@ const StudentWise = () => {
   }
 
   const sameTeam = data.filter(
-    (d) => d.student.team.teamName === user.user.teamName
+    (d) => d.student.team.teamName === user.teamName
   );
 
-  const checkedData = user.user.isAdmin ? data : sameTeam;
+  const checkedData = user.isAdmin ? data : sameTeam;
   const filtered = checkedData.filter((d) =>
     [
       d.program.name || "",

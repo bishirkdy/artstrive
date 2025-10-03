@@ -13,9 +13,12 @@ const DeclareResult = () => {
   const [filterText, setFilterText] = useState("");
   const [newDeclared, { isLoading: declareLoading }] =
     useResultDeclarationsMutation();
-  const { data, isLoading, refetch , isError , error } = useGetProgramToDeclareQuery();
+  const { data, isLoading, refetch, isError, error } =
+    useGetProgramToDeclareQuery();
   const isMobile = UseIsMobile();
-
+  useEffect(() => {
+    refetch();
+  }, []);
   const handleClick = async (id) => {
     try {
       await newDeclared({ isDeclaredID: id }).unwrap();
@@ -45,9 +48,7 @@ const DeclareResult = () => {
     const code = error?.originalStatus || "Error";
     const details = error?.error || error?.data || "Something went wrong";
     const title = error?.status || "Error fetching programs";
-    return (
-      <ErrorMessage code={code} title={title} details={details} />
-    );
+    return <ErrorMessage code={code} title={title} details={details} />;
   }
 
   const columns = [
@@ -56,14 +57,12 @@ const DeclareResult = () => {
       selector: (row) => row.programId,
       sortable: true,
       width: isMobile ? "80px" : "12%",
-
     },
     {
       name: "Program Name",
       selector: (row) => row.programName,
       sortable: true,
       width: isMobile ? "200px" : "25%",
-
     },
     {
       name: "Zone",
@@ -89,7 +88,9 @@ const DeclareResult = () => {
         return (
           <button onClick={() => handleClick(row.program_Id)}>
             <MdVerified
-              className={` "text-blue-500" : "text-white" text-2xl absolute"  ${isMobile ? "right-5 top-3" : "right-15 top-3"}`}
+              className={` "text-blue-500" : "text-white" text-2xl absolute"  ${
+                isMobile ? "right-5 top-3" : "right-15 top-3"
+              }`}
             />
           </button>
         );

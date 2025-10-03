@@ -1,9 +1,9 @@
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import { useEditAdminMutation } from "../../../redux/api/authApi";
 import { toast } from "react-toastify";
 import { useNavigate, useParams } from "react-router";
 import { updateUser } from "../../../redux/features/authSlice";
-import {  useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useRef } from "react";
 
 const EditProfile = () => {
@@ -11,31 +11,39 @@ const EditProfile = () => {
   const [adminPassword, setAdminPassword] = useState("");
   const { id } = useParams();
 
-    const [adminLog] = useEditAdminMutation()
-    const dispatch = useDispatch()  
-    const navigate = useNavigate()
-    
+  const [adminLog] = useEditAdminMutation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-    
   const submitHandler = async (e) => {
     e.preventDefault();
-    toast.dismiss()
+    toast.dismiss();
     try {
-        if(!adminName || !adminPassword){
-          toast.error("All fields are required");
-          return;
-        } 
-         
-         const res = await adminLog({id , teamName:adminName , password : adminPassword}).unwrap();
-          dispatch(updateUser({ ...res }));
-          navigate("/dashboard")
-         
+      if (!adminName || !adminPassword) {
+        toast.error("All fields are required");
+        return;
+      }
 
-        toast.success("Admin profile edited successfully", {autoClose: 3000, position: "bottom-right"});
-        setAdminName("");
-        setAdminPassword("");
+      const res = await adminLog({
+        id,
+        teamName: adminName,
+        password: adminPassword,
+      }).unwrap();
+      dispatch(
+        updateUser({
+          teamName: adminName,
+        })
+      );
+      navigate("/dashboard");
+
+      toast.success("Admin profile edited successfully", {
+        autoClose: 3000,
+        position: "bottom-right",
+      });
+      setAdminName("");
+      setAdminPassword("");
     } catch (error) {
-      toast.error("Failed to edit admin profile")
+      toast.error("Failed to edit admin profile");
     }
   };
 
@@ -45,7 +53,7 @@ const EditProfile = () => {
         Edit Admin Profile
       </h1>
       {/* Form to edit admin */}
-      <form onSubmit={ submitHandler} className="flex  flex-col space-y-4">
+      <form onSubmit={submitHandler} className="flex  flex-col space-y-4">
         <div className="flex flex-col">
           <label className="text-white font-medium mb-1">Name</label>
           <input

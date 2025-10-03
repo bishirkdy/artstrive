@@ -54,6 +54,8 @@ import { ToastContainer } from "react-toastify";
 import ErrorBoundary from "./components/Error.jsx";
 import RouteErrorBoundary from "./components/RouteErrorBoundary.jsx"; 
 import Bot from "./pages/bot/Bot.jsx";
+import StudentScoreByScore from "./pages/achivements/StudentScoreByStage.jsx";
+import CheckMark from "./pages/committee/result/CheckMark.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -76,6 +78,7 @@ const router = createBrowserRouter(
         <Route path="viewprogramdetails/:_id" element={<ViewSelected />} />
         <Route path="teamscore" element={<TeamScore />} />
         <Route path="scorebyzone" element={<StudentScoreByZone />} />
+        <Route path="scorebystage" element={<StudentScoreByScore />}></Route>
         <Route path="studentscore" element={<StudentScore />} />
         <Route path="student/:_id" element={<OneStudent />} />
 
@@ -92,6 +95,7 @@ const router = createBrowserRouter(
           <Route path="addscore" element={<AddScore />} />
           <Route path="viewcodeletter" element={<ViewCodeLetter />} />
           <Route path="viewscore" element={<ViewMarks />} />
+          <Route path="checkmark" element={<CheckMark />} />
           <Route path="declareresults" element={<DeclareResult />} />
           <Route path="declaredresults" element={<DeclaredResults />} />
         </Route>

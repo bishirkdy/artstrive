@@ -4,7 +4,7 @@ import { useGetIdCardUiQuery } from "../redux/api/customApi";
 import { useSelector } from "react-redux";
 import { Loader } from "../components/Loader";
 import ErrorMessage from "../components/ErrorMessage";
-import printJS from "print-js";
+// import printJS from "print-js";
 
 const portrait = "w-[53.98mm] h-[85.6mm]";
 const landscape = "w-[97.86mm] h-[39.88mm]";
@@ -51,8 +51,8 @@ const IdCard = () => {
     error: idCardUiError,
     isError: idCardUiIsError,
   } = useGetIdCardUiQuery();
-  const isAdmin = useSelector((s) => s.auth.user.user.isAdmin);
-  const sameTeam = useSelector((s) => s.auth.user.user.teamName);
+  const isAdmin = useSelector((s) => s.auth.user.isAdmin);
+  const sameTeam = useSelector((s) => s.auth.user.teamName);
 
   const printRef = useRef(null);
 
