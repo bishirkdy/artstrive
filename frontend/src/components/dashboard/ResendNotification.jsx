@@ -30,7 +30,7 @@ dayjs.updateLocale("en", {
 const ResendNotification = ({ toggleNotification, data, loading }) => {
   const [timeLefts, setTimeLefts] = useState({});
   const { user } = useSelector((state) => state.auth);
-  const isTeamOrAdmin = user?.user?.teamName;
+  const isTeamOrAdmin = user?.teamName;
 
   // Robust handling of notifications array
   const notificationsArray = Array.isArray(data?.data) ? data.data : [];

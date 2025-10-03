@@ -14,7 +14,7 @@ dayjs.extend(utc);
 const Notification = () => {
   const { data, isLoading, refetch } = useGetMessageQuery();
   const { user } = useSelector((state) => state.auth);
-  const isTeamOrAdmin = user?.user?.teamName;
+  const isTeamOrAdmin = user?.teamName;
   const [timeLefts, setTimeLefts] = useState({});
   const [deleteMessage, { isLoading: deleteLoading }] = useDeleteMessageMutation();
 
