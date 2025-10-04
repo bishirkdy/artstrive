@@ -34,7 +34,6 @@ const Notification = () => {
           updates[d._id] = "";
           return;
         }
-        // Always parse deadline as UTC
         const now = dayjs.utc();
         const end = dayjs.utc(d.deadline);
         if (!end.isValid()) {

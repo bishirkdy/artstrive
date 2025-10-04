@@ -156,17 +156,20 @@ const DeclaredResults = () => {
   const dataWithFalseDeclarations =
     data?.filter((d) => d.declare === true) || [];
 
-  const finalData = dataWithFalseDeclarations.filter((d) =>
-    [
-      d.declaredOrder || "",
-      d.id || "",
-      d.name || "",
-      d.zone.zone || "",
-      d.type || "",
-    ].some((item) =>
-      String(item).toLowerCase().includes(filterText.toLowerCase())
+  const finalData = dataWithFalseDeclarations
+    .filter((d) =>
+      [
+        d.declaredOrder || "",
+        d.id || "",
+        d.name || "",
+        d.zone?.zone || "",
+        d.type || "",
+      ].some((item) =>
+        String(item).toLowerCase().includes(filterText.toLowerCase())
+      )
     )
-  );
+    .sort((a, b) => (a.declaredOrder || 0) - (b.declaredOrder || 0));
+
   return (
     <div className="flex flex-col items-center mt-[16vh] h-[90vh] overflow-y-auto lg:ml-[20vw] overflow-x-hidden scrollbar-hide">
       <div className="flex items-center md:px-2 lg:px-0 justify-between w-[98vw] lg:w-[75vw]">

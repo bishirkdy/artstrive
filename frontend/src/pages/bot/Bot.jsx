@@ -3,6 +3,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { socket } from "../bot/Socket";
 import logo from "../../assets/logo.png";
 import { useProgramCountQuery } from "../../redux/api/programApi";
+import { GoHomeFill } from "react-icons/go";
 
 export default function Bot() {
   const defaultMessages = [
@@ -123,7 +124,7 @@ export default function Bot() {
       setLoading(true);
       socket.emit("getStudentsZones", (res) => {
         setLoading(false);
-        const studentZone = Array.isArray(res?.data?.data) ? res.data.data : [];   
+        const studentZone = Array.isArray(res?.data?.data) ? res.data.data : [];
         if (!studentZone.length) {
           setChat((prev) => [
             ...prev,
@@ -213,7 +214,7 @@ export default function Bot() {
     socket.emit("getStudentScore", zone._id, (res) => {
       setLoading(false);
       const studentsScore = Array.isArray(res?.data?.data) ? res.data.data : [];
-        const showingCount = res?.data?.showingCount;        
+      const showingCount = res?.data?.showingCount;
       if (!studentsScore.length) {
         setChat((prev) => [
           ...prev,
@@ -223,7 +224,12 @@ export default function Bot() {
       }
       setChat((prev) => [
         ...prev,
-        { from: "bot", text: `Scores in ${zone.zone}:`, studentsScore , showingCount },
+        {
+          from: "bot",
+          text: `Scores in ${zone.zone}:`,
+          studentsScore,
+          showingCount,
+        },
       ]);
     });
   };
@@ -375,7 +381,8 @@ export default function Bot() {
                       ) : (
                         <>
                           <p className="text-xs text-gray-400 mb-3">
-                            {msg.showingCount > 0 && msg.showingCount !== programCount
+                            {msg.showingCount > 0 &&
+                            msg.showingCount !== programCount
                               ? `After ${msg.showingCount} ${
                                   msg.showingCount === 1 ? "result" : "results"
                                 }`
@@ -398,7 +405,8 @@ export default function Bot() {
                                 >
                                   <div className="flex justify-between items-center mb-2">
                                     <span className="font-semibold text-sm">
-                                      {t.teamName}
+                                      {t.teamName.charAt(0).toUpperCase() +
+                                        t.teamName.slice(1) || "-"}
                                     </span>
                                     <span className="text-lg">{rankBadge}</span>
                                   </div>
@@ -431,8 +439,9 @@ export default function Bot() {
                         </p>
                       ) : (
                         <>
-                            <p className="text-xs text-gray-400 mb-3">
-                            {msg.showingCount > 0 && msg.showingCount !== programCount
+                          <p className="text-xs text-gray-400 mb-3">
+                            {msg.showingCount > 0 &&
+                            msg.showingCount !== programCount
                               ? `After ${msg.showingCount} ${
                                   msg.showingCount === 1 ? "result" : "results"
                                 }`
@@ -449,7 +458,8 @@ export default function Bot() {
                               >
                                 <div className="flex justify-between items-center mb-2">
                                   <span className="font-semibold text-sm">
-                                    {s.name}
+                                    {s.name.charAt(0).toUpperCase() +
+                                      s.name.slice(1) || "-"}
                                   </span>
                                   <span className="text-sm text-yellow-400">
                                     ⭐
@@ -485,7 +495,7 @@ export default function Bot() {
                       {/* Results Cards */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {msg.programResult
-                          .filter((it) => it.score && it.score > 0)
+                          .filter((it) => it.totalScore && it.totalScore > 0)
                           .map((it) => {
                             let rankBadge = "-";
 
@@ -510,7 +520,8 @@ export default function Bot() {
                               >
                                 <div className="flex justify-between items-center mb-2">
                                   <span className="font-semibold text-sm">
-                                    {it.student?.name}
+                                    {it.student?.name.charAt(0).toUpperCase() +
+                                      it.student?.name?.slice(1) || "-"}
                                   </span>
                                   <span className="text-sm">{rankBadge}</span>
                                 </div>
@@ -524,9 +535,9 @@ export default function Bot() {
                                   Zone: {it.student?.zone?.zone}
                                 </p>
                                 <div className="flex flex-wrap gap-2 mt-2">
-                                  <span className="px-2 py-1 bg-indigo-600 rounded-full text-xs font-medium">
+                                  {/* <span className="px-2 py-1 bg-indigo-600 rounded-full text-xs font-medium">
                                     Score: {it.score ?? "-"}
-                                  </span>
+                                  </span> */}
                                   <span className="px-2 py-1 bg-green-600 rounded-full text-xs font-medium">
                                     Code: {it.codeLetter || "-"}
                                   </span>
@@ -568,12 +579,13 @@ export default function Bot() {
 
           {/* Home Reset */}
           {chat.length > 0 && chat[chat.length - 1].from === "bot" && (
-            <div className="flex justify-center mt-4">
+            <div className="flex justify-end mr-[8vw]">
               <button
                 onClick={resetChat}
-                className="px-5 py-2 rounded-full bg-gradient-to-r from-red-500 to-pink-600 text-white text-sm font-medium shadow-md hover:opacity-90 transition"
+                className="px-5 py-2 flex flex-row items-center gap-2 rounded-full bg-gradient-to-r from-red-500 to-pink-600 text-white text-sm font-medium shadow-md hover:opacity-90 transition"
               >
-                ⬅ Home
+                <GoHomeFill />
+                <span>Home</span>
               </button>
             </div>
           )}

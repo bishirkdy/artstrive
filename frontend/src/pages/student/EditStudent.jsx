@@ -18,8 +18,8 @@ const EditStudent = () => {
   const [zone, setZone] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useSelector((state) => state.auth);
-  const admin = user.user.isAdmin === true;
-  const teamsCheck = user.user.isAdmin === false;
+  const admin = user.isAdmin === true;
+  const teamsCheck = user.isAdmin === false;
   const { _id } = useParams();
 
   const {
