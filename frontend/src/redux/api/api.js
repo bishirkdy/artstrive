@@ -5,8 +5,8 @@ import { logOut } from "../features/authSlice";
 // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const baseQuery = fetchBaseQuery({
-  // baseUrl: "/api",
-  baseUrl : BASE_URL,
+  baseUrl: "/api",
+  // baseUrl : BASE_URL,
   credentials: "include",
 });
 
