@@ -91,7 +91,7 @@ const Notification = () => {
                   <span className="text-sm text-gray-200 animate-pulse">
                     {dayjs(d.notificationDate).fromNow()}
                   </span>
-                  {user?.user?.isAdmin && (
+                  {user?.isAdmin && (
                     <span
                       disabled={deleteLoading}
                       className="cursor-pointer text-red-500 hover:text-red-800"

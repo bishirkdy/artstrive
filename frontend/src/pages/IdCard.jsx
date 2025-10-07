@@ -9,7 +9,7 @@ import ErrorMessage from "../components/ErrorMessage";
 const portrait = "w-[53.98mm] h-[85.6mm]";
 const landscape = "w-[97.86mm] h-[39.88mm]";
 const claud_profile = import.meta.env.VITE_CLOUDINARY_PROFILE_URL;
-const printWidth = window.innerWidth > 769;
+// const printWidth = window.innerWidth > 769;
 const xShiftForAlign = (align) =>
   align === "center"
     ? "translateX(-50%)"

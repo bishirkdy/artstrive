@@ -41,30 +41,29 @@ const AddCodeLetter = () => {
     return <ErrorMessage code={code} title={title} details={details} />;
   }
 
-  // Add this inside your component
 
 const handleGenerateCodeLetters = () => {
   const active = selectedStudent.filter((s) => activeStudents[s.student._id]);
   if (active.length === 0) return;
 
-  // Start scratch effect
-  const scrambleDuration = 3000; // 1.5 seconds
-  const intervalTime = 100; // change letters every 0.1s
-
+  const scrambleDuration = 3000;
+  const intervalTime = 100;
   const tempLetters = {};
-  active.forEach((s) => (tempLetters[s.student._id] = "")); // initialize
+  active.forEach((s) => (tempLetters[s.student._id] = ""));
 
   let elapsed = 0;
   const scrambleInterval = setInterval(() => {
     active.forEach((s) => {
       const randomChar = String.fromCharCode(65 + Math.floor(Math.random() * 26));
       tempLetters[s.student._id] = randomChar;
+      
     });
     setCodeLetters({ ...tempLetters });
     elapsed += intervalTime;
     if (elapsed >= scrambleDuration) {
       clearInterval(scrambleInterval);
       // Final letters in alphabetical order
+      
       const shuffled = active
         .map((s) => ({ value: s, sort: Math.random() }))
         .sort((a, b) => a.sort - b.sort)
@@ -72,8 +71,9 @@ const handleGenerateCodeLetters = () => {
 
       const finalLetters = {};
       shuffled.forEach((s, i) => {
-        finalLetters[s.student._id] = String.fromCharCode(65 + i); // A, B, C...
+        finalLetters[s.student._id] = String.fromCharCode(65 + i);
       });
+      
       setCodeLetters((prev) => ({ ...prev, ...finalLetters }));
     }
   }, intervalTime);
