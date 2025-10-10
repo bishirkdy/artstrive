@@ -68,4 +68,5 @@ export default function filterProgramsRank(program, res, next) {
   ].sort((a, b) => b.totalScore - a.totalScore);
 
   res.json(updatedProgram);
+  
 }

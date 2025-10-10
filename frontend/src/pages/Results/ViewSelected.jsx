@@ -181,7 +181,7 @@ const ViewSelected = () => {
           <>
             <div className="flex flex-row justify-center w-full">
               <h1 className="text-2xl font-medium text-center">
-                Result {programHeader.program?.declaredOrder}
+                Result {programHeader?.program?.declaredOrder}
               </h1>
             </div>
             <div>
@@ -189,11 +189,11 @@ const ViewSelected = () => {
                 {["id", "name", "type" , "stage"].map((key) => (
                   <h5 key={key}>
                     {`${key.charAt(0).toUpperCase() + key.slice(1)}: ${
-                      programHeader.program?.[key] || ""
+                      programHeader?.program?.[key] || ""
                     }`}
                   </h5>
                 ))}
-                <h5>{`Zone: ${programHeader.program?.zone?.zone || ""}`}</h5>
+                <h5>{`Zone: ${programHeader?.program?.zone?.zone || ""}`}</h5>
               </div>
             </div>
 

@@ -626,31 +626,33 @@ export const viewMarks = async (req, res, next) => {
 
 export const checkMarkForDeclare = async (req, res, next) => {
   try {
-  const program = await StudentProgram.find({ totalScore: { $exists: true, $ne: null } })
-  .populate({
-    path: "program",
-    match: { declare: false },
-    select: "name zone type id declaredOrder stage score",
-    populate: {
-      path: "zone",
-      select: "zone",
-    },
-  })
-  .populate({
-    path: "student",
-    select: "name zone id team",
-    populate: [
-      {
-        path: "zone",
-        select: "zone",
-      },
-      {
-        path: "team",
-        model: "Auth",
-        select: "teamName",
-      },
-    ],
-  });
+    const program = await StudentProgram.find({
+      totalScore: { $exists: true, $ne: null },
+    })
+      .populate({
+        path: "program",
+        match: { declare: false },
+        select: "name zone type id declaredOrder stage score",
+        populate: {
+          path: "zone",
+          select: "zone",
+        },
+      })
+      .populate({
+        path: "student",
+        select: "name zone id team",
+        populate: [
+          {
+            path: "zone",
+            select: "zone",
+          },
+          {
+            path: "team",
+            model: "Auth",
+            select: "teamName",
+          },
+        ],
+      });
     filterProgramsRank(program, res, next);
   } catch (error) {
     next(error);
@@ -923,7 +925,7 @@ export const unDeclareResults = async (req, res, next) => {
 
 export const showDeclaredresults = async (req, res, next) => {
   try {
-    const program = await StudentProgram.find()
+    let program = await StudentProgram.find()
       .populate({
         path: "program",
         match: { declare: true },
@@ -948,6 +950,9 @@ export const showDeclaredresults = async (req, res, next) => {
           },
         ],
       });
+    program = program.filter(
+      (p) => p.program && p.student && p.totalScore != null
+    );
 
     filterProgramsRank(program, res, next);
   } catch (error) {
@@ -970,7 +975,7 @@ export const declaredPrograms = async (req, res, next) => {
 export const viewOneResult = async (req, res, next) => {
   try {
     const { _id } = req.params;
-    const program = await StudentProgram.find({ program: _id })
+    let program = await StudentProgram.find({ program: _id })
       .populate({
         path: "program",
         match: { declare: true },
@@ -995,6 +1000,10 @@ export const viewOneResult = async (req, res, next) => {
           },
         ],
       });
+       program = program.filter(
+      (p) => p.program && p.student && p.totalScore != null
+    );
+     
     filterProgramsRank(program, res, next);
   } catch (error) {
     next(error);
@@ -1230,7 +1239,7 @@ export const studentScoreByStage = async (req, res, next) => {
   try {
     const { stage } = req.body;
     console.log(stage);
-    
+
     if (!stage) return next(new CustomError("field is required"));
     const publishingCount = await ShowingCount.findOne().select("-_id");
     const showingCount = Number(publishingCount?.showingCount) || 0;
@@ -1286,7 +1295,7 @@ export const studentScoreByStage = async (req, res, next) => {
           name: { $first: "$studentData.name" },
           team: { $first: "$teamData.teamName" },
           id: { $first: "$studentData.id" },
-          zone : {$first : "$zoneData.zone"}
+          zone: { $first: "$zoneData.zone" },
         },
       },
       {
@@ -1296,7 +1305,7 @@ export const studentScoreByStage = async (req, res, next) => {
           name: 1,
           totalScore: 1,
           team: 1,
-          zone : 1
+          zone: 1,
         },
       },
       { $sort: { totalScore: -1 } },

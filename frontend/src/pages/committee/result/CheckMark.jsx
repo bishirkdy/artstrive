@@ -48,7 +48,6 @@ useEffect(()=> {
               key={program._id}
               className="mb-12 p-4 border-b border-gray-500 last:border-none"
             >
-
               <div className="header-row flex flex-wrap justify-center md:justify-between w-full text-sm md:text-base mt-4 gap-2 px-4 text-white">
                 {["id", "name", "type", "stage"].map((key) => (
                   <h5 key={key}>
