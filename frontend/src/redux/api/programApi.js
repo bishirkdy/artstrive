@@ -89,7 +89,7 @@ const programApi = createApiSlice.injectEndpoints({
         addScoreOfProgram : builder.mutation({
             query : (body) => ({
                 url: `${PROGRAM_URL}/addscoreofprogram`,
-                method: "POST",
+                method: "PUT",
                 body: body,
             })
         }),

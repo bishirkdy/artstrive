@@ -505,71 +505,75 @@ export const addScoreOfAProgram = async (req, res, next) => {
   try {
     const { programId, mark } = req.body;
 
-    if (!programId || !mark)
+    if (!programId || !mark) {
       return next(new CustomError("All fields are required"));
+    }
 
-    const program = await Program.findOne({ _id: programId });
-    if (!program) throw new CustomError("Program not found");
+    const program = await Program.findById(programId);
+    if (!program) return next(new CustomError("Program not found"));
 
     const programScore = program.score;
 
-    let marks = Object.entries(mark).map(([studentId, studentScore]) => ({
+    const marks = Object.entries(mark).map(([studentId, studentScore]) => ({
       studentId,
       studentScore,
     }));
 
-    if (
-      marks.some(({ studentScore }) => studentScore > 100 || studentScore < 0)
-    ) {
+    if (marks.some(({ studentScore }) => studentScore < 0 || studentScore > 100)) {
       return next(new CustomError("Invalid score value"));
     }
 
-    if (marks.length === 0) {
-      return next(
-        new CustomError("No valid marks found in the given range (0-100)")
-      );
+    const validMarks = marks.filter(({ studentScore }) => studentScore > 0);
+    if (validMarks.length === 0) {
+      return next(new CustomError("No valid marks found"));
     }
+
+    let rankScores;
+    switch (programScore) {
+      case 5: rankScores = [5, 3, 1]; break;
+      case 10: rankScores = [10, 7, 3]; break;
+      case 15: rankScores = [15, 10, 5]; break;
+      case 20: rankScores = [20, 15, 10]; break;
+      case 30: rankScores = [30, 20, 10]; break;
+      default: return next(new CustomError("Invalid program score value"));
+    }
+
+    const sortedMarks = [...validMarks].sort((a, b) => b.studentScore - a.studentScore);
+    const uniqueScores = [...new Set(sortedMarks.map((s) => s.studentScore))];
 
     let topStudents = [];
-    let first, second, third;
-    if (programScore === 5) {
-      [first, second, third] = [5, 3, 1];
-    } else if (programScore === 10) {
-      [first, second, third] = [10, 7, 3];
-    } else if (programScore === 15) {
-      [first, second, third] = [15, 10, 5];
-    } else if (programScore === 20) {
-      [first, second, third] = [20, 15, 10];
-    } else if (programScore === 30) {
-      [first, second, third] = [30, 20, 10];
-    } else {
-      return next(new CustomError("Invalid program score value"));
-    }
-    const rankScores = [first, second, third];
-    const sortedMarks = [...marks].sort(
-      (a, b) => b.studentScore - a.studentScore
-    );
-    const uniqueScores = [...new Set(sortedMarks.map((s) => s.studentScore))];
-    for (let i = 0; i < uniqueScores.length; i++) {
-      if (i < 3) {
-        topStudents.push(
-          ...sortedMarks
-            .filter((s) => s.studentScore === uniqueScores[i])
-            .map((s) => ({ ...s, score: rankScores[i] }))
-        );
-      } else {
-        topStudents.push(
-          ...sortedMarks
-            .filter((s) => s.studentScore === uniqueScores[i])
-            .map((s) => ({ ...s }))
-        );
-      }
-    }
+    uniqueScores.forEach((scoreValue, index) => {
+      const studentsWithThisScore = sortedMarks.filter(s => s.studentScore === scoreValue);
+      studentsWithThisScore.forEach(s => {
+        topStudents.push({
+          ...s,
+          score: index < 3 ? rankScores[index] : 0
+        });
+      });
+    });
 
+    // 1. Find all student-program for this program
+    const existingStudentPrograms = await StudentProgram.find({ program: programId });
+    const incomingStudentIds = topStudents.map(({ studentId }) => studentId);
+
+    // 2. For those not in incoming, unset fields
+    const toUnsetIds = existingStudentPrograms
+      .map(sp => sp.student.toString())
+      .filter(studentId => !incomingStudentIds.includes(studentId));
+    
+    await Promise.all(
+      toUnsetIds.map(studentId =>
+        StudentProgram.findOneAndUpdate(
+          { student: studentId, program: programId },
+          { $unset: { score: "", grade: "", totalScore: "" } }
+        )
+      )
+    );
+
+    // 3. For those in incoming, update/add
     const updatedMarks = await Promise.all(
       topStudents.map(async ({ studentId, studentScore, score }) => {
         let grade, gradeScore;
-
         if (studentScore <= 39) {
           grade = "";
           gradeScore = 0;
@@ -586,9 +590,8 @@ export const addScoreOfAProgram = async (req, res, next) => {
           grade = "A+";
           gradeScore = 5;
         }
-        const totalScore = Math.round(
-          (Number(score) || 0) + (Number(gradeScore) || 0)
-        );
+
+        const totalScore = Math.round((Number(score) || 0) + gradeScore);
         const finalTotalScore = totalScore > 0 ? totalScore : null;
 
         return StudentProgram.findOneAndUpdate(
@@ -598,11 +601,9 @@ export const addScoreOfAProgram = async (req, res, next) => {
         );
       })
     );
-    if (updatedMarks.length === 0) {
-      throw new CustomError("No students found");
-    }
 
     res.status(200).json(updatedMarks);
+
   } catch (error) {
     next(error);
   }
@@ -1000,10 +1001,11 @@ export const viewOneResult = async (req, res, next) => {
           },
         ],
       });
-       program = program.filter(
+    program = program.filter(
       (p) => p.program && p.student && p.totalScore != null
     );
-     
+    console.log(program);
+
     filterProgramsRank(program, res, next);
   } catch (error) {
     next(error);

@@ -18,7 +18,7 @@ router.get('/getprogramforcodeletter',authenticateJWT , authenticatedAdmin , get
 router.get('/getprogramforcodeletteforedit',authenticateJWT , authenticatedAdmin , getProgramForCodeLetterForEdit)
 router.post('/addcodeletter',authenticateJWT , authenticatedAdmin , addCodeLetter)
 router.patch('/editcodeletter',authenticateJWT , authenticatedAdmin , editCodeLetter)
-router.post('/addscoreofprogram',authenticateJWT , authenticatedAdmin , addScoreOfAProgram)
+router.put('/addscoreofprogram',authenticateJWT , authenticatedAdmin , addScoreOfAProgram)
 router.post('/viewmarks',authenticateJWT , authenticatedAdmin , viewMarks)
 
 router.post('/declare', authenticateJWT , authenticatedAdmin , declareResults)
