@@ -200,6 +200,8 @@ export const viewOneResult = async (programId) => {
       });
 
     const ranked = await filterProgramsRankForSocket(program);
+    console.log(ranked);
+    
     return { success: true, data: ranked };
   } catch (error) {
     console.error("Error in viewOneResult:", error);

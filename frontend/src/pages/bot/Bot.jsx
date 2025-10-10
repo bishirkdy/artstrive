@@ -492,7 +492,6 @@ export default function Bot() {
                           "Program Results"}
                       </h3>
 
-                      {/* Results Cards */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {msg.programResult
                           .filter((it) => it.totalScore && it.totalScore > 0)
@@ -523,7 +522,7 @@ export default function Bot() {
                                     {it.student?.name.charAt(0).toUpperCase() +
                                       it.student?.name?.slice(1) || "-"}
                                   </span>
-                                  <span className="text-sm">{rankBadge}</span>
+                                  <span className="text-xl">{rankBadge}</span>
                                 </div>
                                 <p className="text-xs text-gray-400 mb-1">
                                   ID: {it.student?.id}
