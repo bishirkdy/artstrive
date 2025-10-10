@@ -522,7 +522,7 @@ export default function Bot() {
                                     {it.student?.name.charAt(0).toUpperCase() +
                                       it.student?.name?.slice(1) || "-"}
                                   </span>
-                                  <span className="text-xl">{rankBadge}</span>
+                                  <span className="text-3xl">{rankBadge}</span>
                                 </div>
                                 <p className="text-xs text-gray-400 mb-1">
                                   ID: {it.student?.id}

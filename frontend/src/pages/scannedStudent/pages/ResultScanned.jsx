@@ -69,7 +69,7 @@ const ResultScanned = () => {
                   <span className="font-semibold text-sm text-white">
                     {d.program?.name.charAt(0).toUpperCase() + d.program?.name?.slice(1) || "-"}
                   </span>
-                  <span className="text-sm">{rankBadge}</span>
+                  <span className="text-3xl">{rankBadge}</span>
                 </div>
 
                 {/* Program Info */}
