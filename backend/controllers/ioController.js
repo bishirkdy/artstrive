@@ -199,9 +199,7 @@ export const viewOneResult = async (programId) => {
         ],
       });
 
-    const ranked = await filterProgramsRankForSocket(program);
-    console.log(ranked);
-    
+    const ranked = await filterProgramsRankForSocket(program);    
     return { success: true, data: ranked };
   } catch (error) {
     console.error("Error in viewOneResult:", error);

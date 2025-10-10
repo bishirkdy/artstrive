@@ -1,8 +1,11 @@
-// filterProgramsRank.js
 export default function filterProgramsRank(program, res, next) {
-  if (!program)
-    return next(new CustomError("Program not found or not declared"));
+  
   let updatedProgram = [];
+
+  const normalize = (p, rank) => {
+    const base = p.toObject ? p.toObject() : p;
+    return { ...base, rank };
+  };
 
   const programsWithScore10 = program
     .filter((p) => p.program && p.program.score === 10)
@@ -11,8 +14,7 @@ export default function filterProgramsRank(program, res, next) {
       if ([10].includes(p.score)) rank = "first";
       else if ([7].includes(p.score)) rank = "second";
       else if ([3].includes(p.score)) rank = "third";
-
-      return { ...p.toObject(), rank };
+      return normalize(p, rank);
     });
 
   const programsWithScore5 = program
@@ -22,8 +24,7 @@ export default function filterProgramsRank(program, res, next) {
       if ([5].includes(p.score)) rank = "first";
       else if ([3].includes(p.score)) rank = "second";
       else if ([1].includes(p.score)) rank = "third";
-
-      return { ...p.toObject(), rank };
+      return normalize(p, rank);
     });
 
   const programsWithScore15 = program
@@ -33,8 +34,7 @@ export default function filterProgramsRank(program, res, next) {
       if ([15].includes(p.score)) rank = "first";
       else if ([10].includes(p.score)) rank = "second";
       else if ([5].includes(p.score)) rank = "third";
-
-      return { ...p.toObject(), rank };
+      return normalize(p, rank);
     });
 
   const programsWithScore20 = program
@@ -44,8 +44,7 @@ export default function filterProgramsRank(program, res, next) {
       if ([20].includes(p.score)) rank = "first";
       else if ([15].includes(p.score)) rank = "second";
       else if ([10].includes(p.score)) rank = "third";
-
-      return { ...p.toObject(), rank };
+      return normalize(p, rank);
     });
 
   const programsWithScore30 = program
@@ -55,8 +54,7 @@ export default function filterProgramsRank(program, res, next) {
       if ([30].includes(p.score)) rank = "first";
       else if ([20].includes(p.score)) rank = "second";
       else if ([10].includes(p.score)) rank = "third";
-
-      return { ...p.toObject(), rank };
+      return normalize(p, rank);
     });
 
   updatedProgram = [
@@ -68,5 +66,4 @@ export default function filterProgramsRank(program, res, next) {
   ].sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0));
 
   res.json(updatedProgram);
-  
 }

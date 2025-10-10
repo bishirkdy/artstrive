@@ -18,6 +18,8 @@ const ResultScanned = () => {
         <Loader />
       </div>
     );
+    console.log(data);
+    
 
   if (isError) {
     const code = error?.originalStatus || "Error";

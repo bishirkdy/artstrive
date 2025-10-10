@@ -51,7 +51,7 @@ export const getResultByScannedId = async (req, res, next) => {
       .populate({
         path: "student",
         match: { id },
-        select: "id",
+        select: "id team",
       })
       .populate({
         path: "program",
@@ -65,9 +65,40 @@ export const getResultByScannedId = async (req, res, next) => {
     if (!programs) {
       return next(new CustomError("Program not found", 404));
     }
-    const program = programs.filter(
+    let program = programs.filter(
       (prm) => prm.student !== null && prm.program !== null
     );
+
+       program = await Promise.all(
+      program.map(async (prm) => {
+        // Handle group program case
+        if (prm.program.type === "Group" && (!prm.totalScore || prm.totalScore === 0)) {
+          const teamMate = await StudentProgram.findOne({
+            program: prm.program._id,
+            student: { $ne: prm.student._id }, // skip same student
+          }).populate({
+            path: "student",
+            match: { team: prm.student.team },
+          });
+
+          if (teamMate && teamMate.totalScore) {
+            // convert prm safely
+            const base = prm.toObject ? prm.toObject() : prm;
+            return {
+              ...base,
+              totalScore: teamMate.totalScore,
+              score: teamMate.score,
+              grade: teamMate.grade,
+              codeLetter: teamMate.codeLetter,
+            };
+          }
+        }
+
+        // normal case
+        return prm.toObject ? prm.toObject() : prm;
+      })
+    );
+    
    filterProgramsRank(program, res, next);
     
 
